@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/config/app_config.dart';
 import '../core/theme/app_theme.dart';
 import 'router/app_router.dart';
 
@@ -10,9 +11,10 @@ class App extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
+    final config = ref.watch(appConfigProvider);
 
     return MaterialApp.router(
-      title: 'Wallet Owner',
+      title: config.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       routerConfig: router,

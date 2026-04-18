@@ -1,0 +1,44 @@
+import 'package:flutter/material.dart';
+
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_radii.dart';
+import '../../../../core/constants/app_spacing.dart';
+
+class RenewalSuccessBanner extends StatelessWidget {
+  const RenewalSuccessBanner({
+    required this.requestId,
+    required this.targetPlanName,
+    super.key,
+  });
+
+  final String requestId;
+  final String targetPlanName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.successSoft,
+        borderRadius: BorderRadius.circular(AppRadii.md),
+        border: Border.all(color: AppColors.success.withValues(alpha: 0.16)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.check_circle_outline, color: AppColors.success),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              'Renewal request submitted for $targetPlanName. Ref: $requestId',
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: AppColors.success),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -21,6 +21,8 @@ class Session extends Equatable {
 
   String get roleLabel => role.name.toUpperCase();
 
+  String? get email => userId.contains('@') ? userId : null;
+
   String get tenantName => _toDisplayLabel(tenantId);
 
   Map<String, dynamic> toJson() {

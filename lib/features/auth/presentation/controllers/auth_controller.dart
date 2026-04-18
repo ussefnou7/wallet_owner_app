@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/errors/app_failure.dart';
 import '../../domain/entities/session.dart';
 import '../../domain/repositories/auth_repository.dart';
 
@@ -77,6 +78,8 @@ class AuthController extends StateNotifier<AuthState> {
         password: password,
       );
       state = AuthState.authenticated(session);
+    } on AppFailureException catch (error) {
+      state = AuthState.unauthenticated(error.failure.message);
     } catch (_) {
       state = AuthState.unauthenticated('Unable to sign in. Please try again.');
     }

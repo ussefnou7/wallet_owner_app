@@ -28,4 +28,8 @@ class AppSecureStorage {
   Future<void> delete(String key) {
     return _storage.delete(key: key);
   }
+
+  Future<void> deleteAll() {
+    return _storage.deleteAll();
+  }
 }
