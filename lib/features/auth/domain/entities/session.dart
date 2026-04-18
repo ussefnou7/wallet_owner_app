@@ -19,6 +19,10 @@ class Session extends Equatable {
   final String userId;
   final String displayName;
 
+  String get roleLabel => role.name.toUpperCase();
+
+  String get tenantName => _toDisplayLabel(tenantId);
+
   Map<String, dynamic> toJson() {
     return {
       'role': role.name,
@@ -48,4 +52,20 @@ class Session extends Equatable {
     userId,
     displayName,
   ];
+
+  static String _toDisplayLabel(String value) {
+    final normalized = value.trim();
+    if (normalized.isEmpty) {
+      return '';
+    }
+
+    return normalized
+        .split(RegExp(r'[-_\s]+'))
+        .where((segment) => segment.isNotEmpty)
+        .map(
+          (segment) =>
+              '${segment[0].toUpperCase()}${segment.substring(1).toLowerCase()}',
+        )
+        .join(' ');
+  }
 }

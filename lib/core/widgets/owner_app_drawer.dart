@@ -16,33 +16,37 @@ class OwnerAppDrawer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final session = ref.watch(authControllerProvider).session;
+    final ownerName = session?.displayName ?? 'Wallet Owner';
+    final tenantName = session?.tenantName ?? 'Tenant';
+    final roleLabel = session?.roleLabel ?? 'OWNER';
     final items = [
-      _DrawerItemData(
+      const _DrawerItemData(
         label: 'Dashboard',
         route: AppRoutes.dashboard,
         icon: Icons.grid_view_rounded,
       ),
-      _DrawerItemData(
+      const _DrawerItemData(
         label: 'Users',
         route: AppRoutes.users,
         icon: Icons.people_outline_rounded,
       ),
-      _DrawerItemData(
+      const _DrawerItemData(
         label: 'Branches',
         route: AppRoutes.branches,
         icon: Icons.storefront_outlined,
       ),
-      _DrawerItemData(
+      const _DrawerItemData(
         label: 'Plans',
         route: AppRoutes.plans,
         icon: Icons.workspace_premium_outlined,
       ),
-      _DrawerItemData(
+      const _DrawerItemData(
         label: 'Request Renewal',
         route: AppRoutes.requestRenewal,
         icon: Icons.autorenew_rounded,
       ),
-      _DrawerItemData(
+      const _DrawerItemData(
         label: 'Settings',
         route: AppRoutes.settings,
         icon: Icons.settings_outlined,
@@ -61,10 +65,10 @@ class OwnerAppDrawer extends ConsumerWidget {
                 color: AppColors.surfaceVariant,
                 borderRadius: BorderRadius.circular(AppRadii.lg),
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 22,
                     backgroundColor: AppColors.primary,
                     child: Icon(
@@ -73,12 +77,12 @@ class OwnerAppDrawer extends ConsumerWidget {
                       size: AppDimensions.iconMd,
                     ),
                   ),
-                  SizedBox(height: AppSpacing.md),
-                  Text('Wallet Owner'),
-                  SizedBox(height: AppSpacing.xs),
-                  Text('Tenant Demo Workspace'),
-                  SizedBox(height: AppSpacing.xs),
-                  Text('OWNER'),
+                  const SizedBox(height: AppSpacing.md),
+                  Text(ownerName),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(tenantName),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(roleLabel),
                 ],
               ),
             ),

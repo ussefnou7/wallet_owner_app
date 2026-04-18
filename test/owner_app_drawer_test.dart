@@ -1,0 +1,57 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:wallet_owner_app/app/router/app_routes.dart';
+import 'package:wallet_owner_app/core/widgets/owner_app_drawer.dart';
+import 'package:wallet_owner_app/features/auth/domain/entities/session.dart';
+import 'package:wallet_owner_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:wallet_owner_app/features/auth/presentation/controllers/auth_controller.dart';
+
+void main() {
+  testWidgets('renders owner identity from current session', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => AuthController(
+              authRepository: _FakeAuthRepository(),
+              initialSession: const Session(
+                accessToken: 'token',
+                refreshToken: 'refresh',
+                role: UserRole.owner,
+                tenantId: 'tenant-demo',
+                userId: 'owner@example.com',
+                displayName: 'Owner User',
+              ),
+            ),
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: OwnerAppDrawer(currentRoute: AppRoutes.dashboard),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Owner User'), findsOneWidget);
+    expect(find.text('Tenant Demo'), findsOneWidget);
+    expect(find.text('OWNER'), findsOneWidget);
+  });
+}
+
+class _FakeAuthRepository implements AuthRepository {
+  @override
+  Future<Session?> getCurrentSession() async => null;
+
+  @override
+  Future<Session> login({required String email, required String password}) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> logout() async {}
+}
