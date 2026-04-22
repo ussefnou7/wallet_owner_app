@@ -5,6 +5,7 @@ import '../../features/auth/domain/entities/session.dart';
 import '../../features/auth/presentation/controllers/auth_controller.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
+import '../../core/widgets/owner_app_shell.dart';
 import '../../features/branches/presentation/pages/branches_page.dart';
 import '../../features/dashboard/presentation/pages/owner_dashboard_page.dart';
 import '../../features/plans/presentation/pages/plans_page.dart';
@@ -63,25 +64,35 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'login',
         builder: (context, state) => const LoginPage(),
       ),
-      GoRoute(
-        path: AppRoutes.dashboard,
-        name: 'dashboard',
-        builder: (context, state) => const OwnerDashboardPage(),
-      ),
-      GoRoute(
-        path: AppRoutes.wallets,
-        name: 'wallets',
-        builder: (context, state) => const WalletsPage(),
-      ),
-      GoRoute(
-        path: AppRoutes.transactions,
-        name: 'transactions',
-        builder: (context, state) => const TransactionsPage(),
-      ),
-      GoRoute(
-        path: AppRoutes.createTransaction,
-        name: 'create-transaction',
-        builder: (context, state) => const CreateTransactionPage(),
+      ShellRoute(
+        builder: (context, state, child) {
+          return OwnerAppShell(
+            currentRoute: state.matchedLocation,
+            child: child,
+          );
+        },
+        routes: [
+          GoRoute(
+            path: AppRoutes.dashboard,
+            name: 'dashboard',
+            builder: (context, state) => const OwnerDashboardPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.wallets,
+            name: 'wallets',
+            builder: (context, state) => const WalletsPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.transactions,
+            name: 'transactions',
+            builder: (context, state) => const TransactionsPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.createTransaction,
+            name: 'create-transaction',
+            builder: (context, state) => const CreateTransactionPage(),
+          ),
+        ],
       ),
       GoRoute(
         path: AppRoutes.reports,

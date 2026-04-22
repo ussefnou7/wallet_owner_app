@@ -8,9 +8,9 @@ import '../core/network/auth_interceptor.dart';
 import '../core/network/dio_provider.dart';
 import '../core/storage/app_secure_storage.dart';
 import '../features/auth/data/repositories/app_auth_repository.dart';
-import '../features/auth/data/services/auth_mock_data_source.dart';
 import '../features/auth/data/services/auth_remote_data_source.dart';
 import '../features/auth/data/services/session_local_data_source.dart';
+import '../features/auth/domain/entities/session.dart';
 import '../features/auth/domain/repositories/auth_repository.dart';
 import '../features/auth/presentation/controllers/auth_controller.dart';
 import '../features/branches/data/repositories/mock_branches_repository.dart';
@@ -40,15 +40,12 @@ Future<ProviderContainer> bootstrap() async {
   final dio = createDio(config: config, authInterceptor: authInterceptor);
   final apiClient = DioApiClient(dio);
   const apiExceptionMapper = ApiExceptionMapper();
-  const authMockDataSource = AuthMockDataSource();
   final authRemoteDataSource = DioAuthRemoteDataSource(
     apiClient: apiClient,
     exceptionMapper: apiExceptionMapper,
   );
   final authRepository = AppAuthRepository(
-    config: config,
     sessionLocalDataSource: localDataSource,
-    mockDataSource: authMockDataSource,
     remoteDataSource: authRemoteDataSource,
   );
   final walletsRepository = MockWalletsRepository();
@@ -57,7 +54,12 @@ Future<ProviderContainer> bootstrap() async {
   final branchesRepository = MockBranchesRepository();
   final plansRepository = MockPlansRepository();
   final renewalRequestsRepository = MockRenewalRequestsRepository();
-  final initialSession = await authRepository.getCurrentSession();
+  Session? initialSession;
+  try {
+    initialSession = await authRepository.getCurrentSession();
+  } catch (_) {
+    initialSession = null;
+  }
 
   return ProviderContainer(
     overrides: [
@@ -69,7 +71,6 @@ Future<ProviderContainer> bootstrap() async {
       dioProvider.overrideWithValue(dio),
       apiClientProvider.overrideWithValue(apiClient),
       apiExceptionMapperProvider.overrideWithValue(apiExceptionMapper),
-      authMockDataSourceProvider.overrideWithValue(authMockDataSource),
       authRemoteDataSourceProvider.overrideWithValue(authRemoteDataSource),
       authRepositoryProvider.overrideWithValue(authRepository),
       walletsRepositoryProvider.overrideWithValue(walletsRepository),

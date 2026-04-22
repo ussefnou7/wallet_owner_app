@@ -1,22 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../../app/router/app_routes.dart';
-import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/utils/input_formatters.dart';
-import '../../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../../core/widgets/app_buttons.dart';
 import '../../../../core/widgets/app_dropdown_field.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_form_section.dart';
 import '../../../../core/widgets/app_loading_view.dart';
-import '../../../../core/widgets/app_page_scaffold.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
-import '../../../../core/widgets/owner_app_drawer.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../wallets/domain/entities/wallet.dart';
 import '../../../wallets/presentation/controllers/wallets_controller.dart';
@@ -65,209 +59,187 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
-      child: AppPageScaffold(
-        title: 'Create Transaction',
-        actions: [
-          Builder(
-            builder: (context) {
-              return IconButton(
-                onPressed: () => Scaffold.of(context).openEndDrawer(),
-                icon: const Icon(Icons.menu_rounded),
-              );
-            },
-          ),
-        ],
-        endDrawer: const OwnerAppDrawer(
-          currentRoute: AppRoutes.createTransaction,
+      child: walletsState.when(
+        loading: () => const AppLoadingView(message: 'Loading wallet options...'),
+        error: (error, stackTrace) => AppErrorState(
+          message: 'Unable to load wallet options.',
+          onRetry: () => ref.read(walletsControllerProvider.notifier).reload(),
         ),
-        bottomNavigationBar: AppBottomNavBar(
-          currentRoute: AppRoutes.createTransaction,
-          onDestinationSelected: context.go,
-        ),
-        maxWidth: AppDimensions.compactContentMaxWidth,
-        child: walletsState.when(
-          loading: () =>
-              const AppLoadingView(message: 'Loading wallet options...'),
-          error: (error, stackTrace) => AppErrorState(
-            message: 'Unable to load wallet options.',
-            onRetry: () =>
-                ref.read(walletsControllerProvider.notifier).reload(),
-          ),
-          data: (wallets) {
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const AppSectionHeader(
-                    title: 'Record Transaction',
-                    subtitle:
-                        'Capture the details after the real-life transaction has already happened.',
+        data: (wallets) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const AppSectionHeader(
+                  title: 'Record Transaction',
+                  subtitle:
+                      'Capture the details after the real-life transaction has already happened.',
+                ),
+                const SizedBox(height: AppSpacing.md),
+                if (submissionState.lastResult != null) ...[
+                  TransactionSuccessBanner(
+                    referenceId: submissionState.lastResult!.referenceId,
                   ),
                   const SizedBox(height: AppSpacing.md),
-                  if (submissionState.lastResult != null) ...[
-                    TransactionSuccessBanner(
-                      referenceId: submissionState.lastResult!.referenceId,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                  ],
-                  if (submissionState.errorMessage != null) ...[
-                    AppErrorState(
-                      message: submissionState.errorMessage!,
-                      compact: true,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                  ],
-                  AppFormSection(
-                    title: 'Transaction Details',
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        children: [
-                          AppDropdownField<String>(
-                            value: _selectedWalletId,
-                            label: 'Wallet',
-                            hintText: 'Select a wallet',
-                            prefixIcon: const Icon(
-                              Icons.account_balance_wallet_outlined,
-                            ),
-                            items: wallets
-                                .map(
-                                  (wallet) => DropdownMenuItem<String>(
-                                    value: wallet.id,
-                                    child: Text(wallet.name),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (value) {
-                              setState(() => _selectedWalletId = value);
-                            },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Wallet is required';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          AppDropdownField<TransactionEntryType>(
-                            value: _selectedType,
-                            label: 'Transaction Type',
-                            hintText: 'Select credit or debit',
-                            prefixIcon: const Icon(Icons.swap_vert_rounded),
-                            items: const [
-                              DropdownMenuItem(
-                                value: TransactionEntryType.credit,
-                                child: Text('Credit'),
-                              ),
-                              DropdownMenuItem(
-                                value: TransactionEntryType.debit,
-                                child: Text('Debit'),
-                              ),
-                            ],
-                            onChanged: (value) {
-                              setState(() => _selectedType = value);
-                            },
-                            validator: (value) {
-                              if (value == null) {
-                                return 'Transaction type is required';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          AppTextField(
-                            controller: _amountController,
-                            label: 'Amount',
-                            hintText: '0.00',
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            prefixIcon: const Icon(Icons.attach_money_rounded),
-                            inputFormatters: [PositiveAmountInputFormatter()],
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Amount is required';
-                              }
-                              final amount = double.tryParse(value);
-                              if (amount == null || amount <= 0) {
-                                return 'Enter a positive amount';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          AppTextField(
-                            controller: _dateController,
-                            label: 'Date',
-                            readOnly: true,
-                            prefixIcon: const Icon(
-                              Icons.calendar_today_outlined,
-                            ),
-                            onTap: _pickDate,
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Date is required';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          AppTextField(
-                            controller: _noteController,
-                            label: 'Note',
-                            hintText: 'Add a short note',
-                            prefixIcon: const Icon(Icons.notes_rounded),
-                            maxLines: 3,
-                          ),
-                        ],
-                      ),
-                    ),
+                ],
+                if (submissionState.errorMessage != null) ...[
+                  AppErrorState(
+                    message: submissionState.errorMessage!,
+                    compact: true,
                   ),
                   const SizedBox(height: AppSpacing.md),
-                  AppFormSection(
-                    title: 'Submission Summary',
+                ],
+                AppFormSection(
+                  title: 'Transaction Details',
+                  child: Form(
+                    key: _formKey,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _SummaryRow(
-                          label: 'Created by',
-                          value: session?.displayName ?? 'Owner User',
-                        ),
-                        const SizedBox(height: AppSpacing.sm),
-                        _SummaryRow(
-                          label: 'Role',
-                          value: session?.role.name.toUpperCase() ?? 'OWNER',
-                        ),
-                        if (_selectedWalletId != null) ...[
-                          const SizedBox(height: AppSpacing.sm),
-                          _SummaryRow(
-                            label: 'Wallet Balance',
-                            value: formatCurrency(
-                              wallets
-                                  .firstWhere(
-                                    (wallet) => wallet.id == _selectedWalletId,
-                                  )
-                                  .balance,
-                            ),
+                        AppDropdownField<String>(
+                          value: _selectedWalletId,
+                          label: 'Wallet',
+                          hintText: 'Select a wallet',
+                          prefixIcon: const Icon(
+                            Icons.account_balance_wallet_outlined,
                           ),
-                        ],
+                          items: wallets
+                              .map(
+                                (wallet) => DropdownMenuItem<String>(
+                                  value: wallet.id,
+                                  child: Text(wallet.name),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (value) {
+                            setState(() => _selectedWalletId = value);
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Wallet is required';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        AppDropdownField<TransactionEntryType>(
+                          value: _selectedType,
+                          label: 'Transaction Type',
+                          hintText: 'Select credit or debit',
+                          prefixIcon: const Icon(Icons.swap_vert_rounded),
+                          items: const [
+                            DropdownMenuItem(
+                              value: TransactionEntryType.credit,
+                              child: Text('Credit'),
+                            ),
+                            DropdownMenuItem(
+                              value: TransactionEntryType.debit,
+                              child: Text('Debit'),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedType = value);
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Transaction type is required';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        AppTextField(
+                          controller: _amountController,
+                          label: 'Amount',
+                          hintText: '0.00',
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          prefixIcon: const Icon(Icons.attach_money_rounded),
+                          inputFormatters: [PositiveAmountInputFormatter()],
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Amount is required';
+                            }
+                            final amount = double.tryParse(value);
+                            if (amount == null || amount <= 0) {
+                              return 'Enter a positive amount';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        AppTextField(
+                          controller: _dateController,
+                          label: 'Date',
+                          readOnly: true,
+                          prefixIcon: const Icon(
+                            Icons.calendar_today_outlined,
+                          ),
+                          onTap: _pickDate,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Date is required';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        AppTextField(
+                          controller: _noteController,
+                          label: 'Note',
+                          hintText: 'Add a short note',
+                          prefixIcon: const Icon(Icons.notes_rounded),
+                          maxLines: 3,
+                        ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.lg),
-                  SizedBox(
-                    width: double.infinity,
-                    child: AppPrimaryButton(
-                      label: 'Save Transaction',
-                      isLoading: submissionState.isSubmitting,
-                      onPressed: () => _submit(wallets, session?.displayName),
-                    ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                AppFormSection(
+                  title: 'Submission Summary',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _SummaryRow(
+                        label: 'Created by',
+                        value: session?.displayName ?? 'Owner User',
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      _SummaryRow(
+                        label: 'Role',
+                        value: session?.roleLabel ?? 'OWNER',
+                      ),
+                      if (_selectedWalletId != null) ...[
+                        const SizedBox(height: AppSpacing.sm),
+                        _SummaryRow(
+                          label: 'Wallet Balance',
+                          value: formatCurrency(
+                            wallets
+                                .firstWhere(
+                                  (wallet) => wallet.id == _selectedWalletId,
+                                )
+                                .balance,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                ],
-              ),
-            );
-          },
-        ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                SizedBox(
+                  width: double.infinity,
+                  child: AppPrimaryButton(
+                    label: 'Save Transaction',
+                    isLoading: submissionState.isSubmitting,
+                    onPressed: () => _submit(wallets, session?.displayName),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

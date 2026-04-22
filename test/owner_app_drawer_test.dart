@@ -19,7 +19,9 @@ void main() {
               initialSession: const Session(
                 accessToken: 'token',
                 refreshToken: 'refresh',
+                username: 'owner@example.com',
                 role: UserRole.owner,
+                backendRole: 'OWNER',
                 tenantId: 'tenant-demo',
                 userId: 'owner@example.com',
                 displayName: 'Owner User',
@@ -38,7 +40,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Owner User'), findsOneWidget);
-    expect(find.text('Tenant Demo'), findsOneWidget);
+    expect(find.text('@owner@example.com'), findsOneWidget);
     expect(find.text('OWNER'), findsOneWidget);
   });
 }
@@ -48,7 +50,7 @@ class _FakeAuthRepository implements AuthRepository {
   Future<Session?> getCurrentSession() async => null;
 
   @override
-  Future<Session> login({required String email, required String password}) {
+  Future<Session> login({required String username, required String password}) {
     throw UnimplementedError();
   }
 

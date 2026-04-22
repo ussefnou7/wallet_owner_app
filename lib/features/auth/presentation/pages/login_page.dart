@@ -20,12 +20,12 @@ class LoginPage extends ConsumerStatefulWidget {
 
 class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: 'owner@example.com');
-  final _passwordController = TextEditingController(text: 'password');
+  final _usernameController = TextEditingController(text: 'owner1');
+  final _passwordController = TextEditingController(text: 'secret123');
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -80,13 +80,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               ),
                               const SizedBox(height: AppSpacing.lg),
                               AppTextField(
-                                controller: _emailController,
-                                keyboardType: TextInputType.emailAddress,
+                                controller: _usernameController,
                                 textInputAction: TextInputAction.next,
-                                label: 'Email',
-                                hintText: 'owner@example.com',
-                                prefixIcon: const Icon(Icons.mail_outline),
-                                validator: _validateEmail,
+                                label: 'Username',
+                                hintText: 'owner1',
+                                prefixIcon: const Icon(Icons.person_outline),
+                                validator: _validateUsername,
                               ),
                               const SizedBox(height: AppSpacing.md),
                               AppTextField(
@@ -116,7 +115,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               ),
                               const SizedBox(height: AppSpacing.md),
                               Text(
-                                'Phase 2 still uses a mock session and local storage only.',
+                                'Uses the configured authentication endpoint and stores the active session locally.',
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                             ],
@@ -134,13 +133,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 
-  String? _validateEmail(String? value) {
+  String? _validateUsername(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Email is required';
-    }
-
-    if (!value.contains('@')) {
-      return 'Enter a valid email address';
+      return 'Username is required';
     }
 
     return null;
@@ -168,7 +163,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     await ref
         .read(authControllerProvider.notifier)
         .signIn(
-          email: _emailController.text.trim(),
+          username: _usernameController.text.trim(),
           password: _passwordController.text,
         );
   }

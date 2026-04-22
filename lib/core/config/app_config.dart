@@ -11,7 +11,6 @@ class AppConfig {
     required this.apiBaseUrl,
     required this.requestTimeout,
     required this.enableNetworkLogs,
-    required this.useMockAuth,
   });
 
   factory AppConfig.fromEnv() {
@@ -20,7 +19,6 @@ class AppConfig {
       apiBaseUrl: Env.apiBaseUrl,
       requestTimeout: Duration(seconds: Env.apiTimeoutSeconds),
       enableNetworkLogs: kDebugMode && Env.enableNetworkLogs,
-      useMockAuth: Env.useMockAuth,
     );
   }
 
@@ -28,5 +26,4 @@ class AppConfig {
   final String apiBaseUrl;
   final Duration requestTimeout;
   final bool enableNetworkLogs;
-  final bool useMockAuth;
 }

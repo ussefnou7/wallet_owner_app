@@ -19,9 +19,11 @@ class AuthMockDataSource {
       LoginResponseModel(
         accessToken: 'mock-owner-token',
         refreshToken: 'mock-refresh-token',
+        username: request.username,
         role: UserRole.owner,
+        backendRole: 'OWNER',
         tenantId: 'tenant-demo',
-        userId: request.email,
+        userId: request.username,
         displayName: 'Owner User',
       ),
     );

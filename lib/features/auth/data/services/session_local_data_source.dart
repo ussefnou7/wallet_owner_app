@@ -60,18 +60,33 @@ class SessionLocalDataSource {
 
   Future<Session?> readSession() async {
     final storedSession = _sharedPreferences.getString(_sessionKey);
-    final accessToken = await readAccessToken();
-    final refreshToken = await readRefreshToken();
-
-    if (storedSession == null || accessToken == null || refreshToken == null) {
+    if (storedSession == null || storedSession.isEmpty) {
       return null;
     }
 
-    final decoded = jsonDecode(storedSession) as Map<String, dynamic>;
-    return Session.fromJson(
-      decoded
-        ..addAll({'accessToken': accessToken, 'refreshToken': refreshToken}),
-    );
+    try {
+      final accessToken = await readAccessToken();
+      if (accessToken == null || accessToken.isEmpty) {
+        await clearSession();
+        return null;
+      }
+
+      final refreshToken = await readRefreshToken();
+      final decoded = jsonDecode(storedSession);
+      if (decoded is! Map<String, dynamic>) {
+        await clearSession();
+        return null;
+      }
+
+      return Session.fromJson({
+        ...decoded,
+        'accessToken': accessToken,
+        'refreshToken': refreshToken ?? (decoded['refreshToken'] as String?),
+      });
+    } catch (_) {
+      await clearSession();
+      return null;
+    }
   }
 
   Future<void> clearSession() async {

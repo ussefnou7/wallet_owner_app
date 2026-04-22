@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../../app/router/app_routes.dart';
-import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading_view.dart';
-import '../../../../core/widgets/app_page_scaffold.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/filter_chip_row.dart';
-import '../../../../core/widgets/owner_app_drawer.dart';
 import '../controllers/transactions_controller.dart';
 import '../widgets/transaction_record_tile.dart';
 
@@ -48,103 +42,79 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
     final filter = ref.watch(transactionsFilterProvider);
     final searchQuery = ref.watch(transactionsSearchQueryProvider);
 
-    return AppPageScaffold(
-      title: 'All Transactions',
-      actions: [
-        IconButton(
-          onPressed: () =>
-              ref.read(transactionsControllerProvider.notifier).reload(),
-          icon: const Icon(Icons.refresh_rounded),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const AppSectionHeader(
+          title: 'Transactions History',
+          subtitle:
+              'Search and review recorded credit and debit activity across wallets.',
         ),
-        Builder(
-          builder: (context) {
-            return IconButton(
-              onPressed: () => Scaffold.of(context).openEndDrawer(),
-              icon: const Icon(Icons.menu_rounded),
-            );
-          },
+        const SizedBox(height: AppSpacing.md),
+        AppTextField(
+          controller: _searchController,
+          label: 'Search transactions',
+          hintText: 'Search by wallet, note, or created by',
+          prefixIcon: const Icon(Icons.search_rounded),
+          onChanged: ref
+              .read(transactionsControllerProvider.notifier)
+              .updateQuery,
+        ),
+        const SizedBox(height: AppSpacing.md),
+        FilterChipRow<TransactionFilterType>(
+          selectedValue: filter,
+          onSelected: ref
+              .read(transactionsControllerProvider.notifier)
+              .updateFilter,
+          options: const [
+            FilterChipOption(value: TransactionFilterType.all, label: 'All'),
+            FilterChipOption(
+              value: TransactionFilterType.credit,
+              label: 'Credit',
+            ),
+            FilterChipOption(
+              value: TransactionFilterType.debit,
+              label: 'Debit',
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Expanded(
+          child: transactionsState.when(
+            loading: () =>
+                const AppLoadingView(message: 'Loading transactions...'),
+            error: (error, stackTrace) => AppErrorState(
+              message: 'Unable to load transactions right now.',
+              onRetry: () =>
+                  ref.read(transactionsControllerProvider.notifier).reload(),
+            ),
+            data: (_) {
+              if (filteredTransactions.isEmpty) {
+                return AppEmptyState(
+                  title: searchQuery.trim().isEmpty
+                      ? 'No transactions available'
+                      : 'No matching transactions',
+                  message: searchQuery.trim().isEmpty
+                      ? 'Recorded transactions will appear here.'
+                      : 'Try a different search or filter combination.',
+                  icon: Icons.receipt_long_outlined,
+                );
+              }
+
+              return ListView.separated(
+                itemCount: filteredTransactions.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: AppSpacing.md),
+                itemBuilder: (context, index) {
+                  return TransactionRecordTile(
+                    transaction: filteredTransactions[index],
+                  );
+                },
+              );
+            },
+          ),
         ),
       ],
-      endDrawer: const OwnerAppDrawer(currentRoute: AppRoutes.transactions),
-      bottomNavigationBar: AppBottomNavBar(
-        currentRoute: '',
-        onDestinationSelected: context.go,
-      ),
-      maxWidth: AppDimensions.contentMaxWidth,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const AppSectionHeader(
-            title: 'Transactions History',
-            subtitle:
-                'Search and review recorded credit and debit activity across wallets.',
-          ),
-          const SizedBox(height: AppSpacing.md),
-          AppTextField(
-            controller: _searchController,
-            label: 'Search transactions',
-            hintText: 'Search by wallet, note, or created by',
-            prefixIcon: const Icon(Icons.search_rounded),
-            onChanged: ref
-                .read(transactionsControllerProvider.notifier)
-                .updateQuery,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          FilterChipRow<TransactionFilterType>(
-            selectedValue: filter,
-            onSelected: ref
-                .read(transactionsControllerProvider.notifier)
-                .updateFilter,
-            options: const [
-              FilterChipOption(value: TransactionFilterType.all, label: 'All'),
-              FilterChipOption(
-                value: TransactionFilterType.credit,
-                label: 'Credit',
-              ),
-              FilterChipOption(
-                value: TransactionFilterType.debit,
-                label: 'Debit',
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Expanded(
-            child: transactionsState.when(
-              loading: () =>
-                  const AppLoadingView(message: 'Loading transactions...'),
-              error: (error, stackTrace) => AppErrorState(
-                message: 'Unable to load transactions right now.',
-                onRetry: () =>
-                    ref.read(transactionsControllerProvider.notifier).reload(),
-              ),
-              data: (_) {
-                if (filteredTransactions.isEmpty) {
-                  return AppEmptyState(
-                    title: searchQuery.trim().isEmpty
-                        ? 'No transactions available'
-                        : 'No matching transactions',
-                    message: searchQuery.trim().isEmpty
-                        ? 'Recorded transactions will appear here.'
-                        : 'Try a different search or filter combination.',
-                    icon: Icons.receipt_long_outlined,
-                  );
-                }
-
-                return ListView.separated(
-                  itemCount: filteredTransactions.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: AppSpacing.md),
-                  itemBuilder: (context, index) {
-                    return TransactionRecordTile(
-                      transaction: filteredTransactions[index],
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

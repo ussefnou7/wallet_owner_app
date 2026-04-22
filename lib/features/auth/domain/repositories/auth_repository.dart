@@ -11,7 +11,7 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 abstract interface class AuthRepository {
   Future<Session?> getCurrentSession();
 
-  Future<Session> login({required String email, required String password});
+  Future<Session> login({required String username, required String password});
 
   Future<void> logout();
 }

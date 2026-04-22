@@ -25,7 +25,9 @@ void main() {
               initialSession: const Session(
                 accessToken: 'token',
                 refreshToken: 'refresh',
+                username: 'owner@example.com',
                 role: UserRole.owner,
+                backendRole: 'OWNER',
                 tenantId: 'tenant-demo',
                 userId: 'owner@example.com',
                 displayName: 'Owner User',
@@ -77,7 +79,7 @@ class _FakeAuthRepository implements AuthRepository {
   Future<Session?> getCurrentSession() async => null;
 
   @override
-  Future<Session> login({required String email, required String password}) {
+  Future<Session> login({required String username, required String password}) {
     throw UnimplementedError();
   }
 

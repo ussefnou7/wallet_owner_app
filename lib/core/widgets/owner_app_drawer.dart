@@ -18,13 +18,13 @@ class OwnerAppDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(authControllerProvider).session;
     final ownerName = session?.displayName ?? 'Wallet Owner';
-    final tenantName = session?.tenantName ?? 'Tenant';
+    final username = session?.username ?? 'owner';
     final roleLabel = session?.roleLabel ?? 'OWNER';
     final items = [
       const _DrawerItemData(
-        label: 'Dashboard',
-        route: AppRoutes.dashboard,
-        icon: Icons.grid_view_rounded,
+        label: 'Branches',
+        route: AppRoutes.branches,
+        icon: Icons.storefront_outlined,
       ),
       const _DrawerItemData(
         label: 'Users',
@@ -32,19 +32,9 @@ class OwnerAppDrawer extends ConsumerWidget {
         icon: Icons.people_outline_rounded,
       ),
       const _DrawerItemData(
-        label: 'Branches',
-        route: AppRoutes.branches,
-        icon: Icons.storefront_outlined,
-      ),
-      const _DrawerItemData(
         label: 'Plans',
         route: AppRoutes.plans,
         icon: Icons.workspace_premium_outlined,
-      ),
-      const _DrawerItemData(
-        label: 'Request Renewal',
-        route: AppRoutes.requestRenewal,
-        icon: Icons.autorenew_rounded,
       ),
       const _DrawerItemData(
         label: 'Settings',
@@ -60,29 +50,57 @@ class OwnerAppDrawer extends ConsumerWidget {
             Container(
               width: double.infinity,
               margin: const EdgeInsets.all(AppSpacing.md),
-              padding: const EdgeInsets.all(AppSpacing.md),
+              padding: const EdgeInsets.all(AppSpacing.lg),
               decoration: BoxDecoration(
                 color: AppColors.surfaceVariant,
-                borderRadius: BorderRadius.circular(AppRadii.lg),
+                borderRadius: BorderRadius.circular(AppRadii.xl),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const CircleAvatar(
-                    radius: 22,
-                    backgroundColor: AppColors.primary,
-                    child: Icon(
-                      Icons.account_balance_wallet_rounded,
-                      color: Colors.white,
-                      size: AppDimensions.iconMd,
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: AppColors.primarySoft,
+                      borderRadius: BorderRadius.circular(AppRadii.lg),
+                    ),
+                    child: const Icon(
+                      Icons.account_circle_outlined,
+                      color: AppColors.primary,
+                      size: AppDimensions.iconLg,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.md),
-                  Text(ownerName),
+                  Text(
+                    ownerName,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                   const SizedBox(height: AppSpacing.xs),
-                  Text(tenantName),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(roleLabel),
+                  Text(
+                    '@$username',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                      vertical: AppSpacing.xs,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(AppRadii.xl),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Text(
+                      roleLabel,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -98,27 +116,36 @@ class OwnerAppDrawer extends ConsumerWidget {
                 ],
               ),
             ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(
-                Icons.logout_rounded,
-                color: AppColors.danger,
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadii.md),
+                ),
+                tileColor: AppColors.dangerSoft,
+                leading: const Icon(
+                  Icons.logout_rounded,
+                  color: AppColors.danger,
+                ),
+                title: Text(
+                  'Logout',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(color: AppColors.danger),
+                ),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  await ref.read(authControllerProvider.notifier).signOut();
+                  if (context.mounted) {
+                    context.go(AppRoutes.login);
+                  }
+                },
               ),
-              title: Text(
-                'Logout',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleSmall?.copyWith(color: AppColors.danger),
-              ),
-              onTap: () async {
-                Navigator.of(context).pop();
-                await ref.read(authControllerProvider.notifier).signOut();
-                if (context.mounted) {
-                  context.go(AppRoutes.login);
-                }
-              },
             ),
-            const SizedBox(height: AppSpacing.md),
           ],
         ),
       ),
@@ -134,26 +161,30 @@ class _OwnerDrawerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      selected: selected,
-      selectedTileColor: AppColors.primarySoft,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadii.md),
-      ),
-      leading: Icon(
-        data.icon,
-        color: selected ? AppColors.primary : AppColors.textSecondary,
-      ),
-      title: Text(
-        data.label,
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-          color: selected ? AppColors.primary : AppColors.textPrimary,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+      child: ListTile(
+        selected: selected,
+        selectedTileColor: AppColors.primarySoft,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.md),
         ),
+        leading: Icon(
+          data.icon,
+          color: selected ? AppColors.primary : AppColors.textSecondary,
+        ),
+        title: Text(
+          data.label,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            color: selected ? AppColors.primary : AppColors.textPrimary,
+          ),
+        ),
+        trailing: const Icon(Icons.chevron_right_rounded, size: 18),
+        onTap: () {
+          Navigator.of(context).pop();
+          context.go(data.route);
+        },
       ),
-      onTap: () {
-        Navigator.of(context).pop();
-        context.go(data.route);
-      },
     );
   }
 }

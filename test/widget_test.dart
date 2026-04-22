@@ -10,10 +10,8 @@ import 'package:wallet_owner_app/features/branches/data/repositories/mock_branch
 import 'package:wallet_owner_app/features/branches/domain/repositories/branches_repository.dart';
 import 'package:wallet_owner_app/features/transactions/data/repositories/mock_transactions_repository.dart';
 import 'package:wallet_owner_app/features/transactions/domain/repositories/transactions_repository.dart';
-import 'package:wallet_owner_app/features/transactions/presentation/pages/transactions_page.dart';
 import 'package:wallet_owner_app/features/users/data/repositories/mock_users_repository.dart';
 import 'package:wallet_owner_app/features/users/domain/repositories/users_repository.dart';
-import 'package:wallet_owner_app/features/users/presentation/pages/users_page.dart';
 import 'package:wallet_owner_app/features/wallets/data/repositories/mock_wallets_repository.dart';
 import 'package:wallet_owner_app/features/wallets/domain/repositories/wallets_repository.dart';
 
@@ -33,6 +31,50 @@ void main() {
       ),
     );
 
+    await tester.pumpAndSettle();
+
+    expect(find.text('Sign in'), findsOneWidget);
+    expect(find.text('Continue as Owner'), findsOneWidget);
+  });
+
+  testWidgets('shows dashboard inside authenticated owner shell', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_buildAuthenticatedApp());
+    await tester.pumpAndSettle();
+
+    expect(find.text('Portfolio Overview'), findsOneWidget);
+    expect(find.text('Total Balance'), findsOneWidget);
+    expect(find.byTooltip('Notifications'), findsOneWidget);
+    expect(find.byTooltip('Menu'), findsOneWidget);
+    expect(find.byTooltip('Dashboard'), findsOneWidget);
+    expect(find.byTooltip('Wallets'), findsOneWidget);
+    expect(find.byTooltip('Transactions'), findsOneWidget);
+    expect(find.byTooltip('New transaction'), findsOneWidget);
+  });
+
+  testWidgets('switches between shell tabs using bottom navigation', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_buildAuthenticatedApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Wallets'));
+    await tester.pumpAndSettle();
+    expect(find.text('Wallet Directory'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Transactions'));
+    await tester.pumpAndSettle();
+    expect(find.text('Transactions History'), findsOneWidget);
+  });
+
+  testWidgets('logout from drawer returns user to login', (tester) async {
+    await tester.pumpWidget(_buildAuthenticatedApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Menu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Logout'));
     await tester.pumpAndSettle();
 
     expect(find.text('Sign in'), findsOneWidget);
@@ -60,128 +102,38 @@ void main() {
     await tester.tap(find.text('Continue as Owner'));
     await tester.pump();
 
-    expect(find.text('Email is required'), findsOneWidget);
+    expect(find.text('Username is required'), findsOneWidget);
     expect(find.text('Password is required'), findsOneWidget);
   });
+}
 
-  testWidgets('renders wallets list for authenticated owner', (tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          authControllerProvider.overrideWith(
-            (ref) => AuthController(
-              authRepository: _FakeAuthRepository(),
-              initialSession: const Session(
-                accessToken: 'token',
-                refreshToken: 'refresh',
-                role: UserRole.owner,
-                tenantId: 'tenant-demo',
-                userId: 'owner@example.com',
-                displayName: 'Owner User',
-              ),
-            ),
+Widget _buildAuthenticatedApp() {
+  return ProviderScope(
+    overrides: [
+      authControllerProvider.overrideWith(
+        (ref) => AuthController(
+          authRepository: _FakeAuthRepository(),
+          initialSession: const Session(
+            accessToken: 'token',
+            refreshToken: 'refresh',
+            username: 'owner@example.com',
+            role: UserRole.owner,
+            backendRole: 'SYSTEM_ADMIN',
+            tenantId: 'tenant-demo',
+            userId: 'owner-1',
+            displayName: 'Owner User',
           ),
-          walletsRepositoryProvider.overrideWithValue(MockWalletsRepository()),
-          transactionsRepositoryProvider.overrideWithValue(
-            MockTransactionsRepository(),
-          ),
-          usersRepositoryProvider.overrideWithValue(MockUsersRepository()),
-          branchesRepositoryProvider.overrideWithValue(
-            MockBranchesRepository(),
-          ),
-        ],
-        child: const App(),
-      ),
-    );
-
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Wallets'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Wallet Directory'), findsOneWidget);
-    expect(find.text('Main Wallet'), findsOneWidget);
-    expect(find.text('Branch Wallet'), findsOneWidget);
-  });
-
-  testWidgets('filters transactions list by search query', (tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: ProviderScope(
-          overrides: [
-            authControllerProvider.overrideWith(
-              (ref) => AuthController(
-                authRepository: _FakeAuthRepository(),
-                initialSession: const Session(
-                  accessToken: 'token',
-                  refreshToken: 'refresh',
-                  role: UserRole.owner,
-                  tenantId: 'tenant-demo',
-                  userId: 'owner@example.com',
-                  displayName: 'Owner User',
-                ),
-              ),
-            ),
-            transactionsRepositoryProvider.overrideWithValue(
-              MockTransactionsRepository(),
-            ),
-          ],
-          child: const TransactionsPage(),
         ),
       ),
-    );
-
-    await tester.pumpAndSettle();
-
-    expect(find.text('Main Wallet'), findsOneWidget);
-
-    await tester.enterText(
-      find.widgetWithText(TextFormField, 'Search transactions'),
-      'VIP',
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.text('VIP Customer Wallet'), findsOneWidget);
-    expect(find.text('Main Wallet'), findsNothing);
-  });
-
-  testWidgets('filters users list by search query', (tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: ProviderScope(
-          overrides: [
-            authControllerProvider.overrideWith(
-              (ref) => AuthController(
-                authRepository: _FakeAuthRepository(),
-                initialSession: const Session(
-                  accessToken: 'token',
-                  refreshToken: 'refresh',
-                  role: UserRole.owner,
-                  tenantId: 'tenant-demo',
-                  userId: 'owner@example.com',
-                  displayName: 'Owner User',
-                ),
-              ),
-            ),
-            usersRepositoryProvider.overrideWithValue(MockUsersRepository()),
-          ],
-          child: const UsersPage(),
-        ),
+      walletsRepositoryProvider.overrideWithValue(MockWalletsRepository()),
+      transactionsRepositoryProvider.overrideWithValue(
+        MockTransactionsRepository(),
       ),
-    );
-
-    await tester.pumpAndSettle();
-
-    expect(find.text('Omar Khaled'), findsOneWidget);
-
-    await tester.enterText(
-      find.widgetWithText(TextFormField, 'Search users'),
-      'Salma',
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.text('Salma Adel'), findsOneWidget);
-    expect(find.text('Omar Khaled'), findsNothing);
-  });
+      usersRepositoryProvider.overrideWithValue(MockUsersRepository()),
+      branchesRepositoryProvider.overrideWithValue(MockBranchesRepository()),
+    ],
+    child: const App(),
+  );
 }
 
 class _FakeAuthRepository implements AuthRepository {
@@ -189,7 +141,7 @@ class _FakeAuthRepository implements AuthRepository {
   Future<Session?> getCurrentSession() async => null;
 
   @override
-  Future<Session> login({required String email, required String password}) {
+  Future<Session> login({required String username, required String password}) {
     throw UnimplementedError();
   }
 

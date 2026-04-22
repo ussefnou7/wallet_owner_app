@@ -14,15 +14,17 @@ class MockAuthRepository implements AuthRepository {
 
   @override
   Future<Session> login({
-    required String email,
+    required String username,
     required String password,
   }) async {
     final session = Session(
       accessToken: 'mock-owner-token',
       refreshToken: 'mock-refresh-token',
+      username: username,
       role: UserRole.owner,
+      backendRole: 'OWNER',
       tenantId: 'tenant-demo',
-      userId: email,
+      userId: username,
       displayName: 'Owner User',
     );
     await _localDataSource.saveSession(session);
