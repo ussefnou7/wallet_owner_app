@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_initials_avatar.dart';
 import '../../../../core/widgets/app_status_badge.dart';
 import '../../../auth/domain/entities/session.dart';
@@ -15,6 +16,7 @@ class UserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = appL10n(context);
     final isActive = user.status == AppUserStatus.active;
 
     return Container(
@@ -49,7 +51,7 @@ class UserCard extends StatelessWidget {
                 ),
               ),
               AppStatusBadge(
-                label: isActive ? 'Active' : 'Inactive',
+                label: isActive ? l10n.active : l10n.inactive,
                 foregroundColor: isActive
                     ? AppColors.success
                     : AppColors.textSecondary,
@@ -64,9 +66,13 @@ class UserCard extends StatelessWidget {
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
-              _MetaPill(label: user.role == UserRole.owner ? 'OWNER' : 'USER'),
-              _MetaPill(label: user.branchName ?? 'No branch'),
-              _MetaPill(label: '${user.walletCount} wallets'),
+              _MetaPill(
+                label: user.role == UserRole.owner
+                    ? l10n.ownerRole
+                    : l10n.userRole,
+              ),
+              _MetaPill(label: user.branchName ?? l10n.noBranch),
+              _MetaPill(label: l10n.walletsCount(user.walletCount)),
             ],
           ),
           if (user.phone != null) ...[

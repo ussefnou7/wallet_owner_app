@@ -1231,6 +1231,300 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Transaction saved successfully. Ref: {referenceId}'**
   String transactionSavedRef(String referenceId);
+
+  /// No description provided for @branchDirectory.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch Directory'**
+  String get branchDirectory;
+
+  /// No description provided for @branchDirectorySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review branch availability, coverage, and wallet/user assignment.'**
+  String get branchDirectorySubtitle;
+
+  /// No description provided for @searchBranches.
+  ///
+  /// In en, this message translates to:
+  /// **'Search branches'**
+  String get searchBranches;
+
+  /// No description provided for @searchBranchesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by branch name or code'**
+  String get searchBranchesHint;
+
+  /// No description provided for @allStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'All Status'**
+  String get allStatus;
+
+  /// No description provided for @loadingBranches.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading branches...'**
+  String get loadingBranches;
+
+  /// No description provided for @unableToLoadBranches.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load branches right now.'**
+  String get unableToLoadBranches;
+
+  /// No description provided for @noBranchesAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No branches available'**
+  String get noBranchesAvailable;
+
+  /// No description provided for @noMatchingBranches.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching branches'**
+  String get noMatchingBranches;
+
+  /// No description provided for @branchesEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenant branches will appear here.'**
+  String get branchesEmptyMessage;
+
+  /// No description provided for @branchesSearchEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a different search or status filter.'**
+  String get branchesSearchEmptyMessage;
+
+  /// No description provided for @usersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} users'**
+  String usersCount(int count);
+
+  /// No description provided for @walletsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} wallets'**
+  String walletsCount(int count);
+
+  /// No description provided for @userDirectory.
+  ///
+  /// In en, this message translates to:
+  /// **'User Directory'**
+  String get userDirectory;
+
+  /// No description provided for @userDirectorySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Monitor owner and user accounts, branch assignment, and activity status.'**
+  String get userDirectorySubtitle;
+
+  /// No description provided for @searchUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Search users'**
+  String get searchUsers;
+
+  /// No description provided for @searchUsersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name, email, or branch'**
+  String get searchUsersHint;
+
+  /// No description provided for @allRoles.
+  ///
+  /// In en, this message translates to:
+  /// **'All Roles'**
+  String get allRoles;
+
+  /// No description provided for @owner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get owner;
+
+  /// No description provided for @user.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get user;
+
+  /// No description provided for @loadingUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading users...'**
+  String get loadingUsers;
+
+  /// No description provided for @unableToLoadUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load users right now.'**
+  String get unableToLoadUsers;
+
+  /// No description provided for @noUsersAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No users available'**
+  String get noUsersAvailable;
+
+  /// No description provided for @noMatchingUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching users'**
+  String get noMatchingUsers;
+
+  /// No description provided for @usersEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Workspace users will appear here.'**
+  String get usersEmptyMessage;
+
+  /// No description provided for @usersSearchEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a different search or filter combination.'**
+  String get usersSearchEmptyMessage;
+
+  /// No description provided for @ownerRole.
+  ///
+  /// In en, this message translates to:
+  /// **'OWNER'**
+  String get ownerRole;
+
+  /// No description provided for @userRole.
+  ///
+  /// In en, this message translates to:
+  /// **'USER'**
+  String get userRole;
+
+  /// No description provided for @noBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'No branch'**
+  String get noBranch;
+
+  /// No description provided for @loadingSubscriptionPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading subscription plans...'**
+  String get loadingSubscriptionPlans;
+
+  /// No description provided for @unableToLoadSubscriptionDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load subscription details right now.'**
+  String get unableToLoadSubscriptionDetails;
+
+  /// No description provided for @noPlansAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No plans available'**
+  String get noPlansAvailable;
+
+  /// No description provided for @plansEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription plan options will appear here.'**
+  String get plansEmptyMessage;
+
+  /// No description provided for @subscriptionPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Plans'**
+  String get subscriptionPlans;
+
+  /// No description provided for @subscriptionPlansSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review the current subscription, compare available tiers, and prepare the next upgrade decision.'**
+  String get subscriptionPlansSubtitle;
+
+  /// No description provided for @subscriptionSummarySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track plan status and workspace limits before the next renewal window.'**
+  String get subscriptionSummarySubtitle;
+
+  /// No description provided for @availablePlans.
+  ///
+  /// In en, this message translates to:
+  /// **'Available Plans'**
+  String get availablePlans;
+
+  /// No description provided for @availablePlansSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mock plan options are ready for comparison and future backend-driven upgrades.'**
+  String get availablePlansSubtitle;
+
+  /// No description provided for @current.
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get current;
+
+  /// No description provided for @recommended.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended'**
+  String get recommended;
+
+  /// No description provided for @available.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get available;
+
+  /// No description provided for @currentPlanAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Plan'**
+  String get currentPlanAction;
+
+  /// No description provided for @upgrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade'**
+  String get upgrade;
+
+  /// No description provided for @choosePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Plan'**
+  String get choosePlan;
+
+  /// No description provided for @maxUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Max Users'**
+  String get maxUsers;
+
+  /// No description provided for @maxWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'Max Wallets'**
+  String get maxWallets;
+
+  /// No description provided for @maxBranches.
+  ///
+  /// In en, this message translates to:
+  /// **'Max Branches'**
+  String get maxBranches;
+
+  /// No description provided for @enterpriseUpgradeComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Enterprise upgrade review will be connected in a later phase.'**
+  String get enterpriseUpgradeComingSoon;
+
+  /// No description provided for @planSelectionComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'{planName} selection will be connected in a later phase.'**
+  String planSelectionComingSoon(String planName);
 }
 
 class _AppLocalizationsDelegate

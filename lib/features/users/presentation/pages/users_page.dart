@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading_view.dart';
@@ -47,9 +48,10 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     final searchQuery = ref.watch(usersSearchQueryProvider);
     final statusFilter = ref.watch(usersStatusFilterProvider);
     final roleFilter = ref.watch(usersRoleFilterProvider);
+    final l10n = appL10n(context);
 
     return AppPageScaffold(
-      title: 'Users',
+      title: l10n.users,
       actions: [
         IconButton(
           onPressed: () => ref.read(usersControllerProvider.notifier).reload(),
@@ -69,16 +71,15 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const AppSectionHeader(
-            title: 'User Directory',
-            subtitle:
-                'Monitor owner and user accounts, branch assignment, and activity status.',
+          AppSectionHeader(
+            title: l10n.userDirectory,
+            subtitle: l10n.userDirectorySubtitle,
           ),
           const SizedBox(height: AppSpacing.md),
           AppTextField(
             controller: _searchController,
-            label: 'Search users',
-            hintText: 'Search by name, email, or branch',
+            label: l10n.searchUsers,
+            hintText: l10n.searchUsersHint,
             prefixIcon: const Icon(Icons.search_rounded),
             onChanged: ref.read(usersControllerProvider.notifier).updateQuery,
           ),
@@ -88,15 +89,18 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             onSelected: ref
                 .read(usersControllerProvider.notifier)
                 .updateStatusFilter,
-            options: const [
+            options: [
               FilterChipOption(
                 value: UserStatusFilter.all,
-                label: 'All Status',
+                label: l10n.allStatus,
               ),
-              FilterChipOption(value: UserStatusFilter.active, label: 'Active'),
+              FilterChipOption(
+                value: UserStatusFilter.active,
+                label: l10n.active,
+              ),
               FilterChipOption(
                 value: UserStatusFilter.inactive,
-                label: 'Inactive',
+                label: l10n.inactive,
               ),
             ],
           ),
@@ -106,20 +110,20 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             onSelected: ref
                 .read(usersControllerProvider.notifier)
                 .updateRoleFilter,
-            options: const [
-              FilterChipOption(value: UserRoleFilter.all, label: 'All Roles'),
-              FilterChipOption(value: UserRoleFilter.owner, label: 'Owner'),
-              FilterChipOption(value: UserRoleFilter.user, label: 'User'),
+            options: [
+              FilterChipOption(value: UserRoleFilter.all, label: l10n.allRoles),
+              FilterChipOption(value: UserRoleFilter.owner, label: l10n.owner),
+              FilterChipOption(value: UserRoleFilter.user, label: l10n.user),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          AppResultSummary(count: filteredUsers.length, label: 'users'),
+          AppResultSummary(count: filteredUsers.length, label: l10n.users),
           const SizedBox(height: AppSpacing.md),
           Expanded(
             child: usersState.when(
-              loading: () => const AppLoadingView(message: 'Loading users...'),
+              loading: () => AppLoadingView(message: l10n.loadingUsers),
               error: (error, stackTrace) => AppErrorState(
-                message: 'Unable to load users right now.',
+                message: l10n.unableToLoadUsers,
                 onRetry: () =>
                     ref.read(usersControllerProvider.notifier).reload(),
               ),
@@ -127,11 +131,11 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                 if (filteredUsers.isEmpty) {
                   return AppEmptyState(
                     title: searchQuery.trim().isEmpty
-                        ? 'No users available'
-                        : 'No matching users',
+                        ? l10n.noUsersAvailable
+                        : l10n.noMatchingUsers,
                     message: searchQuery.trim().isEmpty
-                        ? 'Workspace users will appear here.'
-                        : 'Try a different search or filter combination.',
+                        ? l10n.usersEmptyMessage
+                        : l10n.usersSearchEmptyMessage,
                     icon: Icons.people_outline_rounded,
                   );
                 }

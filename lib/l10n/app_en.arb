@@ -247,5 +247,75 @@
         "type": "String"
       }
     }
+  },
+  "branchDirectory": "Branch Directory",
+  "branchDirectorySubtitle": "Review branch availability, coverage, and wallet/user assignment.",
+  "searchBranches": "Search branches",
+  "searchBranchesHint": "Search by branch name or code",
+  "allStatus": "All Status",
+  "loadingBranches": "Loading branches...",
+  "unableToLoadBranches": "Unable to load branches right now.",
+  "noBranchesAvailable": "No branches available",
+  "noMatchingBranches": "No matching branches",
+  "branchesEmptyMessage": "Tenant branches will appear here.",
+  "branchesSearchEmptyMessage": "Try a different search or status filter.",
+  "usersCount": "{count} users",
+  "@usersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "walletsCount": "{count} wallets",
+  "@walletsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "userDirectory": "User Directory",
+  "userDirectorySubtitle": "Monitor owner and user accounts, branch assignment, and activity status.",
+  "searchUsers": "Search users",
+  "searchUsersHint": "Search by name, email, or branch",
+  "allRoles": "All Roles",
+  "owner": "Owner",
+  "user": "User",
+  "loadingUsers": "Loading users...",
+  "unableToLoadUsers": "Unable to load users right now.",
+  "noUsersAvailable": "No users available",
+  "noMatchingUsers": "No matching users",
+  "usersEmptyMessage": "Workspace users will appear here.",
+  "usersSearchEmptyMessage": "Try a different search or filter combination.",
+  "ownerRole": "OWNER",
+  "userRole": "USER",
+  "noBranch": "No branch",
+  "loadingSubscriptionPlans": "Loading subscription plans...",
+  "unableToLoadSubscriptionDetails": "Unable to load subscription details right now.",
+  "noPlansAvailable": "No plans available",
+  "plansEmptyMessage": "Subscription plan options will appear here.",
+  "subscriptionPlans": "Subscription Plans",
+  "subscriptionPlansSubtitle": "Review the current subscription, compare available tiers, and prepare the next upgrade decision.",
+  "subscriptionSummarySubtitle": "Track plan status and workspace limits before the next renewal window.",
+  "availablePlans": "Available Plans",
+  "availablePlansSubtitle": "Mock plan options are ready for comparison and future backend-driven upgrades.",
+  "current": "Current",
+  "recommended": "Recommended",
+  "available": "Available",
+  "currentPlanAction": "Current Plan",
+  "upgrade": "Upgrade",
+  "choosePlan": "Choose Plan",
+  "maxUsers": "Max Users",
+  "maxWallets": "Max Wallets",
+  "maxBranches": "Max Branches",
+  "enterpriseUpgradeComingSoon": "Enterprise upgrade review will be connected in a later phase.",
+  "planSelectionComingSoon": "{planName} selection will be connected in a later phase.",
+  "@planSelectionComingSoon": {
+    "placeholders": {
+      "planName": {
+        "type": "String"
+      }
+    }
   }
 }

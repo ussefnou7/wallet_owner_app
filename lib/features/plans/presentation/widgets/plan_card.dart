@@ -4,6 +4,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_shadows.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_buttons.dart';
 import '../../../../core/widgets/app_status_badge.dart';
 import '../../domain/entities/plan.dart';
@@ -16,16 +17,17 @@ class PlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = appL10n(context);
     final badgeLabel = switch (plan.badge) {
-      PlanBadge.current => 'Current',
-      PlanBadge.recommended => 'Recommended',
-      PlanBadge.available => 'Available',
+      PlanBadge.current => l10n.current,
+      PlanBadge.recommended => l10n.recommended,
+      PlanBadge.available => l10n.available,
     };
 
     final actionLabel = switch (plan.badge) {
-      PlanBadge.current => 'Current Plan',
-      PlanBadge.recommended => 'Upgrade',
-      PlanBadge.available => 'Choose Plan',
+      PlanBadge.current => l10n.currentPlanAction,
+      PlanBadge.recommended => l10n.upgrade,
+      PlanBadge.available => l10n.choosePlan,
     };
 
     final button = plan.isCurrent
@@ -79,21 +81,21 @@ class PlanCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _PlanLimitBlock(
-                  label: 'Max Users',
+                  label: l10n.maxUsers,
                   value: plan.maxUsers,
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: _PlanLimitBlock(
-                  label: 'Max Wallets',
+                  label: l10n.maxWallets,
                   value: plan.maxWallets,
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: _PlanLimitBlock(
-                  label: 'Max Branches',
+                  label: l10n.maxBranches,
                   value: plan.maxBranches,
                 ),
               ),

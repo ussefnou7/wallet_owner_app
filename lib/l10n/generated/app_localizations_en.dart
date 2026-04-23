@@ -618,4 +618,166 @@ class AppLocalizationsEn extends AppLocalizations {
   String transactionSavedRef(String referenceId) {
     return 'Transaction saved successfully. Ref: $referenceId';
   }
+
+  @override
+  String get branchDirectory => 'Branch Directory';
+
+  @override
+  String get branchDirectorySubtitle =>
+      'Review branch availability, coverage, and wallet/user assignment.';
+
+  @override
+  String get searchBranches => 'Search branches';
+
+  @override
+  String get searchBranchesHint => 'Search by branch name or code';
+
+  @override
+  String get allStatus => 'All Status';
+
+  @override
+  String get loadingBranches => 'Loading branches...';
+
+  @override
+  String get unableToLoadBranches => 'Unable to load branches right now.';
+
+  @override
+  String get noBranchesAvailable => 'No branches available';
+
+  @override
+  String get noMatchingBranches => 'No matching branches';
+
+  @override
+  String get branchesEmptyMessage => 'Tenant branches will appear here.';
+
+  @override
+  String get branchesSearchEmptyMessage =>
+      'Try a different search or status filter.';
+
+  @override
+  String usersCount(int count) {
+    return '$count users';
+  }
+
+  @override
+  String walletsCount(int count) {
+    return '$count wallets';
+  }
+
+  @override
+  String get userDirectory => 'User Directory';
+
+  @override
+  String get userDirectorySubtitle =>
+      'Monitor owner and user accounts, branch assignment, and activity status.';
+
+  @override
+  String get searchUsers => 'Search users';
+
+  @override
+  String get searchUsersHint => 'Search by name, email, or branch';
+
+  @override
+  String get allRoles => 'All Roles';
+
+  @override
+  String get owner => 'Owner';
+
+  @override
+  String get user => 'User';
+
+  @override
+  String get loadingUsers => 'Loading users...';
+
+  @override
+  String get unableToLoadUsers => 'Unable to load users right now.';
+
+  @override
+  String get noUsersAvailable => 'No users available';
+
+  @override
+  String get noMatchingUsers => 'No matching users';
+
+  @override
+  String get usersEmptyMessage => 'Workspace users will appear here.';
+
+  @override
+  String get usersSearchEmptyMessage =>
+      'Try a different search or filter combination.';
+
+  @override
+  String get ownerRole => 'OWNER';
+
+  @override
+  String get userRole => 'USER';
+
+  @override
+  String get noBranch => 'No branch';
+
+  @override
+  String get loadingSubscriptionPlans => 'Loading subscription plans...';
+
+  @override
+  String get unableToLoadSubscriptionDetails =>
+      'Unable to load subscription details right now.';
+
+  @override
+  String get noPlansAvailable => 'No plans available';
+
+  @override
+  String get plansEmptyMessage => 'Subscription plan options will appear here.';
+
+  @override
+  String get subscriptionPlans => 'Subscription Plans';
+
+  @override
+  String get subscriptionPlansSubtitle =>
+      'Review the current subscription, compare available tiers, and prepare the next upgrade decision.';
+
+  @override
+  String get subscriptionSummarySubtitle =>
+      'Track plan status and workspace limits before the next renewal window.';
+
+  @override
+  String get availablePlans => 'Available Plans';
+
+  @override
+  String get availablePlansSubtitle =>
+      'Mock plan options are ready for comparison and future backend-driven upgrades.';
+
+  @override
+  String get current => 'Current';
+
+  @override
+  String get recommended => 'Recommended';
+
+  @override
+  String get available => 'Available';
+
+  @override
+  String get currentPlanAction => 'Current Plan';
+
+  @override
+  String get upgrade => 'Upgrade';
+
+  @override
+  String get choosePlan => 'Choose Plan';
+
+  @override
+  String get maxUsers => 'Max Users';
+
+  @override
+  String get maxWallets => 'Max Wallets';
+
+  @override
+  String get maxBranches => 'Max Branches';
+
+  @override
+  String get enterpriseUpgradeComingSoon =>
+      'Enterprise upgrade review will be connected in a later phase.';
+
+  @override
+  String planSelectionComingSoon(String planName) {
+    return '$planName selection will be connected in a later phase.';
+  }
 }

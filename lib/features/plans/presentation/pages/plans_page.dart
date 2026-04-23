@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
@@ -23,9 +24,10 @@ class PlansPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final plansState = ref.watch(plansControllerProvider);
+    final l10n = appL10n(context);
 
     return AppPageScaffold(
-      title: 'Plans',
+      title: l10n.plans,
       actions: [
         IconButton(
           onPressed: () => ref.read(plansControllerProvider.notifier).reload(),
@@ -47,17 +49,16 @@ class PlansPage extends ConsumerWidget {
       ),
       maxWidth: AppDimensions.contentMaxWidth,
       child: plansState.when(
-        loading: () =>
-            const AppLoadingView(message: 'Loading subscription plans...'),
+        loading: () => AppLoadingView(message: l10n.loadingSubscriptionPlans),
         error: (error, stackTrace) => AppErrorState(
-          message: 'Unable to load subscription details right now.',
+          message: l10n.unableToLoadSubscriptionDetails,
           onRetry: () => ref.read(plansControllerProvider.notifier).reload(),
         ),
         data: (catalog) {
           if (catalog.plans.isEmpty) {
-            return const AppEmptyState(
-              title: 'No plans available',
-              message: 'Subscription plan options will appear here.',
+            return AppEmptyState(
+              title: l10n.noPlansAvailable,
+              message: l10n.plansEmptyMessage,
               icon: Icons.workspace_premium_outlined,
             );
           }
@@ -66,22 +67,19 @@ class PlansPage extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const AppSectionHeader(
-                  title: 'Subscription Plans',
-                  subtitle:
-                      'Review the current subscription, compare available tiers, and prepare the next upgrade decision.',
+                AppSectionHeader(
+                  title: l10n.subscriptionPlans,
+                  subtitle: l10n.subscriptionPlansSubtitle,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 SubscriptionSummaryCard(
                   summary: catalog.currentSubscription,
-                  subtitle:
-                      'Track plan status and workspace limits before the next renewal window.',
+                  subtitle: l10n.subscriptionSummarySubtitle,
                 ),
                 const SizedBox(height: AppSpacing.xl),
-                const AppSectionHeader(
-                  title: 'Available Plans',
-                  subtitle:
-                      'Mock plan options are ready for comparison and future backend-driven upgrades.',
+                AppSectionHeader(
+                  title: l10n.availablePlans,
+                  subtitle: l10n.availablePlansSubtitle,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 for (var index = 0; index < catalog.plans.length; index++) ...[
@@ -102,9 +100,10 @@ class PlansPage extends ConsumerWidget {
   }
 
   void _showPlanActionFeedback(BuildContext context, Plan plan) {
+    final l10n = appL10n(context);
     final message = plan.isRecommended
-        ? 'Enterprise upgrade review will be connected in a later phase.'
-        : '${plan.name} selection will be connected in a later phase.';
+        ? l10n.enterpriseUpgradeComingSoon
+        : l10n.planSelectionComingSoon(plan.name);
 
     ScaffoldMessenger.of(
       context,

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading_view.dart';
@@ -46,9 +47,10 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
     final filteredBranches = ref.watch(filteredBranchesProvider);
     final statusFilter = ref.watch(branchesStatusFilterProvider);
     final searchQuery = ref.watch(branchesSearchQueryProvider);
+    final l10n = appL10n(context);
 
     return AppPageScaffold(
-      title: 'Branches',
+      title: l10n.branches,
       actions: [
         IconButton(
           onPressed: () =>
@@ -69,16 +71,15 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const AppSectionHeader(
-            title: 'Branch Directory',
-            subtitle:
-                'Review branch availability, coverage, and wallet/user assignment.',
+          AppSectionHeader(
+            title: l10n.branchDirectory,
+            subtitle: l10n.branchDirectorySubtitle,
           ),
           const SizedBox(height: AppSpacing.md),
           AppTextField(
             controller: _searchController,
-            label: 'Search branches',
-            hintText: 'Search by branch name or code',
+            label: l10n.searchBranches,
+            hintText: l10n.searchBranchesHint,
             prefixIcon: const Icon(Icons.search_rounded),
             onChanged: ref
                 .read(branchesControllerProvider.notifier)
@@ -90,30 +91,32 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
             onSelected: ref
                 .read(branchesControllerProvider.notifier)
                 .updateStatusFilter,
-            options: const [
+            options: [
               FilterChipOption(
                 value: BranchStatusFilter.all,
-                label: 'All Status',
+                label: l10n.allStatus,
               ),
               FilterChipOption(
                 value: BranchStatusFilter.active,
-                label: 'Active',
+                label: l10n.active,
               ),
               FilterChipOption(
                 value: BranchStatusFilter.inactive,
-                label: 'Inactive',
+                label: l10n.inactive,
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          AppResultSummary(count: filteredBranches.length, label: 'branches'),
+          AppResultSummary(
+            count: filteredBranches.length,
+            label: l10n.branches,
+          ),
           const SizedBox(height: AppSpacing.md),
           Expanded(
             child: branchesState.when(
-              loading: () =>
-                  const AppLoadingView(message: 'Loading branches...'),
+              loading: () => AppLoadingView(message: l10n.loadingBranches),
               error: (error, stackTrace) => AppErrorState(
-                message: 'Unable to load branches right now.',
+                message: l10n.unableToLoadBranches,
                 onRetry: () =>
                     ref.read(branchesControllerProvider.notifier).reload(),
               ),
@@ -121,11 +124,11 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
                 if (filteredBranches.isEmpty) {
                   return AppEmptyState(
                     title: searchQuery.trim().isEmpty
-                        ? 'No branches available'
-                        : 'No matching branches',
+                        ? l10n.noBranchesAvailable
+                        : l10n.noMatchingBranches,
                     message: searchQuery.trim().isEmpty
-                        ? 'Tenant branches will appear here.'
-                        : 'Try a different search or status filter.',
+                        ? l10n.branchesEmptyMessage
+                        : l10n.branchesSearchEmptyMessage,
                     icon: Icons.storefront_outlined,
                   );
                 }

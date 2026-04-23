@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_status_badge.dart';
 import '../../domain/entities/branch.dart';
 
@@ -13,6 +14,7 @@ class BranchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = appL10n(context);
     final isActive = branch.status == BranchStatus.active;
 
     return Container(
@@ -45,7 +47,7 @@ class BranchCard extends StatelessWidget {
                 ),
               ),
               AppStatusBadge(
-                label: isActive ? 'Active' : 'Inactive',
+                label: isActive ? l10n.active : l10n.inactive,
                 foregroundColor: isActive
                     ? AppColors.success
                     : AppColors.textSecondary,
@@ -67,8 +69,8 @@ class BranchCard extends StatelessWidget {
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
-              _MetaTile(label: '${branch.usersCount} users'),
-              _MetaTile(label: '${branch.walletsCount} wallets'),
+              _MetaTile(label: l10n.usersCount(branch.usersCount)),
+              _MetaTile(label: l10n.walletsCount(branch.walletsCount)),
             ],
           ),
         ],

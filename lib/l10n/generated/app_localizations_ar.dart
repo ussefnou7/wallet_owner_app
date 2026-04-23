@@ -608,4 +608,164 @@ class AppLocalizationsAr extends AppLocalizations {
   String transactionSavedRef(String referenceId) {
     return 'تم حفظ المعاملة بنجاح. المرجع: $referenceId';
   }
+
+  @override
+  String get branchDirectory => 'دليل الفروع';
+
+  @override
+  String get branchDirectorySubtitle =>
+      'راجع توفر الفروع والتغطية وتعيين المحافظ والمستخدمين.';
+
+  @override
+  String get searchBranches => 'بحث في الفروع';
+
+  @override
+  String get searchBranchesHint => 'ابحث باسم الفرع أو الكود';
+
+  @override
+  String get allStatus => 'كل الحالات';
+
+  @override
+  String get loadingBranches => 'جارٍ تحميل الفروع...';
+
+  @override
+  String get unableToLoadBranches => 'تعذر تحميل الفروع حاليًا.';
+
+  @override
+  String get noBranchesAvailable => 'لا توجد فروع';
+
+  @override
+  String get noMatchingBranches => 'لا توجد فروع مطابقة';
+
+  @override
+  String get branchesEmptyMessage => 'ستظهر فروع المؤسسة هنا.';
+
+  @override
+  String get branchesSearchEmptyMessage => 'جرّب بحثًا أو حالة مختلفة.';
+
+  @override
+  String usersCount(int count) {
+    return '$count مستخدمين';
+  }
+
+  @override
+  String walletsCount(int count) {
+    return '$count محافظ';
+  }
+
+  @override
+  String get userDirectory => 'دليل المستخدمين';
+
+  @override
+  String get userDirectorySubtitle =>
+      'راقب حسابات المالكين والمستخدمين وتعيين الفروع وحالة النشاط.';
+
+  @override
+  String get searchUsers => 'بحث في المستخدمين';
+
+  @override
+  String get searchUsersHint => 'ابحث بالاسم أو البريد الإلكتروني أو الفرع';
+
+  @override
+  String get allRoles => 'كل الأدوار';
+
+  @override
+  String get owner => 'مالك';
+
+  @override
+  String get user => 'مستخدم';
+
+  @override
+  String get loadingUsers => 'جارٍ تحميل المستخدمين...';
+
+  @override
+  String get unableToLoadUsers => 'تعذر تحميل المستخدمين حاليًا.';
+
+  @override
+  String get noUsersAvailable => 'لا يوجد مستخدمون';
+
+  @override
+  String get noMatchingUsers => 'لا يوجد مستخدمون مطابقون';
+
+  @override
+  String get usersEmptyMessage => 'سيظهر مستخدمو مساحة العمل هنا.';
+
+  @override
+  String get usersSearchEmptyMessage => 'جرّب بحثًا أو تصفية مختلفة.';
+
+  @override
+  String get ownerRole => 'مالك';
+
+  @override
+  String get userRole => 'مستخدم';
+
+  @override
+  String get noBranch => 'لا يوجد فرع';
+
+  @override
+  String get loadingSubscriptionPlans => 'جارٍ تحميل باقات الاشتراك...';
+
+  @override
+  String get unableToLoadSubscriptionDetails =>
+      'تعذر تحميل تفاصيل الاشتراك حاليًا.';
+
+  @override
+  String get noPlansAvailable => 'لا توجد باقات';
+
+  @override
+  String get plansEmptyMessage => 'ستظهر خيارات باقات الاشتراك هنا.';
+
+  @override
+  String get subscriptionPlans => 'باقات الاشتراك';
+
+  @override
+  String get subscriptionPlansSubtitle =>
+      'راجع الاشتراك الحالي وقارن الباقات المتاحة وجهّز قرار الترقية القادم.';
+
+  @override
+  String get subscriptionSummarySubtitle =>
+      'تابع حالة الباقة وحدود مساحة العمل قبل نافذة التجديد القادمة.';
+
+  @override
+  String get availablePlans => 'الباقات المتاحة';
+
+  @override
+  String get availablePlansSubtitle =>
+      'خيارات الباقات التجريبية جاهزة للمقارنة والترقيات المستقبلية من الخادم.';
+
+  @override
+  String get current => 'الحالية';
+
+  @override
+  String get recommended => 'موصى بها';
+
+  @override
+  String get available => 'متاحة';
+
+  @override
+  String get currentPlanAction => 'الباقة الحالية';
+
+  @override
+  String get upgrade => 'ترقية';
+
+  @override
+  String get choosePlan => 'اختيار الباقة';
+
+  @override
+  String get maxUsers => 'الحد الأقصى للمستخدمين';
+
+  @override
+  String get maxWallets => 'الحد الأقصى للمحافظ';
+
+  @override
+  String get maxBranches => 'الحد الأقصى للفروع';
+
+  @override
+  String get enterpriseUpgradeComingSoon =>
+      'سيتم ربط مراجعة ترقية Enterprise في مرحلة لاحقة.';
+
+  @override
+  String planSelectionComingSoon(String planName) {
+    return 'سيتم ربط اختيار $planName في مرحلة لاحقة.';
+  }
 }
