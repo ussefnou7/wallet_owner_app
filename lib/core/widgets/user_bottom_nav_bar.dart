@@ -6,8 +6,8 @@ import '../constants/app_radii.dart';
 import '../constants/app_spacing.dart';
 import '../localization/app_l10n.dart';
 
-class OwnerBottomNavBar extends StatelessWidget {
-  const OwnerBottomNavBar({
+class UserBottomNavBar extends StatelessWidget {
+  const UserBottomNavBar({
     required this.currentRoute,
     required this.onRouteSelected,
     super.key,
@@ -50,10 +50,18 @@ class OwnerBottomNavBar extends StatelessWidget {
               children: [
                 Expanded(
                   child: _NavIconButton(
-                    tooltip: l10n.transactions,
-                    icon: Icons.receipt_long_rounded,
-                    selected: currentRoute == AppRoutes.transactions,
-                    onTap: () => onRouteSelected(AppRoutes.transactions),
+                    tooltip: l10n.dashboard,
+                    icon: Icons.space_dashboard_rounded,
+                    selected: currentRoute == AppRoutes.userDashboard,
+                    onTap: () => onRouteSelected(AppRoutes.userDashboard),
+                  ),
+                ),
+                Expanded(
+                  child: _NavIconButton(
+                    tooltip: l10n.wallets,
+                    icon: Icons.account_balance_wallet_rounded,
+                    selected: currentRoute == AppRoutes.userWallets,
+                    onTap: () => onRouteSelected(AppRoutes.userWallets),
                   ),
                 ),
                 Padding(
@@ -61,25 +69,18 @@ class OwnerBottomNavBar extends StatelessWidget {
                     horizontal: AppSpacing.sm,
                   ),
                   child: _CenterActionButton(
-                    selected: currentRoute == AppRoutes.createTransaction,
+                    selected: currentRoute == AppRoutes.userCreateTransaction,
                     tooltip: l10n.newTransaction,
-                    onTap: () => onRouteSelected(AppRoutes.createTransaction),
+                    onTap: () =>
+                        onRouteSelected(AppRoutes.userCreateTransaction),
                   ),
                 ),
                 Expanded(
                   child: _NavIconButton(
-                    tooltip: l10n.wallets,
-                    icon: Icons.account_balance_wallet_rounded,
-                    selected: currentRoute == AppRoutes.wallets,
-                    onTap: () => onRouteSelected(AppRoutes.wallets),
-                  ),
-                ),
-                Expanded(
-                  child: _NavIconButton(
-                    tooltip: l10n.dashboard,
-                    icon: Icons.space_dashboard_rounded,
-                    selected: currentRoute == AppRoutes.dashboard,
-                    onTap: () => onRouteSelected(AppRoutes.dashboard),
+                    tooltip: l10n.transactions,
+                    icon: Icons.receipt_long_rounded,
+                    selected: currentRoute == AppRoutes.userTransactions,
+                    onTap: () => onRouteSelected(AppRoutes.userTransactions),
                   ),
                 ),
               ],

@@ -7,9 +7,16 @@ import '../../../../core/utils/formatters.dart';
 import '../../domain/entities/wallet.dart';
 
 class WalletCard extends StatelessWidget {
-  const WalletCard({required this.wallet, super.key});
+  const WalletCard({
+    required this.wallet,
+    this.onEdit,
+    this.onDelete,
+    super.key,
+  });
 
   final Wallet wallet;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -44,25 +51,70 @@ class WalletCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm,
-                  vertical: AppSpacing.xs,
-                ),
-                decoration: BoxDecoration(
-                  color: isActive
-                      ? AppColors.successSoft
-                      : AppColors.surfaceVariant,
-                  borderRadius: BorderRadius.circular(AppRadii.xl),
-                ),
-                child: Text(
-                  isActive ? 'Active' : 'Inactive',
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: isActive
-                        ? AppColors.success
-                        : AppColors.textSecondary,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                      vertical: AppSpacing.xs,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isActive
+                          ? AppColors.successSoft
+                          : AppColors.surfaceVariant,
+                      borderRadius: BorderRadius.circular(AppRadii.xl),
+                    ),
+                    child: Text(
+                      isActive ? 'Active' : 'Inactive',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: isActive
+                            ? AppColors.success
+                            : AppColors.textSecondary,
+                      ),
+                    ),
                   ),
-                ),
+                  if (onEdit != null || onDelete != null) ...[
+                    const SizedBox(width: AppSpacing.xs),
+                    PopupMenuButton<_WalletAction>(
+                      tooltip: 'Wallet actions',
+                      onSelected: (action) {
+                        switch (action) {
+                          case _WalletAction.edit:
+                            onEdit?.call();
+                            break;
+                          case _WalletAction.delete:
+                            onDelete?.call();
+                            break;
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        if (onEdit != null)
+                          const PopupMenuItem(
+                            value: _WalletAction.edit,
+                            child: ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: Icon(Icons.edit_outlined),
+                              title: Text('Edit'),
+                            ),
+                          ),
+                        if (onDelete != null)
+                          const PopupMenuItem(
+                            value: _WalletAction.delete,
+                            child: ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: Icon(
+                                Icons.delete_outline_rounded,
+                                color: AppColors.danger,
+                              ),
+                              title: Text('Delete'),
+                            ),
+                          ),
+                      ],
+                      icon: const Icon(Icons.more_vert_rounded),
+                    ),
+                  ],
+                ],
               ),
             ],
           ),
@@ -90,6 +142,8 @@ class WalletCard extends StatelessWidget {
     );
   }
 }
+
+enum _WalletAction { edit, delete }
 
 class _MetaChip extends StatelessWidget {
   const _MetaChip({required this.label, required this.value});

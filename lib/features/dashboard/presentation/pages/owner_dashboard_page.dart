@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../providers/dashboard_provider.dart';
@@ -22,16 +23,16 @@ class _OwnerDashboardPageState extends ConsumerState<OwnerDashboardPage> {
   Widget build(BuildContext context) {
     final summary = ref.watch(dashboardSummaryProvider);
     final periodStats = _periodStats[_selectedPeriod]!;
+    final l10n = appL10n(context);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const AppSectionHeader(
-            title: 'Portfolio Overview',
-            subtitle:
-                'Track balance movement and wallet activity across your owner account.',
+          AppSectionHeader(
+            title: l10n.portfolioOverview,
+            subtitle: l10n.portfolioOverviewSubtitle,
           ),
           const SizedBox(height: AppSpacing.lg),
           _BalanceCard(
@@ -50,7 +51,7 @@ class _OwnerDashboardPageState extends ConsumerState<OwnerDashboardPage> {
             children: [
               Expanded(
                 child: _AmountSummaryCard(
-                  label: 'Total Credits',
+                  label: l10n.totalCredits,
                   amount: periodStats.totalCredits,
                   icon: Icons.south_west_rounded,
                   toneColor: AppColors.success,
@@ -60,7 +61,7 @@ class _OwnerDashboardPageState extends ConsumerState<OwnerDashboardPage> {
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: _AmountSummaryCard(
-                  label: 'Total Debits',
+                  label: l10n.totalDebits,
                   amount: periodStats.totalDebits,
                   icon: Icons.north_east_rounded,
                   toneColor: AppColors.danger,
@@ -96,16 +97,14 @@ const _periodStats = {
 };
 
 class _BalanceCard extends StatelessWidget {
-  const _BalanceCard({
-    required this.totalBalance,
-    required this.activeWallets,
-  });
+  const _BalanceCard({required this.totalBalance, required this.activeWallets});
 
   final double totalBalance;
   final int activeWallets;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = appL10n(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -117,10 +116,10 @@ class _BalanceCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Total Balance',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.white70,
-            ),
+            l10n.totalBalance,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
@@ -150,10 +149,10 @@ class _BalanceCard extends StatelessWidget {
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Text(
-                  '$activeWallets active wallets',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Colors.white,
-                  ),
+                  l10n.activeWalletsCount(activeWallets),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(color: Colors.white),
                 ),
               ],
             ),
@@ -175,13 +174,14 @@ class _PeriodSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = appL10n(context);
     return Row(
       children: DashboardPeriod.values.map((period) {
         final isSelected = period == selectedPeriod;
         final label = switch (period) {
-          DashboardPeriod.daily => 'Daily',
-          DashboardPeriod.monthly => 'Monthly',
-          DashboardPeriod.yearly => 'Yearly',
+          DashboardPeriod.daily => l10n.daily,
+          DashboardPeriod.monthly => l10n.monthly,
+          DashboardPeriod.yearly => l10n.yearly,
         };
 
         return Expanded(
@@ -262,16 +262,16 @@ class _AmountSummaryCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           Text(
             label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.textSecondary,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             formatCurrency(amount),
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),

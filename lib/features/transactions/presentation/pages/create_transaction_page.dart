@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/utils/formatters.dart';
+import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/utils/input_formatters.dart';
 import '../../../../core/widgets/app_buttons.dart';
 import '../../../../core/widgets/app_dropdown_field.dart';
@@ -11,7 +14,6 @@ import '../../../../core/widgets/app_form_section.dart';
 import '../../../../core/widgets/app_loading_view.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
-import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../wallets/domain/entities/wallet.dart';
 import '../../../wallets/presentation/controllers/wallets_controller.dart';
 import '../../domain/entities/transaction_draft.dart';
@@ -30,24 +32,20 @@ class CreateTransactionPage extends ConsumerStatefulWidget {
 class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
-  final _noteController = TextEditingController();
-  final _dateController = TextEditingController();
+  final _percentController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
+  final _descriptionController = TextEditingController();
 
   String? _selectedWalletId;
   TransactionEntryType? _selectedType;
-  DateTime _selectedDate = DateTime.now();
-
-  @override
-  void initState() {
-    super.initState();
-    _dateController.text = formatDate(_selectedDate);
-  }
+  bool _cash = false;
 
   @override
   void dispose() {
     _amountController.dispose();
-    _noteController.dispose();
-    _dateController.dispose();
+    _percentController.dispose();
+    _phoneNumberController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -55,15 +53,14 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
   Widget build(BuildContext context) {
     final walletsState = ref.watch(walletsControllerProvider);
     final submissionState = ref.watch(createTransactionControllerProvider);
-    final session = ref.watch(authControllerProvider).session;
+    final l10n = appL10n(context);
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: walletsState.when(
-        loading: () =>
-            const AppLoadingView(message: 'Loading wallet options...'),
+        loading: () => AppLoadingView(message: l10n.loadingWalletOptions),
         error: (error, stackTrace) => AppErrorState(
-          message: 'Unable to load wallet options.',
+          message: l10n.unableToLoadWalletOptions,
           onRetry: () => ref.read(walletsControllerProvider.notifier).reload(),
         ),
         data: (wallets) {
@@ -72,10 +69,9 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const AppSectionHeader(
-                  title: 'Record Transaction',
-                  subtitle:
-                      'Capture the details after the real-life transaction has already happened.',
+                AppSectionHeader(
+                  title: l10n.recordTransaction,
+                  subtitle: l10n.recordTransactionSubtitle,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 if (submissionState.lastResult != null) ...[
@@ -92,15 +88,15 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
                   const SizedBox(height: AppSpacing.md),
                 ],
                 AppFormSection(
-                  title: 'Transaction Details',
+                  title: l10n.transactionDetails,
                   child: Form(
                     key: _formKey,
                     child: Column(
                       children: [
                         AppDropdownField<String>(
                           value: _selectedWalletId,
-                          label: 'Wallet',
-                          hintText: 'Select a wallet',
+                          label: l10n.wallet,
+                          hintText: l10n.selectWallet,
                           prefixIcon: const Icon(
                             Icons.account_balance_wallet_outlined,
                           ),
@@ -117,7 +113,7 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Wallet is required';
+                              return l10n.walletRequired;
                             }
                             return null;
                           },
@@ -125,25 +121,30 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
                         const SizedBox(height: AppSpacing.md),
                         AppDropdownField<TransactionEntryType>(
                           value: _selectedType,
-                          label: 'Transaction Type',
-                          hintText: 'Select credit or debit',
+                          label: l10n.transactionType,
+                          hintText: l10n.selectCreditOrDebit,
                           prefixIcon: const Icon(Icons.swap_vert_rounded),
-                          items: const [
+                          items: [
                             DropdownMenuItem(
                               value: TransactionEntryType.credit,
-                              child: Text('Credit'),
+                              child: Text(l10n.credit),
                             ),
                             DropdownMenuItem(
                               value: TransactionEntryType.debit,
-                              child: Text('Debit'),
+                              child: Text(l10n.debit),
                             ),
                           ],
                           onChanged: (value) {
-                            setState(() => _selectedType = value);
+                            setState(() {
+                              _selectedType = value;
+                              if (value != TransactionEntryType.credit) {
+                                _cash = false;
+                              }
+                            });
                           },
                           validator: (value) {
                             if (value == null) {
-                              return 'Transaction type is required';
+                              return l10n.transactionTypeRequired;
                             }
                             return null;
                           },
@@ -151,7 +152,7 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
                         const SizedBox(height: AppSpacing.md),
                         AppTextField(
                           controller: _amountController,
-                          label: 'Amount',
+                          label: l10n.amount,
                           hintText: '0.00',
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
@@ -160,34 +161,72 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
                           inputFormatters: [PositiveAmountInputFormatter()],
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Amount is required';
+                              return l10n.amountRequired;
                             }
                             final amount = double.tryParse(value);
                             if (amount == null || amount <= 0) {
-                              return 'Enter a positive amount';
+                              return l10n.positiveAmountRequired;
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: AppSpacing.md),
                         AppTextField(
-                          controller: _dateController,
-                          label: 'Date',
-                          readOnly: true,
-                          prefixIcon: const Icon(Icons.calendar_today_outlined),
-                          onTap: _pickDate,
+                          controller: _percentController,
+                          label: l10n.percent,
+                          hintText: '0.00',
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          prefixIcon: const Icon(Icons.percent_rounded),
+                          inputFormatters: [PositiveAmountInputFormatter()],
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Date is required';
+                              return l10n.percentRequired;
+                            }
+                            final percent = double.tryParse(value);
+                            if (percent == null || percent < 0) {
+                              return l10n.validPercentRequired;
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: AppSpacing.md),
                         AppTextField(
-                          controller: _noteController,
-                          label: 'Note',
-                          hintText: 'Add a short note',
+                          controller: _phoneNumberController,
+                          label: l10n.phoneNumber,
+                          hintText: '01000256987',
+                          keyboardType: TextInputType.phone,
+                          prefixIcon: const Icon(Icons.phone_outlined),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return l10n.phoneNumberRequired;
+                            }
+                            if (value.trim().length < 8) {
+                              return l10n.validPhoneNumberRequired;
+                            }
+                            return null;
+                          },
+                        ),
+                        if (_selectedType == TransactionEntryType.credit) ...[
+                          const SizedBox(height: AppSpacing.md),
+                          SwitchListTile.adaptive(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(l10n.cash),
+                            value: _cash,
+                            onChanged: (value) {
+                              setState(() => _cash = value);
+                            },
+                          ),
+                        ],
+                        const SizedBox(height: AppSpacing.md),
+                        AppTextField(
+                          controller: _descriptionController,
+                          label: l10n.description,
+                          hintText: l10n.optionalDescription,
                           prefixIcon: const Icon(Icons.notes_rounded),
                           maxLines: 3,
                         ),
@@ -195,44 +234,13 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: AppSpacing.md),
-                AppFormSection(
-                  title: 'Submission Summary',
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _SummaryRow(
-                        label: 'Created by',
-                        value: session?.displayName ?? 'Owner User',
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      _SummaryRow(
-                        label: 'Role',
-                        value: session?.roleLabel ?? 'OWNER',
-                      ),
-                      if (_selectedWalletId != null) ...[
-                        const SizedBox(height: AppSpacing.sm),
-                        _SummaryRow(
-                          label: 'Wallet Balance',
-                          value: formatCurrency(
-                            wallets
-                                .firstWhere(
-                                  (wallet) => wallet.id == _selectedWalletId,
-                                )
-                                .balance,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
                 const SizedBox(height: AppSpacing.lg),
                 SizedBox(
                   width: double.infinity,
                   child: AppPrimaryButton(
-                    label: 'Save Transaction',
+                    label: l10n.saveTransaction,
                     isLoading: submissionState.isSubmitting,
-                    onPressed: () => _submit(wallets, session?.displayName),
+                    onPressed: () => _submit(wallets),
                   ),
                 ),
               ],
@@ -243,25 +251,7 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
     );
   }
 
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    );
-
-    if (picked == null) {
-      return;
-    }
-
-    setState(() {
-      _selectedDate = picked;
-      _dateController.text = formatDate(picked);
-    });
-  }
-
-  Future<void> _submit(List<Wallet> wallets, String? displayName) async {
+  Future<void> _submit(List<Wallet> wallets) async {
     FocusScope.of(context).unfocus();
     ref.read(createTransactionControllerProvider.notifier).clearFeedback();
 
@@ -273,9 +263,14 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
       walletId: _selectedWalletId!,
       type: _selectedType!,
       amount: double.parse(_amountController.text.trim()),
-      note: _noteController.text.trim(),
-      date: _selectedDate,
-      createdBy: displayName ?? 'Owner User',
+      percent: double.parse(_percentController.text.trim()),
+      externalTransactionId: _generateUuid(),
+      occurredAt: DateTime.now(),
+      phoneNumber: _phoneNumberController.text.trim(),
+      cash: _selectedType == TransactionEntryType.credit ? _cash : false,
+      description: _descriptionController.text.trim().isEmpty
+          ? null
+          : _descriptionController.text.trim(),
     );
 
     final success = await ref
@@ -292,42 +287,41 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
     final selectedWallet = wallets.firstWhere(
       (wallet) => wallet.id == _selectedWalletId,
     );
+    final l10n = appL10n(context);
+    final typeLabel = _selectedType == TransactionEntryType.credit
+        ? l10n.credit
+        : l10n.debit;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Saved ${_selectedType!.name} transaction for ${selectedWallet.name}.',
+          l10n.savedTransactionForWallet(typeLabel, selectedWallet.name),
         ),
       ),
     );
 
     _formKey.currentState?.reset();
     _amountController.clear();
-    _noteController.clear();
+    _percentController.clear();
+    _phoneNumberController.clear();
+    _descriptionController.clear();
     setState(() {
       _selectedWalletId = null;
       _selectedType = null;
-      _selectedDate = DateTime.now();
-      _dateController.text = formatDate(_selectedDate);
+      _cash = false;
     });
   }
-}
 
-class _SummaryRow extends StatelessWidget {
-  const _SummaryRow({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(label, style: Theme.of(context).textTheme.bodySmall),
-        ),
-        Text(value, style: Theme.of(context).textTheme.titleSmall),
-      ],
-    );
+  String _generateUuid() {
+    final random = Random.secure();
+    final bytes = List<int>.generate(16, (_) => random.nextInt(256));
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    final hex = bytes
+        .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
+        .join();
+    return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-'
+        '${hex.substring(12, 16)}-${hex.substring(16, 20)}-'
+        '${hex.substring(20)}';
   }
 }

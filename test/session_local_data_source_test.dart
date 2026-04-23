@@ -112,6 +112,28 @@ void main() {
     expect(await dataSource.readRefreshToken(), isNull);
   });
 
+  test('expired cached session is cleared and returns null', () async {
+    SharedPreferences.setMockInitialValues({
+      sessionKey:
+          '{"username":"Ussef","role":"OWNER","tokenExpiresAt":"2020-01-01T00:00:00.000Z"}',
+    });
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final secureStorage = _FakeSecureStorage()
+      ..seed(accessTokenKey, 'access-token')
+      ..seed(refreshTokenKey, 'refresh-token');
+    final dataSource = SessionLocalDataSource(
+      secureStorage: secureStorage,
+      sharedPreferences: sharedPreferences,
+    );
+
+    final restoredSession = await dataSource.readSession();
+
+    expect(restoredSession, isNull);
+    expect(sharedPreferences.getString(sessionKey), isNull);
+    expect(await dataSource.readAccessToken(), isNull);
+    expect(await dataSource.readRefreshToken(), isNull);
+  });
+
   test('session parser rejects missing token payload', () {
     expect(
       () => Session.fromJson(const {'username': 'Ussef', 'role': 'owner'}),

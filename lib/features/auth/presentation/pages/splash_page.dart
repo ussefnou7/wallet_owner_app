@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_loading_view.dart';
 
 class SplashPage extends StatelessWidget {
@@ -7,8 +8,9 @@ class SplashPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: SafeArea(child: AppLoadingView(message: 'Loading workspace...')),
+    final l10n = appL10n(context);
+    return Scaffold(
+      body: SafeArea(child: AppLoadingView(message: l10n.loadingWorkspace)),
     );
   }
 }

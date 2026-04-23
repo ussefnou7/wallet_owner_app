@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_status_badge.dart';
 import '../../domain/entities/transaction_draft.dart';
@@ -15,11 +16,12 @@ class TransactionRecordTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = appL10n(context);
     final isCredit = transaction.type == TransactionEntryType.credit;
     final typeLabel = switch (transaction.type) {
-      TransactionEntryType.credit => 'Credit',
-      TransactionEntryType.debit => 'Debit',
-      TransactionEntryType.unknown => 'Unknown',
+      TransactionEntryType.credit => l10n.credit,
+      TransactionEntryType.debit => l10n.debit,
+      TransactionEntryType.unknown => l10n.unknown,
     };
     final statusColor = transaction.status == TransactionRecordStatus.recorded
         ? AppColors.success
@@ -72,8 +74,8 @@ class TransactionRecordTile extends StatelessWidget {
               ),
               AppStatusBadge(
                 label: transaction.status == TransactionRecordStatus.recorded
-                    ? 'Recorded'
-                    : 'Pending',
+                    ? l10n.recorded
+                    : l10n.pending,
                 foregroundColor: statusColor,
                 backgroundColor: statusBackground,
               ),
@@ -106,7 +108,7 @@ class TransactionRecordTile extends StatelessWidget {
           ],
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Created by ${transaction.createdBy}',
+            l10n.createdBy(transaction.createdBy),
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],

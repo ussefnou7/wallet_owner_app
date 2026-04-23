@@ -5,9 +5,12 @@ class TransactionDraftModel extends TransactionDraft {
     required super.walletId,
     required super.type,
     required super.amount,
-    required super.note,
-    required super.date,
-    required super.createdBy,
+    required super.percent,
+    required super.externalTransactionId,
+    required super.occurredAt,
+    required super.phoneNumber,
+    required super.cash,
+    super.description,
   });
 
   Map<String, dynamic> toJson() {
@@ -19,11 +22,26 @@ class TransactionDraftModel extends TransactionDraft {
         TransactionEntryType.unknown => 'UNKNOWN',
       },
       'amount': amount,
-      // TODO: Confirm transaction fee semantics with the backend. The current
-      // owner UI has no fee input, while the create request example sends
-      // `fee` and the response returns `percent`.
-      'fee': 0,
-      'description': note,
+      // TODO: Confirm backend contract history: older request examples used
+      // `fee`, while the current create screen and response contract use
+      // `percent`.
+      'percent': percent,
+      'externalTransactionId': externalTransactionId,
+      'occurredAt': _formatOccurredAt(occurredAt),
+      'phoneNumber': phoneNumber,
+      'cash': cash,
+      'description': description?.trim() ?? '',
     };
+  }
+
+  String _formatOccurredAt(DateTime value) {
+    final local = value.toLocal();
+    final year = local.year.toString().padLeft(4, '0');
+    final month = local.month.toString().padLeft(2, '0');
+    final day = local.day.toString().padLeft(2, '0');
+    final hour = local.hour.toString().padLeft(2, '0');
+    final minute = local.minute.toString().padLeft(2, '0');
+    final second = local.second.toString().padLeft(2, '0');
+    return '$year-$month-${day}T$hour:$minute:$second';
   }
 }

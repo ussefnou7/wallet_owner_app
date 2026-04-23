@@ -1,14 +1,32 @@
 abstract final class AppRoutes {
   static const splash = '/';
   static const login = '/login';
-  static const dashboard = '/dashboard';
-  static const wallets = '/wallets';
-  static const transactions = '/transactions';
-  static const createTransaction = '/transactions/create';
-  static const reports = '/reports';
-  static const users = '/users';
-  static const branches = '/branches';
-  static const plans = '/plans';
-  static const requestRenewal = '/request-renewal';
-  static const settings = '/settings';
+  static const unauthorizedRole = '/unauthorized-role';
+
+  static const ownerDashboard = '/owner/dashboard';
+  static const ownerWallets = '/owner/wallets';
+  static const ownerTransactions = '/owner/transactions';
+  static const ownerCreateTransaction = '/owner/transactions/create';
+  static const ownerReports = '/owner/reports';
+  static const ownerUsers = '/owner/users';
+  static const ownerBranches = '/owner/branches';
+  static const ownerPlans = '/owner/plans';
+  static const ownerRequestRenewal = '/owner/request-renewal';
+  static const ownerSettings = '/owner/settings';
+
+  static const userDashboard = '/user/dashboard';
+  static const userWallets = '/user/wallets';
+  static const userTransactions = '/user/transactions';
+  static const userCreateTransaction = '/user/transactions/create';
+
+  static const dashboard = ownerDashboard;
+  static const wallets = ownerWallets;
+  static const transactions = ownerTransactions;
+  static const createTransaction = ownerCreateTransaction;
+  static const reports = ownerReports;
+  static const users = ownerUsers;
+  static const branches = ownerBranches;
+  static const plans = ownerPlans;
+  static const requestRenewal = ownerRequestRenewal;
+  static const settings = ownerSettings;
 }

@@ -14,22 +14,41 @@ import 'package:wallet_owner_app/features/auth/domain/entities/session.dart';
 void main() {
   test('login response model parses token variants and fallback claims', () {
     const token =
-        'header.eyJzdWIiOiJVc3NlZiIsInVzZXJJZCI6ImIyZDA4MTc1LWYwYzAtNGJmMy1iY2NhLTY3MmQ1OTY1ZjdlNCIsInRlbmFudElkIjoiMTcxYzJlYzgtMDljOS00Yzc0LWIxNGMtYWQwYzViZDQ4MDMwIiwicm9sZSI6IlNZU1RFTV9BRE1JTiIsImV4cCI6MTc3NjYzMDYzMH0.signature';
+        'header.eyJzdWIiOiJVc3NlZiIsInVzZXJJZCI6ImIyZDA4MTc1LWYwYzAtNGJmMy1iY2NhLTY3MmQ1OTY1ZjdlNCIsInRlbmFudElkIjoiMTcxYzJlYzgtMDljOS00Yzc0LWIxNGMtYWQwYzViZDQ4MDMwIiwicm9sZSI6Ik9XTkVSIiwiZXhwIjoxNzc2NjMwNjMwfQ.signature';
 
     final model = LoginResponseModel.fromJson({
       'token': token,
       'username': 'Ussef',
-      'role': 'SYSTEM_ADMIN',
+      'role': 'OWNER',
     });
 
     expect(model.accessToken, token);
     expect(model.username, 'Ussef');
-    expect(model.backendRole, 'SYSTEM_ADMIN');
+    expect(model.backendRole, 'OWNER');
     expect(model.userId, 'b2d08175-f0c0-4bf3-bcca-672d5965f7e4');
     expect(model.role, UserRole.owner);
     expect(model.tenantId, '171c2ec8-09c9-4c74-b14c-ad0c5bd48030');
     expect(model.displayName, 'Ussef');
     expect(model.tokenExpiresAt, isNotNull);
+  });
+
+  test('role parser supports confirmed backend roles only', () {
+    expect(Session.fromBackendRole('OWNER'), UserRole.owner);
+    expect(Session.fromBackendRole('USER'), UserRole.user);
+    expect(Session.fromBackendRole('ROLE_USER'), UserRole.unknown);
+    expect(Session.fromBackendRole('SYSTEM_ADMIN'), UserRole.unknown);
+    expect(Session.fromBackendRole('not-a-supported-role'), UserRole.unknown);
+  });
+
+  test('login response model reads list-based role claims', () {
+    const token =
+        'header.eyJzdWIiOiJ1c2VyMSIsInJvbGVzIjpbIlVTRVIiXX0.signature';
+
+    final model = LoginResponseModel.fromJson({'token': token});
+
+    expect(model.username, 'user1');
+    expect(model.backendRole, 'USER');
+    expect(model.role, UserRole.user);
   });
 
   test(
@@ -47,9 +66,9 @@ void main() {
         remoteDataSource: _FakeAuthRemoteDataSource.success(
           LoginResponseModel.fromJson({
             'token':
-                'header.eyJzdWIiOiJvd25lcjEiLCJ1c2VySWQiOiJ1c2VyLTEiLCJ0ZW5hbnRJZCI6InRlbmFudC1kZW1vIiwicm9sZSI6IlNZU1RFTV9BRE1JTiJ9.signature',
+                'header.eyJzdWIiOiJvd25lcjEiLCJ1c2VySWQiOiJ1c2VyLTEiLCJ0ZW5hbnRJZCI6InRlbmFudC1kZW1vIiwicm9sZSI6Ik9XTkVSIn0.signature',
             'username': 'owner1',
-            'role': 'SYSTEM_ADMIN',
+            'role': 'OWNER',
           }),
         ),
       );
@@ -61,7 +80,7 @@ void main() {
 
       expect(session.userId, 'user-1');
       expect(session.username, 'owner1');
-      expect(session.backendRole, 'SYSTEM_ADMIN');
+      expect(session.backendRole, 'OWNER');
       expect(await localDataSource.readAccessToken(), contains('header.'));
       expect(await repository.getCurrentSession(), isNotNull);
 

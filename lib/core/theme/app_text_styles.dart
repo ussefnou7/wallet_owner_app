@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 
 abstract final class AppTextStyles {
-  static const TextTheme textTheme = TextTheme(
+  static const fontFamily = 'Cairo';
+
+  static final TextTheme textTheme = const TextTheme(
     displaySmall: TextStyle(
       fontSize: 30,
       fontWeight: FontWeight.w700,
@@ -59,5 +61,5 @@ abstract final class AppTextStyles {
       fontWeight: FontWeight.w600,
       color: AppColors.textSecondary,
     ),
-  );
+  ).apply(fontFamily: fontFamily);
 }

@@ -5,6 +5,7 @@ import '../constants/app_colors.dart';
 import '../constants/app_dimensions.dart';
 import '../constants/app_radii.dart';
 import '../constants/app_spacing.dart';
+import '../localization/app_l10n.dart';
 
 class AppBottomNavBar extends StatelessWidget {
   const AppBottomNavBar({
@@ -18,22 +19,23 @@ class AppBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const items = [
+    final l10n = appL10n(context);
+    final items = [
       _NavItem(
         route: AppRoutes.wallets,
-        label: 'Wallets',
+        label: l10n.wallets,
         icon: Icons.account_balance_wallet_outlined,
         selectedIcon: Icons.account_balance_wallet,
       ),
       _NavItem(
         route: AppRoutes.createTransaction,
-        label: 'Create',
+        label: l10n.create,
         icon: Icons.add_circle_outline,
         selectedIcon: Icons.add_circle,
       ),
       _NavItem(
         route: AppRoutes.reports,
-        label: 'Reports',
+        label: l10n.reports,
         icon: Icons.bar_chart_outlined,
         selectedIcon: Icons.bar_chart,
       ),

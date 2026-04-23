@@ -1,0 +1,251 @@
+{
+  "@@locale": "en",
+  "appName": "Wallet Owner",
+  "language": "Language",
+  "english": "English",
+  "arabic": "Arabic",
+  "dashboard": "Dashboard",
+  "wallets": "Wallets",
+  "transactions": "Transactions",
+  "createTransaction": "Create Transaction",
+  "newTransaction": "New transaction",
+  "reports": "Reports",
+  "settings": "Settings",
+  "plans": "Plans",
+  "requestRenewal": "Request Renewal",
+  "totalBalance": "Total Balance",
+  "activeWallets": "Active Wallets",
+  "daily": "Daily",
+  "monthly": "Monthly",
+  "yearly": "Yearly",
+  "credits": "Credits",
+  "debits": "Debits",
+  "credit": "Credit",
+  "debit": "Debit",
+  "logout": "Logout",
+  "save": "Save",
+  "cancel": "Cancel",
+  "retry": "Retry",
+  "loading": "Loading",
+  "noData": "No data",
+  "search": "Search",
+  "filter": "Filter",
+  "amount": "Amount",
+  "type": "Type",
+  "date": "Date",
+  "status": "Status",
+  "name": "Name",
+  "number": "Number",
+  "balance": "Balance",
+  "note": "Note",
+  "submit": "Submit",
+  "success": "Success",
+  "error": "Error",
+  "users": "Users",
+  "branches": "Branches",
+  "owners": "Owners",
+  "notifications": "Notifications",
+  "profile": "Profile",
+  "overview": "Overview",
+  "welcome": "Welcome",
+  "create": "Create",
+  "back": "Back",
+  "confirm": "Confirm",
+  "delete": "Delete",
+  "edit": "Edit",
+  "refresh": "Refresh",
+  "all": "All",
+  "active": "Active",
+  "inactive": "Inactive",
+  "enabled": "Enabled",
+  "disabled": "Disabled",
+  "notAvailable": "Not available",
+  "portfolioOverview": "Portfolio Overview",
+  "portfolioOverviewSubtitle": "Track balance movement and wallet activity across your owner account.",
+  "totalCredits": "Total Credits",
+  "totalDebits": "Total Debits",
+  "activeWalletsCount": "{count} active wallets",
+  "@activeWalletsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "walletDirectory": "Wallet Directory",
+  "walletDirectoryManageSubtitle": "Review wallet balances, branch assignment, and status.",
+  "walletDirectoryReadOnlySubtitle": "Review the wallets available to your account.",
+  "searchWallets": "Search wallets",
+  "searchWalletsHint": "Search by name, code, or branch",
+  "loadingWallets": "Loading wallets...",
+  "unableToLoadWallets": "Unable to load wallets right now.",
+  "noWalletsFound": "No wallets found",
+  "noMatchingWallets": "No matching wallets",
+  "walletsEmptyMessage": "Wallet records will appear here once available.",
+  "walletsSearchEmptyMessage": "Try a different search term or clear the filter.",
+  "createWallet": "Create wallet",
+  "editWallet": "Edit wallet",
+  "walletName": "Wallet name",
+  "walletNameRequired": "Wallet name is required",
+  "walletCreated": "Wallet created.",
+  "walletUpdated": "Wallet updated.",
+  "walletCreateFailed": "Unable to create wallet. Please try again.",
+  "walletUpdateFailed": "Unable to update wallet. Please try again.",
+  "deleteWallet": "Delete wallet",
+  "deleteWalletConfirmation": "Delete {name}? This action cannot be undone.",
+  "@deleteWalletConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "walletDeleted": "Wallet deleted.",
+  "walletDeleteFailed": "Unable to delete wallet. Please try again.",
+  "transactionsHistory": "Transactions History",
+  "transactionsHistorySubtitle": "Search and review recorded credit and debit activity across wallets.",
+  "searchTransactions": "Search transactions",
+  "searchTransactionsHint": "Search by wallet, note, or created by",
+  "refreshTransactions": "Refresh transactions",
+  "loadingTransactions": "Loading transactions...",
+  "unableToLoadTransactions": "Unable to load transactions right now.",
+  "noTransactionsAvailable": "No transactions available",
+  "noMatchingTransactions": "No matching transactions",
+  "transactionsEmptyMessage": "Recorded transactions will appear here.",
+  "transactionsSearchEmptyMessage": "Try a different search or filter combination.",
+  "recordTransaction": "Record Transaction",
+  "recordTransactionSubtitle": "Capture the details after the real-life transaction has already happened.",
+  "transactionDetails": "Transaction Details",
+  "wallet": "Wallet",
+  "selectWallet": "Select a wallet",
+  "walletRequired": "Wallet is required",
+  "transactionType": "Transaction Type",
+  "selectCreditOrDebit": "Select credit or debit",
+  "transactionTypeRequired": "Transaction type is required",
+  "amountRequired": "Amount is required",
+  "positiveAmountRequired": "Enter a positive amount",
+  "percent": "Percent",
+  "percentRequired": "Percent is required",
+  "validPercentRequired": "Enter a valid percent",
+  "phoneNumber": "Phone Number",
+  "phoneNumberRequired": "Phone number is required",
+  "validPhoneNumberRequired": "Enter a valid phone number",
+  "cash": "Cash",
+  "description": "Description",
+  "optionalDescription": "Optional description",
+  "saveTransaction": "Save Transaction",
+  "loadingWalletOptions": "Loading wallet options...",
+  "unableToLoadWalletOptions": "Unable to load wallet options.",
+  "savedTransactionForWallet": "Saved {type} transaction for {walletName}.",
+  "@savedTransactionForWallet": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "walletName": {
+        "type": "String"
+      }
+    }
+  },
+  "ownerSettings": "Owner Settings",
+  "ownerSettingsSubtitle": "Review account identity, workspace status, app preferences, and session actions from one place.",
+  "account": "Account",
+  "accountSubtitle": "Current owner identity and workspace assignment.",
+  "ownerName": "Owner name",
+  "email": "Email",
+  "role": "Role",
+  "workspace": "Workspace",
+  "workspaceSubscription": "Workspace & Subscription",
+  "workspaceSubscriptionSubtitle": "Read-only workspace subscription overview.",
+  "loadingWorkspaceSubscription": "Loading workspace subscription...",
+  "unableToLoadSubscription": "Unable to load subscription summary right now.",
+  "currentPlan": "Current plan",
+  "renewalDate": "Renewal date",
+  "openPlans": "Open Plans",
+  "openPlansSubtitle": "Review available plan tiers and limits.",
+  "requestRenewalSubtitle": "Send a mock renewal or upgrade request.",
+  "preferences": "Preferences",
+  "preferencesSubtitle": "Lightweight app preferences for this frontend phase.",
+  "notificationsEnabledSubtitle": "Enabled for mock owner alerts",
+  "notificationsDisabledSubtitle": "Disabled for mock owner alerts",
+  "theme": "Theme",
+  "systemDefault": "System default",
+  "themeComingSoon": "Theme settings will be added after backend integration planning.",
+  "appVersion": "App version",
+  "securitySession": "Security & Session",
+  "securitySessionSubtitle": "Mock account security actions and session controls.",
+  "changePassword": "Change password",
+  "changePasswordSubtitle": "Available later with backend integration.",
+  "changePasswordComingSoon": "Password management will be connected in a later phase.",
+  "session": "Session",
+  "signedInAs": "Signed in as {value}",
+  "@signedInAs": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "logoutSubtitle": "Sign out from the current owner session.",
+  "notificationsComingSoon": "Notifications will be available soon.",
+  "reportingWorkspace": "Reporting Workspace",
+  "reportingWorkspaceSubtitle": "Choose a report entry point to review financial and operational performance.",
+  "financialReports": "Financial Reports",
+  "financialReportsSubtitle": "High-level financial views for owner monitoring.",
+  "operationalReports": "Operational Reports",
+  "operationalReportsSubtitle": "Operational activity summaries across teams and branches.",
+  "exportFormats": "Export Formats",
+  "exportFormatsSubtitle": "Prepare reports for sharing and offline review.",
+  "reportAvailableLater": "{title} will be available later.",
+  "@reportAvailableLater": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "signIn": "Sign in",
+  "signInSubtitle": "Use your owner account to access wallet controls and reporting.",
+  "username": "Username",
+  "password": "Password",
+  "enterPassword": "Enter your password",
+  "usernamePlaceholder": "Username",
+  "passwordPlaceholder": "Password",
+  "login": "Login",
+  "continueAsOwner": "Login",
+  "authStorageNote": "Uses the configured authentication endpoint and stores the active session locally.",
+  "usernameRequired": "Username is required",
+  "passwordRequired": "Password is required",
+  "passwordTooShort": "Password is too short",
+  "loginHeroSubtitle": "Mobile access for owner-level wallet oversight, transaction recording, and reporting.",
+  "loadingWorkspace": "Loading workspace...",
+  "unsupportedAccountRole": "Unsupported account role",
+  "unsupportedAccountRoleMessage": "This app supports OWNER and USER accounts. Current role: {role}.",
+  "@unsupportedAccountRoleMessage": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "signOut": "Sign out",
+  "unknown": "Unknown",
+  "recorded": "Recorded",
+  "pending": "Pending",
+  "createdBy": "Created by {name}",
+  "@createdBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "transactionSavedRef": "Transaction saved successfully. Ref: {referenceId}",
+  "@transactionSavedRef": {
+    "placeholders": {
+      "referenceId": {
+        "type": "String"
+      }
+    }
+  }
+}

@@ -10,40 +10,16 @@ import '../constants/app_radii.dart';
 import '../constants/app_spacing.dart';
 import '../localization/app_l10n.dart';
 
-class OwnerAppDrawer extends ConsumerWidget {
-  const OwnerAppDrawer({required this.currentRoute, super.key});
-
-  final String currentRoute;
+class UserAppDrawer extends ConsumerWidget {
+  const UserAppDrawer({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = appL10n(context);
     final session = ref.watch(authControllerProvider).session;
-    final ownerName = session?.displayName ?? l10n.appName;
-    final username = session?.username ?? 'owner';
-    final roleLabel = session?.roleLabel ?? 'OWNER';
-    final items = [
-      _DrawerItemData(
-        label: l10n.branches,
-        route: AppRoutes.branches,
-        icon: Icons.storefront_outlined,
-      ),
-      _DrawerItemData(
-        label: l10n.users,
-        route: AppRoutes.users,
-        icon: Icons.people_outline_rounded,
-      ),
-      _DrawerItemData(
-        label: l10n.plans,
-        route: AppRoutes.plans,
-        icon: Icons.workspace_premium_outlined,
-      ),
-      _DrawerItemData(
-        label: l10n.settings,
-        route: AppRoutes.settings,
-        icon: Icons.settings_outlined,
-      ),
-    ];
+    final displayName = session?.displayName ?? 'User';
+    final username = session?.username ?? 'user';
+    final roleLabel = session?.roleLabel ?? 'USER';
 
     return Drawer(
       child: SafeArea(
@@ -75,7 +51,7 @@ class OwnerAppDrawer extends ConsumerWidget {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Text(
-                    ownerName,
+                    displayName,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: AppSpacing.xs),
@@ -106,18 +82,7 @@ class OwnerAppDrawer extends ConsumerWidget {
                 ],
               ),
             ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-                children: [
-                  for (final item in items)
-                    _OwnerDrawerTile(
-                      data: item,
-                      selected: currentRoute == item.route,
-                    ),
-                ],
-              ),
-            ),
+            const Spacer(),
             const Divider(height: 1),
             Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
@@ -153,52 +118,4 @@ class OwnerAppDrawer extends ConsumerWidget {
       ),
     );
   }
-}
-
-class _OwnerDrawerTile extends StatelessWidget {
-  const _OwnerDrawerTile({required this.data, required this.selected});
-
-  final _DrawerItemData data;
-  final bool selected;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-      child: ListTile(
-        selected: selected,
-        selectedTileColor: AppColors.primarySoft,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadii.md),
-        ),
-        leading: Icon(
-          data.icon,
-          color: selected ? AppColors.primary : AppColors.textSecondary,
-        ),
-        title: Text(
-          data.label,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            color: selected ? AppColors.primary : AppColors.textPrimary,
-          ),
-        ),
-        trailing: const Icon(Icons.chevron_right_rounded, size: 18),
-        onTap: () {
-          Navigator.of(context).pop();
-          context.go(data.route);
-        },
-      ),
-    );
-  }
-}
-
-class _DrawerItemData {
-  const _DrawerItemData({
-    required this.label,
-    required this.route,
-    required this.icon,
-  });
-
-  final String label;
-  final String route;
-  final IconData icon;
 }

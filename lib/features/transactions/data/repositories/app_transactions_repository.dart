@@ -44,9 +44,12 @@ class AppTransactionsRepository implements TransactionsRepository {
       walletId: draft.walletId,
       type: draft.type,
       amount: draft.amount,
-      note: draft.note,
-      date: draft.date,
-      createdBy: draft.createdBy,
+      percent: draft.percent,
+      externalTransactionId: draft.externalTransactionId,
+      occurredAt: draft.occurredAt,
+      phoneNumber: draft.phoneNumber,
+      cash: draft.cash,
+      description: draft.description,
     );
     final transaction = await _remoteDataSource
         .createTransaction(request)

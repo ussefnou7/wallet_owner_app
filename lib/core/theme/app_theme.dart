@@ -19,6 +19,7 @@ abstract final class AppTheme {
       useMaterial3: true,
       scaffoldBackgroundColor: AppColors.background,
       colorScheme: colorScheme,
+      fontFamily: AppTextStyles.fontFamily,
       textTheme: AppTextStyles.textTheme,
       dividerTheme: const DividerThemeData(
         color: AppColors.border,
@@ -70,7 +71,10 @@ abstract final class AppTheme {
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           elevation: 0,
-          textStyle: const TextStyle(fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(
+            fontFamily: AppTextStyles.fontFamily,
+            fontWeight: FontWeight.w600,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadii.md),
           ),
@@ -81,7 +85,10 @@ abstract final class AppTheme {
           minimumSize: const Size(0, AppDimensions.buttonHeight),
           foregroundColor: AppColors.textPrimary,
           side: const BorderSide(color: AppColors.borderStrong),
-          textStyle: const TextStyle(fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(
+            fontFamily: AppTextStyles.fontFamily,
+            fontWeight: FontWeight.w600,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadii.md),
           ),
@@ -90,7 +97,10 @@ abstract final class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
-          textStyle: const TextStyle(fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(
+            fontFamily: AppTextStyles.fontFamily,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       navigationBarTheme: const NavigationBarThemeData(
@@ -99,7 +109,11 @@ abstract final class AppTheme {
         surfaceTintColor: Colors.transparent,
         indicatorColor: AppColors.primarySoft,
         labelTextStyle: WidgetStatePropertyAll(
-          TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          TextStyle(
+            fontFamily: AppTextStyles.fontFamily,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       listTileTheme: const ListTileThemeData(

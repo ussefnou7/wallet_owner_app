@@ -103,12 +103,20 @@ class MockTransactionsRepository implements TransactionsRepository {
         id: referenceId,
         walletId: draft.walletId,
         walletName: _walletNameFor(draft.walletId),
+        externalTransactionId: draft.externalTransactionId,
         type: draft.type,
         amount: draft.amount,
-        date: draft.date,
-        createdBy: draft.createdBy,
+        percent: draft.percent,
+        phoneNumber: draft.phoneNumber,
+        cash: draft.cash,
+        date: draft.occurredAt,
+        occurredAt: draft.occurredAt,
+        createdAt: createdAt,
+        createdBy: 'Owner User',
         status: TransactionRecordStatus.recorded,
-        note: draft.note.isEmpty ? null : draft.note,
+        note: draft.description?.trim().isEmpty ?? true
+            ? null
+            : draft.description!.trim(),
       ),
     );
 

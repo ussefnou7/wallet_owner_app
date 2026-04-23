@@ -78,11 +78,19 @@ class SessionLocalDataSource {
         return null;
       }
 
-      return Session.fromJson({
+      final session = Session.fromJson({
         ...decoded,
         'accessToken': accessToken,
         'refreshToken': refreshToken ?? (decoded['refreshToken'] as String?),
       });
+
+      final tokenExpiresAt = session.tokenExpiresAt;
+      if (tokenExpiresAt != null && tokenExpiresAt.isBefore(DateTime.now())) {
+        await clearSession();
+        return null;
+      }
+
+      return session;
     } catch (_) {
       await clearSession();
       return null;

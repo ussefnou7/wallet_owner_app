@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../../core/widgets/app_form_section.dart';
 import '../../../../core/widgets/app_page_scaffold.dart';
@@ -22,9 +23,10 @@ class ReportsPage extends ConsumerWidget {
     final financialReports = ref.watch(financialReportsProvider);
     final operationalReports = ref.watch(operationalReportsProvider);
     final exportReports = ref.watch(exportReportsProvider);
+    final l10n = appL10n(context);
 
     return AppPageScaffold(
-      title: 'Reports',
+      title: l10n.reports,
       actions: [
         Builder(
           builder: (context) {
@@ -45,28 +47,26 @@ class ReportsPage extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const AppSectionHeader(
-              title: 'Reporting Workspace',
-              subtitle:
-                  'Choose a report entry point to review financial and operational performance.',
+            AppSectionHeader(
+              title: l10n.reportingWorkspace,
+              subtitle: l10n.reportingWorkspaceSubtitle,
             ),
             const SizedBox(height: AppSpacing.md),
             _ReportSection(
-              title: 'Financial Reports',
-              subtitle: 'High-level financial views for owner monitoring.',
+              title: l10n.financialReports,
+              subtitle: l10n.financialReportsSubtitle,
               options: financialReports,
             ),
             const SizedBox(height: AppSpacing.md),
             _ReportSection(
-              title: 'Operational Reports',
-              subtitle:
-                  'Operational activity summaries across teams and branches.',
+              title: l10n.operationalReports,
+              subtitle: l10n.operationalReportsSubtitle,
               options: operationalReports,
             ),
             const SizedBox(height: AppSpacing.md),
             _ReportSection(
-              title: 'Export Formats',
-              subtitle: 'Prepare reports for sharing and offline review.',
+              title: l10n.exportFormats,
+              subtitle: l10n.exportFormatsSubtitle,
               options: exportReports,
             ),
           ],
@@ -89,6 +89,7 @@ class _ReportSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = appL10n(context);
     return AppFormSection(
       title: title,
       subtitle: subtitle,
@@ -101,7 +102,7 @@ class _ReportSection extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      '${options[index].title} will be available later.',
+                      l10n.reportAvailableLater(options[index].title),
                     ),
                   ),
                 );

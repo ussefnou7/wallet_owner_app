@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading_view.dart';
@@ -41,24 +42,40 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
     final filteredTransactions = ref.watch(filteredTransactionsProvider);
     final filter = ref.watch(transactionsFilterProvider);
     final searchQuery = ref.watch(transactionsSearchQueryProvider);
+    final l10n = appL10n(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const AppSectionHeader(
-          title: 'Transactions History',
-          subtitle:
-              'Search and review recorded credit and debit activity across wallets.',
+        AppSectionHeader(
+          title: l10n.transactionsHistory,
+          subtitle: l10n.transactionsHistorySubtitle,
         ),
         const SizedBox(height: AppSpacing.md),
-        AppTextField(
-          controller: _searchController,
-          label: 'Search transactions',
-          hintText: 'Search by wallet, note, or created by',
-          prefixIcon: const Icon(Icons.search_rounded),
-          onChanged: ref
-              .read(transactionsControllerProvider.notifier)
-              .updateQuery,
+        Row(
+          children: [
+            Expanded(
+              child: AppTextField(
+                controller: _searchController,
+                label: l10n.searchTransactions,
+                hintText: l10n.searchTransactionsHint,
+                prefixIcon: const Icon(Icons.search_rounded),
+                onChanged: ref
+                    .read(transactionsControllerProvider.notifier)
+                    .updateQuery,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            IconButton.outlined(
+              tooltip: l10n.refreshTransactions,
+              onPressed: transactionsState.isLoading
+                  ? null
+                  : () => ref
+                        .read(transactionsControllerProvider.notifier)
+                        .reload(),
+              icon: const Icon(Icons.refresh_rounded),
+            ),
+          ],
         ),
         const SizedBox(height: AppSpacing.md),
         FilterChipRow<TransactionFilterType>(
@@ -66,25 +83,24 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
           onSelected: ref
               .read(transactionsControllerProvider.notifier)
               .updateFilter,
-          options: const [
-            FilterChipOption(value: TransactionFilterType.all, label: 'All'),
+          options: [
+            FilterChipOption(value: TransactionFilterType.all, label: l10n.all),
             FilterChipOption(
               value: TransactionFilterType.credit,
-              label: 'Credit',
+              label: l10n.credit,
             ),
             FilterChipOption(
               value: TransactionFilterType.debit,
-              label: 'Debit',
+              label: l10n.debit,
             ),
           ],
         ),
         const SizedBox(height: AppSpacing.md),
         Expanded(
           child: transactionsState.when(
-            loading: () =>
-                const AppLoadingView(message: 'Loading transactions...'),
+            loading: () => AppLoadingView(message: l10n.loadingTransactions),
             error: (error, stackTrace) => AppErrorState(
-              message: 'Unable to load transactions right now.',
+              message: l10n.unableToLoadTransactions,
               onRetry: () =>
                   ref.read(transactionsControllerProvider.notifier).reload(),
             ),
@@ -92,11 +108,11 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
               if (filteredTransactions.isEmpty) {
                 return AppEmptyState(
                   title: searchQuery.trim().isEmpty
-                      ? 'No transactions available'
-                      : 'No matching transactions',
+                      ? l10n.noTransactionsAvailable
+                      : l10n.noMatchingTransactions,
                   message: searchQuery.trim().isEmpty
-                      ? 'Recorded transactions will appear here.'
-                      : 'Try a different search or filter combination.',
+                      ? l10n.transactionsEmptyMessage
+                      : l10n.transactionsSearchEmptyMessage,
                   icon: Icons.receipt_long_outlined,
                 );
               }

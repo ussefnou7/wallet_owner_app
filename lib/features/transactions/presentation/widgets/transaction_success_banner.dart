@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_l10n.dart';
 
 class TransactionSuccessBanner extends StatelessWidget {
   const TransactionSuccessBanner({required this.referenceId, super.key});
@@ -11,6 +12,7 @@ class TransactionSuccessBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = appL10n(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -25,7 +27,7 @@ class TransactionSuccessBanner extends StatelessWidget {
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
-              'Transaction saved successfully. Ref: $referenceId',
+              l10n.transactionSavedRef(referenceId),
               style: Theme.of(
                 context,
               ).textTheme.bodySmall?.copyWith(color: AppColors.success),

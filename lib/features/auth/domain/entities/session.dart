@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum UserRole { owner, user }
+enum UserRole { owner, user, unknown }
 
 class Session extends Equatable {
   const Session({
@@ -25,7 +25,14 @@ class Session extends Equatable {
   final String displayName;
   final DateTime? tokenExpiresAt;
 
-  String get roleLabel => backendRole.isEmpty ? role.name.toUpperCase() : backendRole;
+  bool get isOwner => role == UserRole.owner;
+
+  bool get isUser => role == UserRole.user;
+
+  bool get hasSupportedRole => isOwner || isUser;
+
+  String get roleLabel =>
+      backendRole.isEmpty ? role.name.toUpperCase() : backendRole;
 
   String? get email => username.contains('@') ? username : null;
 
@@ -51,7 +58,7 @@ class Session extends Equatable {
     }
 
     final backendRole =
-        (json['backendRole'] as String?) ?? (json['role'] as String?) ?? 'OWNER';
+        (json['backendRole'] as String?) ?? (json['role'] as String?) ?? '';
     final roleName = json['role'] as String?;
 
     return Session(
@@ -87,22 +94,22 @@ class Session extends Equatable {
   ];
 
   static UserRole fromBackendRole(String? value) {
-    final normalized = value?.trim().toLowerCase() ?? '';
-    if (normalized == 'user') {
+    final normalized = value?.trim().toUpperCase() ?? '';
+    if (normalized == 'OWNER') {
+      return UserRole.owner;
+    }
+
+    if (normalized == 'USER') {
       return UserRole.user;
     }
 
-    return UserRole.owner;
+    return UserRole.unknown;
   }
 
   static UserRole _parseRole(String? roleName, String backendRole) {
-    final normalized = roleName?.trim().toLowerCase();
-    if (normalized != null && normalized.isNotEmpty) {
-      for (final role in UserRole.values) {
-        if (role.name == normalized) {
-          return role;
-        }
-      }
+    final parsedStoredRole = fromBackendRole(roleName);
+    if (parsedStoredRole != UserRole.unknown) {
+      return parsedStoredRole;
     }
 
     return fromBackendRole(backendRole);

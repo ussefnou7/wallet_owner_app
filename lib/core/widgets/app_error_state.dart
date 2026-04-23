@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_dimensions.dart';
 import '../constants/app_spacing.dart';
+import '../localization/app_l10n.dart';
 
 class AppErrorState extends StatelessWidget {
   const AppErrorState({
@@ -18,6 +19,7 @@ class AppErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = appL10n(context);
     final content = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -32,7 +34,7 @@ class AppErrorState extends StatelessWidget {
           ),
         ),
         if (onRetry != null && !compact)
-          TextButton(onPressed: onRetry, child: const Text('Retry')),
+          TextButton(onPressed: onRetry, child: Text(l10n.retry)),
       ],
     );
 

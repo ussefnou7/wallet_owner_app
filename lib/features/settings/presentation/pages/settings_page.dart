@@ -6,6 +6,7 @@ import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../../core/widgets/app_error_state.dart';
@@ -13,6 +14,7 @@ import '../../../../core/widgets/app_loading_view.dart';
 import '../../../../core/widgets/app_page_scaffold.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_status_badge.dart';
+import '../../../../core/widgets/language_switcher.dart';
 import '../../../../core/widgets/owner_app_drawer.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../plans/presentation/controllers/plans_controller.dart';
@@ -34,15 +36,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Widget build(BuildContext context) {
     final session = ref.watch(authControllerProvider).session;
     final plansState = ref.watch(plansControllerProvider);
+    final l10n = appL10n(context);
 
     if (session == null) {
-      return const Scaffold(
-        body: AppLoadingView(message: 'Loading settings...'),
+      return Scaffold(
+        body: AppLoadingView(message: '${l10n.loading} ${l10n.settings}...'),
       );
     }
 
     return AppPageScaffold(
-      title: 'Settings',
+      title: l10n.settings,
       actions: [
         Builder(
           builder: (context) {
@@ -63,10 +66,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const AppSectionHeader(
-              title: 'Owner Settings',
-              subtitle:
-                  'Review account identity, workspace status, app preferences, and session actions from one place.',
+            AppSectionHeader(
+              title: l10n.ownerSettings,
+              subtitle: l10n.ownerSettingsSubtitle,
             ),
             const SizedBox(height: AppSpacing.md),
             SettingsProfileCard(
@@ -77,30 +79,30 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ),
             const SizedBox(height: AppSpacing.xl),
             SettingsSectionCard(
-              title: 'Account',
-              subtitle: 'Current owner identity and workspace assignment.',
+              title: l10n.account,
+              subtitle: l10n.accountSubtitle,
               child: Column(
                 children: [
                   SettingsActionTile(
-                    title: 'Owner name',
+                    title: l10n.ownerName,
                     subtitle: session.displayName,
                     leading: const Icon(Icons.person_outline_rounded),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   SettingsActionTile(
-                    title: 'Email',
-                    subtitle: session.email ?? 'Not available',
+                    title: l10n.email,
+                    subtitle: session.email ?? l10n.notAvailable,
                     leading: const Icon(Icons.mail_outline_rounded),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   SettingsActionTile(
-                    title: 'Role',
+                    title: l10n.role,
                     subtitle: session.roleLabel,
                     leading: const Icon(Icons.badge_outlined),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   SettingsActionTile(
-                    title: 'Workspace',
+                    title: l10n.workspace,
                     subtitle: session.tenantName,
                     leading: const Icon(Icons.apartment_outlined),
                   ),
@@ -109,51 +111,50 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ),
             const SizedBox(height: AppSpacing.md),
             plansState.when(
-              loading: () => const AppLoadingView(
-                message: 'Loading workspace subscription...',
-              ),
+              loading: () =>
+                  AppLoadingView(message: l10n.loadingWorkspaceSubscription),
               error: (error, stackTrace) => AppErrorState(
-                message: 'Unable to load subscription summary right now.',
+                message: l10n.unableToLoadSubscription,
                 onRetry: () =>
                     ref.read(plansControllerProvider.notifier).reload(),
               ),
               data: (catalog) {
                 final summary = catalog.currentSubscription;
                 return SettingsSectionCard(
-                  title: 'Workspace & Subscription',
-                  subtitle: 'Read-only workspace subscription overview.',
+                  title: l10n.workspaceSubscription,
+                  subtitle: l10n.workspaceSubscriptionSubtitle,
                   child: Column(
                     children: [
                       SettingsActionTile(
-                        title: 'Current plan',
+                        title: l10n.currentPlan,
                         subtitle: summary.planName,
                         leading: const Icon(Icons.workspace_premium_outlined),
                         trailing: AppStatusBadge(label: summary.statusLabel),
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       SettingsActionTile(
-                        title: 'Renewal date',
+                        title: l10n.renewalDate,
                         subtitle: formatDate(summary.renewalDate),
                         leading: const Icon(Icons.event_outlined),
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       SettingsActionTile(
-                        title: 'Workspace',
+                        title: l10n.workspace,
                         subtitle: session.tenantName,
                         leading: const Icon(Icons.business_outlined),
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       SettingsActionTile(
-                        title: 'Open Plans',
-                        subtitle: 'Review available plan tiers and limits.',
+                        title: l10n.openPlans,
+                        subtitle: l10n.openPlansSubtitle,
                         leading: const Icon(Icons.open_in_new_rounded),
                         trailing: const Icon(Icons.chevron_right_rounded),
                         onTap: () => context.go(AppRoutes.plans),
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       SettingsActionTile(
-                        title: 'Request Renewal',
-                        subtitle: 'Send a mock renewal or upgrade request.',
+                        title: l10n.requestRenewal,
+                        subtitle: l10n.requestRenewalSubtitle,
                         leading: const Icon(Icons.autorenew_rounded),
                         trailing: const Icon(Icons.chevron_right_rounded),
                         onTap: () => context.go(AppRoutes.requestRenewal),
@@ -165,15 +166,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ),
             const SizedBox(height: AppSpacing.md),
             SettingsSectionCard(
-              title: 'Preferences',
-              subtitle: 'Lightweight app preferences for this frontend phase.',
+              title: l10n.preferences,
+              subtitle: l10n.preferencesSubtitle,
               child: Column(
                 children: [
                   SettingsActionTile(
-                    title: 'Notifications',
+                    title: l10n.notifications,
                     subtitle: _notificationsEnabled
-                        ? 'Enabled for mock owner alerts'
-                        : 'Disabled for mock owner alerts',
+                        ? l10n.notificationsEnabledSubtitle
+                        : l10n.notificationsDisabledSubtitle,
                     leading: const Icon(Icons.notifications_outlined),
                     trailing: Switch.adaptive(
                       value: _notificationsEnabled,
@@ -189,62 +190,57 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   SettingsActionTile(
-                    title: 'Theme',
-                    subtitle: 'System default',
+                    title: l10n.theme,
+                    subtitle: l10n.systemDefault,
                     leading: const Icon(Icons.palette_outlined),
                     trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: () => _showPlaceholderMessage(
-                      context,
-                      'Theme settings will be added after backend integration planning.',
-                    ),
+                    onTap: () =>
+                        _showPlaceholderMessage(context, l10n.themeComingSoon),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   SettingsActionTile(
-                    title: 'Language',
-                    subtitle: 'English',
+                    title: l10n.language,
+                    subtitle: '${l10n.english} / العربية',
                     leading: const Icon(Icons.language_rounded),
-                    trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: () => _showPlaceholderMessage(
-                      context,
-                      'Language switching will be added in a later phase.',
-                    ),
+                    trailing: const LanguageSwitcher(),
                   ),
                   const SizedBox(height: AppSpacing.sm),
-                  const SettingsActionTile(
-                    title: 'App version',
+                  SettingsActionTile(
+                    title: l10n.appVersion,
                     subtitle: '1.0.0+1',
-                    leading: Icon(Icons.info_outline_rounded),
+                    leading: const Icon(Icons.info_outline_rounded),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: AppSpacing.md),
             SettingsSectionCard(
-              title: 'Security & Session',
-              subtitle: 'Mock account security actions and session controls.',
+              title: l10n.securitySession,
+              subtitle: l10n.securitySessionSubtitle,
               child: Column(
                 children: [
                   SettingsActionTile(
-                    title: 'Change password',
-                    subtitle: 'Available later with backend integration.',
+                    title: l10n.changePassword,
+                    subtitle: l10n.changePasswordSubtitle,
                     leading: const Icon(Icons.lock_outline_rounded),
                     trailing: const Icon(Icons.chevron_right_rounded),
                     onTap: () => _showPlaceholderMessage(
                       context,
-                      'Password management will be connected in a later phase.',
+                      l10n.changePasswordComingSoon,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   SettingsActionTile(
-                    title: 'Session',
-                    subtitle:
-                        'Signed in as ${session.email ?? session.displayName}',
+                    title: l10n.session,
+                    subtitle: l10n.signedInAs(
+                      session.email ?? session.displayName,
+                    ),
                     leading: const Icon(Icons.verified_user_outlined),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   SettingsActionTile(
-                    title: 'Logout',
-                    subtitle: 'Sign out from the current owner session.',
+                    title: l10n.logout,
+                    subtitle: l10n.logoutSubtitle,
                     leading: const Icon(Icons.logout_rounded),
                     trailing: const Icon(
                       Icons.chevron_right_rounded,

@@ -2,12 +2,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/widgets/owner_app_shell.dart';
+import '../../core/widgets/user_app_shell.dart';
 import '../../features/auth/domain/entities/session.dart';
 import '../../features/auth/presentation/controllers/auth_controller.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
+import '../../features/auth/presentation/pages/unauthorized_role_page.dart';
 import '../../features/branches/presentation/pages/branches_page.dart';
 import '../../features/dashboard/presentation/pages/owner_dashboard_page.dart';
+import '../../features/dashboard/presentation/pages/user_dashboard_page.dart';
 import '../../features/plans/presentation/pages/plans_page.dart';
 import '../../features/reports/presentation/pages/reports_page.dart';
 import '../../features/settings/presentation/pages/request_renewal_page.dart';
@@ -28,8 +31,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final authState = ref.read(authControllerProvider);
       final isLoading = authState.status == AuthStatus.loading;
-      final isSplash = state.matchedLocation == AppRoutes.splash;
-      final isLoggingIn = state.matchedLocation == AppRoutes.login;
+      final location = state.matchedLocation;
+      final isSplash = location == AppRoutes.splash;
+      final isLoggingIn = location == AppRoutes.login;
+      final isUnauthorizedRole = location == AppRoutes.unauthorizedRole;
 
       if (isLoading) {
         return isSplash ? null : AppRoutes.splash;
@@ -37,18 +42,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       final session = authState.session;
       final isAuthenticated = session != null;
-      final isOwner = session?.role == UserRole.owner;
 
       if (!isAuthenticated) {
         return isLoggingIn ? null : AppRoutes.login;
       }
 
-      if (!isOwner) {
-        return AppRoutes.login;
+      if (session.role == UserRole.unknown) {
+        return isUnauthorizedRole ? null : AppRoutes.unauthorizedRole;
+      }
+
+      if (isUnauthorizedRole) {
+        return _homeForRole(session.role);
       }
 
       if (isSplash || isLoggingIn) {
-        return AppRoutes.dashboard;
+        return _homeForRole(session.role);
+      }
+
+      if (session.role == UserRole.owner && _isUserRoute(location)) {
+        return AppRoutes.ownerDashboard;
+      }
+
+      if (session.role == UserRole.user && _isOwnerRoute(location)) {
+        return AppRoutes.userDashboard;
       }
 
       return null;
@@ -64,6 +80,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'login',
         builder: (context, state) => const LoginPage(),
       ),
+      GoRoute(
+        path: AppRoutes.unauthorizedRole,
+        name: 'unauthorized-role',
+        builder: (context, state) => const UnauthorizedRolePage(),
+      ),
       ShellRoute(
         builder: (context, state, child) {
           return OwnerAppShell(
@@ -73,57 +94,103 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
         routes: [
           GoRoute(
-            path: AppRoutes.dashboard,
-            name: 'dashboard',
+            path: AppRoutes.ownerDashboard,
+            name: 'owner-dashboard',
             builder: (context, state) => const OwnerDashboardPage(),
           ),
           GoRoute(
-            path: AppRoutes.wallets,
-            name: 'wallets',
+            path: AppRoutes.ownerWallets,
+            name: 'owner-wallets',
             builder: (context, state) => const WalletsPage(),
           ),
           GoRoute(
-            path: AppRoutes.transactions,
-            name: 'transactions',
+            path: AppRoutes.ownerTransactions,
+            name: 'owner-transactions',
             builder: (context, state) => const TransactionsPage(),
           ),
           GoRoute(
-            path: AppRoutes.createTransaction,
-            name: 'create-transaction',
+            path: AppRoutes.ownerCreateTransaction,
+            name: 'owner-create-transaction',
+            builder: (context, state) => const CreateTransactionPage(),
+          ),
+        ],
+      ),
+      ShellRoute(
+        builder: (context, state, child) {
+          return UserAppShell(
+            currentRoute: state.matchedLocation,
+            child: child,
+          );
+        },
+        routes: [
+          GoRoute(
+            path: AppRoutes.userDashboard,
+            name: 'user-dashboard',
+            builder: (context, state) => const UserDashboardPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.userWallets,
+            name: 'user-wallets',
+            builder: (context, state) => const WalletsPage(readOnly: true),
+          ),
+          GoRoute(
+            path: AppRoutes.userTransactions,
+            name: 'user-transactions',
+            builder: (context, state) => const TransactionsPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.userCreateTransaction,
+            name: 'user-create-transaction',
             builder: (context, state) => const CreateTransactionPage(),
           ),
         ],
       ),
       GoRoute(
-        path: AppRoutes.reports,
-        name: 'reports',
+        path: AppRoutes.ownerReports,
+        name: 'owner-reports',
         builder: (context, state) => const ReportsPage(),
       ),
       GoRoute(
-        path: AppRoutes.users,
-        name: 'users',
+        path: AppRoutes.ownerUsers,
+        name: 'owner-users',
         builder: (context, state) => const UsersPage(),
       ),
       GoRoute(
-        path: AppRoutes.branches,
-        name: 'branches',
+        path: AppRoutes.ownerBranches,
+        name: 'owner-branches',
         builder: (context, state) => const BranchesPage(),
       ),
       GoRoute(
-        path: AppRoutes.plans,
-        name: 'plans',
+        path: AppRoutes.ownerPlans,
+        name: 'owner-plans',
         builder: (context, state) => const PlansPage(),
       ),
       GoRoute(
-        path: AppRoutes.requestRenewal,
-        name: 'request-renewal',
+        path: AppRoutes.ownerRequestRenewal,
+        name: 'owner-request-renewal',
         builder: (context, state) => const RequestRenewalPage(),
       ),
       GoRoute(
-        path: AppRoutes.settings,
-        name: 'settings',
+        path: AppRoutes.ownerSettings,
+        name: 'owner-settings',
         builder: (context, state) => const SettingsPage(),
       ),
     ],
   );
 });
+
+String _homeForRole(UserRole role) {
+  return switch (role) {
+    UserRole.owner => AppRoutes.ownerDashboard,
+    UserRole.user => AppRoutes.userDashboard,
+    UserRole.unknown => AppRoutes.unauthorizedRole,
+  };
+}
+
+bool _isOwnerRoute(String location) {
+  return location == '/owner' || location.startsWith('/owner/');
+}
+
+bool _isUserRoute(String location) {
+  return location == '/user' || location.startsWith('/user/');
+}

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:wallet_owner_app/app/app.dart';
+import 'package:wallet_owner_app/core/localization/locale_controller.dart';
 import 'package:wallet_owner_app/features/auth/domain/entities/session.dart';
 import 'package:wallet_owner_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:wallet_owner_app/features/auth/presentation/controllers/auth_controller.dart';
@@ -14,6 +15,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          localeControllerProvider.overrideWith((ref) {
+            final controller = LocaleController(null);
+            controller.setLocale(const Locale('en'));
+            return controller;
+          }),
           authControllerProvider.overrideWith(
             (ref) => AuthController(
               authRepository: _FakeAuthRepository(),
@@ -51,7 +57,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Sign in'), findsOneWidget);
-    expect(find.text('Continue as Owner'), findsOneWidget);
+    expect(find.text('Login'), findsOneWidget);
   });
 }
 

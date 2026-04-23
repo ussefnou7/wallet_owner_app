@@ -6,9 +6,12 @@ import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_shadows.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_buttons.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/language_switcher.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../controllers/auth_controller.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -20,8 +23,8 @@ class LoginPage extends ConsumerStatefulWidget {
 
 class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController(text: 'owner1');
-  final _passwordController = TextEditingController(text: 'secret123');
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   @override
   void dispose() {
@@ -35,6 +38,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final authState = ref.watch(authControllerProvider);
     final isSubmitting = authState.status == AuthStatus.loading;
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    final l10n = appL10n(context);
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -54,6 +58,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const Align(
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: LanguageSwitcher(),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
                       const _LoginBrandHeader(),
                       const SizedBox(height: AppSpacing.xl),
                       Container(
@@ -70,32 +79,34 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Sign in',
+                                l10n.signIn,
                                 style: Theme.of(context).textTheme.titleLarge,
                               ),
                               const SizedBox(height: AppSpacing.xs),
                               Text(
-                                'Use your owner account to access wallet controls and reporting.',
+                                l10n.signInSubtitle,
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
                               const SizedBox(height: AppSpacing.lg),
                               AppTextField(
                                 controller: _usernameController,
                                 textInputAction: TextInputAction.next,
-                                label: 'Username',
-                                hintText: 'owner1',
+                                label: l10n.username,
+                                hintText: l10n.usernamePlaceholder,
                                 prefixIcon: const Icon(Icons.person_outline),
-                                validator: _validateUsername,
+                                validator: (value) =>
+                                    _validateUsername(value, l10n),
                               ),
                               const SizedBox(height: AppSpacing.md),
                               AppTextField(
                                 controller: _passwordController,
                                 obscureText: true,
                                 textInputAction: TextInputAction.done,
-                                label: 'Password',
-                                hintText: 'Enter your password',
+                                label: l10n.password,
+                                hintText: l10n.passwordPlaceholder,
                                 prefixIcon: const Icon(Icons.lock_outline),
-                                validator: _validatePassword,
+                                validator: (value) =>
+                                    _validatePassword(value, l10n),
                               ),
                               if (authState.errorMessage != null) ...[
                                 const SizedBox(height: AppSpacing.md),
@@ -108,14 +119,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               SizedBox(
                                 width: double.infinity,
                                 child: AppPrimaryButton(
-                                  label: 'Continue as Owner',
+                                  label: l10n.login,
                                   isLoading: isSubmitting,
                                   onPressed: _submit,
                                 ),
                               ),
                               const SizedBox(height: AppSpacing.md),
                               Text(
-                                'Uses the configured authentication endpoint and stores the active session locally.',
+                                l10n.authStorageNote,
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                             ],
@@ -133,21 +144,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 
-  String? _validateUsername(String? value) {
+  String? _validateUsername(String? value, AppLocalizations l10n) {
     if (value == null || value.trim().isEmpty) {
-      return 'Username is required';
+      return l10n.usernameRequired;
     }
 
     return null;
   }
 
-  String? _validatePassword(String? value) {
+  String? _validatePassword(String? value, AppLocalizations l10n) {
     if (value == null || value.trim().isEmpty) {
-      return 'Password is required';
+      return l10n.passwordRequired;
     }
 
     if (value.trim().length < 4) {
-      return 'Password is too short';
+      return l10n.passwordTooShort;
     }
 
     return null;
@@ -174,6 +185,7 @@ class _LoginBrandHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = appL10n(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -191,10 +203,10 @@ class _LoginBrandHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
-        Text('Wallet Owner', style: Theme.of(context).textTheme.displaySmall),
+        Text(l10n.appName, style: Theme.of(context).textTheme.displaySmall),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          'Mobile access for owner-level wallet oversight, transaction recording, and reporting.',
+          l10n.loginHeroSubtitle,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
       ],

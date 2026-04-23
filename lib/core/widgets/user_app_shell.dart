@@ -6,32 +6,30 @@ import '../../l10n/generated/app_localizations.dart';
 import '../constants/app_dimensions.dart';
 import '../constants/app_spacing.dart';
 import '../localization/app_l10n.dart';
-import 'owner_app_drawer.dart';
-import 'owner_bottom_nav_bar.dart';
 import 'owner_top_bar.dart';
+import 'user_app_drawer.dart';
+import 'user_bottom_nav_bar.dart';
 
-class OwnerAppShell extends StatelessWidget {
-  const OwnerAppShell({
+class UserAppShell extends StatelessWidget {
+  const UserAppShell({
     required this.currentRoute,
     required this.child,
-    this.maxWidth = AppDimensions.contentMaxWidth,
     super.key,
   });
 
   final String currentRoute;
   final Widget child;
-  final double maxWidth;
 
   @override
   Widget build(BuildContext context) {
     final l10n = appL10n(context);
-    final contentMaxWidth = currentRoute == AppRoutes.createTransaction
+    final contentMaxWidth = currentRoute == AppRoutes.userCreateTransaction
         ? AppDimensions.compactContentMaxWidth
-        : maxWidth;
+        : AppDimensions.contentMaxWidth;
 
     return Scaffold(
-      endDrawer: OwnerAppDrawer(currentRoute: currentRoute),
-      bottomNavigationBar: OwnerBottomNavBar(
+      endDrawer: const UserAppDrawer(),
+      bottomNavigationBar: UserBottomNavBar(
         currentRoute: currentRoute,
         onRouteSelected: context.go,
       ),
@@ -78,16 +76,11 @@ class OwnerAppShell extends StatelessWidget {
   }
 
   static String _titleForRoute(AppLocalizations l10n, String route) {
-    switch (route) {
-      case AppRoutes.wallets:
-        return l10n.wallets;
-      case AppRoutes.transactions:
-        return l10n.transactions;
-      case AppRoutes.createTransaction:
-        return l10n.newTransaction;
-      case AppRoutes.dashboard:
-      default:
-        return l10n.dashboard;
-    }
+    return switch (route) {
+      AppRoutes.userWallets => l10n.wallets,
+      AppRoutes.userTransactions => l10n.transactions,
+      AppRoutes.userCreateTransaction => l10n.newTransaction,
+      _ => l10n.dashboard,
+    };
   }
 }

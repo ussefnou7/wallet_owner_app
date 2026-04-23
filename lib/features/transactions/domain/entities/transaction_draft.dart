@@ -7,18 +7,34 @@ class TransactionDraft extends Equatable {
     required this.walletId,
     required this.type,
     required this.amount,
-    required this.note,
-    required this.date,
-    required this.createdBy,
+    required this.percent,
+    required this.externalTransactionId,
+    required this.occurredAt,
+    required this.phoneNumber,
+    required this.cash,
+    this.description,
   });
 
   final String walletId;
   final TransactionEntryType type;
   final double amount;
-  final String note;
-  final DateTime date;
-  final String createdBy;
+  final double percent;
+  final String externalTransactionId;
+  final DateTime occurredAt;
+  final String phoneNumber;
+  final bool cash;
+  final String? description;
 
   @override
-  List<Object?> get props => [walletId, type, amount, note, date, createdBy];
+  List<Object?> get props => [
+    walletId,
+    type,
+    amount,
+    percent,
+    externalTransactionId,
+    occurredAt,
+    phoneNumber,
+    cash,
+    description,
+  ];
 }

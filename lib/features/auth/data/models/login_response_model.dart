@@ -46,9 +46,15 @@ class LoginResponseModel {
         _readString(claims, const ['username', 'preferred_username', 'sub']) ??
         '';
     final resolvedBackendRole =
-        _readString(payload, const ['role']) ??
-        _readString(claims, const ['role', 'user_role']) ??
-        'OWNER';
+        _readString(payload, const ['role', 'roles', 'authorities']) ??
+        _readString(claims, const [
+          'role',
+          'user_role',
+          'roles',
+          'authorities',
+          'scope',
+        ]) ??
+        '';
     final resolvedRole = Session.fromBackendRole(resolvedBackendRole);
     final resolvedTenantId =
         _readString(claims, const ['tenantId', 'tenant_id', 'tenant']) ?? '';
@@ -102,6 +108,13 @@ class LoginResponseModel {
       final value = source[key];
       if (value is String && value.trim().isNotEmpty) {
         return value.trim();
+      }
+      if (value is List<Object?>) {
+        for (final item in value) {
+          if (item is String && item.trim().isNotEmpty) {
+            return item.trim();
+          }
+        }
       }
     }
     return null;
