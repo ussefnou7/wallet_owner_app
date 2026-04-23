@@ -21,6 +21,20 @@ abstract interface class ApiClient {
     Map<String, dynamic>? queryParameters,
     Options? options,
   });
+
+  Future<Response<T>> put<T>(
+    String path, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  });
+
+  Future<Response<T>> delete<T>(
+    String path, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  });
 }
 
 class DioApiClient implements ApiClient {
@@ -49,6 +63,36 @@ class DioApiClient implements ApiClient {
     Options? options,
   }) {
     return _dio.post<T>(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+    );
+  }
+
+  @override
+  Future<Response<T>> put<T>(
+    String path, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) {
+    return _dio.put<T>(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+    );
+  }
+
+  @override
+  Future<Response<T>> delete<T>(
+    String path, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) {
+    return _dio.delete<T>(
       path,
       data: data,
       queryParameters: queryParameters,

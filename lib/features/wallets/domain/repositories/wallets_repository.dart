@@ -10,4 +10,16 @@ final walletsRepositoryProvider = Provider<WalletsRepository>((ref) {
 
 abstract interface class WalletsRepository {
   Future<List<Wallet>> getWallets();
+
+  Future<Wallet> getWalletById(String walletId);
+
+  Future<Wallet> createWallet({required String name});
+
+  Future<Wallet> updateWallet({
+    required String walletId,
+    required String name,
+    required bool active,
+  });
+
+  Future<void> deleteWallet(String walletId);
 }

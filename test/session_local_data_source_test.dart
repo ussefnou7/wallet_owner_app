@@ -45,30 +45,33 @@ void main() {
     expect(await dataSource.readRefreshToken(), isNull);
   });
 
-  test('restores partial cached session when optional fields are missing', () async {
-    SharedPreferences.setMockInitialValues({
-      sessionKey: '{"username":"Ussef","role":"owner"}',
-    });
-    final sharedPreferences = await SharedPreferences.getInstance();
-    final secureStorage = _FakeSecureStorage()
-      ..seed(accessTokenKey, 'access-token');
-    final dataSource = SessionLocalDataSource(
-      secureStorage: secureStorage,
-      sharedPreferences: sharedPreferences,
-    );
+  test(
+    'restores partial cached session when optional fields are missing',
+    () async {
+      SharedPreferences.setMockInitialValues({
+        sessionKey: '{"username":"Ussef","role":"owner"}',
+      });
+      final sharedPreferences = await SharedPreferences.getInstance();
+      final secureStorage = _FakeSecureStorage()
+        ..seed(accessTokenKey, 'access-token');
+      final dataSource = SessionLocalDataSource(
+        secureStorage: secureStorage,
+        sharedPreferences: sharedPreferences,
+      );
 
-    final restoredSession = await dataSource.readSession();
+      final restoredSession = await dataSource.readSession();
 
-    expect(restoredSession, isNotNull);
-    expect(restoredSession!.accessToken, 'access-token');
-    expect(restoredSession.refreshToken, '');
-    expect(restoredSession.username, 'Ussef');
-    expect(restoredSession.role, UserRole.owner);
-    expect(restoredSession.backendRole, 'owner');
-    expect(restoredSession.tenantId, '');
-    expect(restoredSession.userId, '');
-    expect(restoredSession.displayName, 'Ussef');
-  });
+      expect(restoredSession, isNotNull);
+      expect(restoredSession!.accessToken, 'access-token');
+      expect(restoredSession.refreshToken, '');
+      expect(restoredSession.username, 'Ussef');
+      expect(restoredSession.role, UserRole.owner);
+      expect(restoredSession.backendRole, 'owner');
+      expect(restoredSession.tenantId, '');
+      expect(restoredSession.userId, '');
+      expect(restoredSession.displayName, 'Ussef');
+    },
+  );
 
   test('clears malformed cached session JSON and returns null', () async {
     SharedPreferences.setMockInitialValues({sessionKey: '{invalid-json'});
@@ -111,10 +114,7 @@ void main() {
 
   test('session parser rejects missing token payload', () {
     expect(
-      () => Session.fromJson({
-        'username': 'Ussef',
-        'role': 'owner',
-      }),
+      () => Session.fromJson(const {'username': 'Ussef', 'role': 'owner'}),
       throwsA(isA<FormatException>()),
     );
   });

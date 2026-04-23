@@ -13,11 +13,17 @@ class TransactionDraftModel extends TransactionDraft {
   Map<String, dynamic> toJson() {
     return {
       'walletId': walletId,
-      'type': type.name,
+      'type': switch (type) {
+        TransactionEntryType.credit => 'CREDIT',
+        TransactionEntryType.debit => 'DEBIT',
+        TransactionEntryType.unknown => 'UNKNOWN',
+      },
       'amount': amount,
-      'note': note,
-      'date': date.toIso8601String(),
-      'createdBy': createdBy,
+      // TODO: Confirm transaction fee semantics with the backend. The current
+      // owner UI has no fee input, while the create request example sends
+      // `fee` and the response returns `percent`.
+      'fee': 0,
+      'description': note,
     };
   }
 }

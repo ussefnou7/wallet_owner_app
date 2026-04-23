@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/widgets/owner_app_shell.dart';
 import '../../features/auth/domain/entities/session.dart';
 import '../../features/auth/presentation/controllers/auth_controller.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
-import '../../core/widgets/owner_app_shell.dart';
 import '../../features/branches/presentation/pages/branches_page.dart';
 import '../../features/dashboard/presentation/pages/owner_dashboard_page.dart';
 import '../../features/plans/presentation/pages/plans_page.dart';

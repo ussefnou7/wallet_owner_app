@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum TransactionEntryType { credit, debit }
+enum TransactionEntryType { credit, debit, unknown }
 
 class TransactionDraft extends Equatable {
   const TransactionDraft({

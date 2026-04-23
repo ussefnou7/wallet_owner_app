@@ -53,11 +53,40 @@ class MockTransactionsRepository implements TransactionsRepository {
   ];
 
   @override
-  Future<List<TransactionRecord>> getTransactions() async {
+  Future<List<TransactionRecord>> getTransactions({
+    String? walletId,
+    TransactionEntryType? type,
+    DateTime? dateFrom,
+    DateTime? dateTo,
+  }) async {
     await Future<void>.delayed(const Duration(milliseconds: 450));
-    final transactions = [..._transactions];
+    final transactions = _transactions.where((transaction) {
+      if (walletId != null && transaction.walletId != walletId) {
+        return false;
+      }
+      if (type != null &&
+          type != TransactionEntryType.unknown &&
+          transaction.type != type) {
+        return false;
+      }
+      if (dateFrom != null && transaction.date.isBefore(dateFrom)) {
+        return false;
+      }
+      if (dateTo != null && transaction.date.isAfter(dateTo)) {
+        return false;
+      }
+      return true;
+    }).toList();
     transactions.sort((a, b) => b.date.compareTo(a.date));
     return transactions;
+  }
+
+  @override
+  Future<TransactionRecord> getTransactionById(String transactionId) async {
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+    return _transactions.firstWhere(
+      (transaction) => transaction.id == transactionId,
+    );
   }
 
   @override

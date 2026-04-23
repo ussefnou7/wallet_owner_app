@@ -30,6 +30,14 @@ final filteredWalletsProvider = Provider<List<Wallet>>((ref) {
   );
 });
 
+final walletDetailsProvider = FutureProvider.family<Wallet, String>((
+  ref,
+  walletId,
+) {
+  final repository = ref.watch(walletsRepositoryProvider);
+  return repository.getWalletById(walletId);
+});
+
 class WalletsController extends AsyncNotifier<List<Wallet>> {
   @override
   Future<List<Wallet>> build() async {
@@ -43,6 +51,34 @@ class WalletsController extends AsyncNotifier<List<Wallet>> {
       final repository = ref.read(walletsRepositoryProvider);
       return repository.getWallets();
     });
+  }
+
+  Future<void> createWallet({required String name}) async {
+    final repository = ref.read(walletsRepositoryProvider);
+    await repository.createWallet(name: name);
+    await reload();
+  }
+
+  Future<void> updateWallet({
+    required String walletId,
+    required String name,
+    required bool active,
+  }) async {
+    final repository = ref.read(walletsRepositoryProvider);
+    await repository.updateWallet(
+      walletId: walletId,
+      name: name,
+      active: active,
+    );
+    await reload();
+    ref.invalidate(walletDetailsProvider(walletId));
+  }
+
+  Future<void> deleteWallet(String walletId) async {
+    final repository = ref.read(walletsRepositoryProvider);
+    await repository.deleteWallet(walletId);
+    await reload();
+    ref.invalidate(walletDetailsProvider(walletId));
   }
 
   void updateQuery(String value) {

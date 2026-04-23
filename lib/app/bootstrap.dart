@@ -19,11 +19,13 @@ import '../features/plans/data/repositories/mock_plans_repository.dart';
 import '../features/plans/domain/repositories/plans_repository.dart';
 import '../features/settings/data/repositories/mock_renewal_requests_repository.dart';
 import '../features/settings/domain/repositories/renewal_requests_repository.dart';
-import '../features/transactions/data/repositories/mock_transactions_repository.dart';
+import '../features/transactions/data/repositories/app_transactions_repository.dart';
+import '../features/transactions/data/services/transactions_remote_data_source.dart';
 import '../features/transactions/domain/repositories/transactions_repository.dart';
 import '../features/users/data/repositories/mock_users_repository.dart';
 import '../features/users/domain/repositories/users_repository.dart';
-import '../features/wallets/data/repositories/mock_wallets_repository.dart';
+import '../features/wallets/data/repositories/app_wallets_repository.dart';
+import '../features/wallets/data/services/wallets_remote_data_source.dart';
 import '../features/wallets/domain/repositories/wallets_repository.dart';
 
 Future<ProviderContainer> bootstrap() async {
@@ -48,8 +50,20 @@ Future<ProviderContainer> bootstrap() async {
     sessionLocalDataSource: localDataSource,
     remoteDataSource: authRemoteDataSource,
   );
-  final walletsRepository = MockWalletsRepository();
-  final transactionsRepository = MockTransactionsRepository();
+  final walletsRemoteDataSource = DioWalletsRemoteDataSource(
+    apiClient: apiClient,
+    exceptionMapper: apiExceptionMapper,
+  );
+  final walletsRepository = AppWalletsRepository(
+    remoteDataSource: walletsRemoteDataSource,
+  );
+  final transactionsRemoteDataSource = DioTransactionsRemoteDataSource(
+    apiClient: apiClient,
+    exceptionMapper: apiExceptionMapper,
+  );
+  final transactionsRepository = AppTransactionsRepository(
+    remoteDataSource: transactionsRemoteDataSource,
+  );
   final usersRepository = MockUsersRepository();
   final branchesRepository = MockBranchesRepository();
   final plansRepository = MockPlansRepository();
@@ -73,7 +87,13 @@ Future<ProviderContainer> bootstrap() async {
       apiExceptionMapperProvider.overrideWithValue(apiExceptionMapper),
       authRemoteDataSourceProvider.overrideWithValue(authRemoteDataSource),
       authRepositoryProvider.overrideWithValue(authRepository),
+      walletsRemoteDataSourceProvider.overrideWithValue(
+        walletsRemoteDataSource,
+      ),
       walletsRepositoryProvider.overrideWithValue(walletsRepository),
+      transactionsRemoteDataSourceProvider.overrideWithValue(
+        transactionsRemoteDataSource,
+      ),
       transactionsRepositoryProvider.overrideWithValue(transactionsRepository),
       usersRepositoryProvider.overrideWithValue(usersRepository),
       branchesRepositoryProvider.overrideWithValue(branchesRepository),

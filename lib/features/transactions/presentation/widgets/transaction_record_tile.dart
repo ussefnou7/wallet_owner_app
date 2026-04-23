@@ -16,6 +16,11 @@ class TransactionRecordTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isCredit = transaction.type == TransactionEntryType.credit;
+    final typeLabel = switch (transaction.type) {
+      TransactionEntryType.credit => 'Credit',
+      TransactionEntryType.debit => 'Debit',
+      TransactionEntryType.unknown => 'Unknown',
+    };
     final statusColor = transaction.status == TransactionRecordStatus.recorded
         ? AppColors.success
         : AppColors.warning;
@@ -78,7 +83,7 @@ class TransactionRecordTile extends StatelessWidget {
           Row(
             children: [
               Text(
-                isCredit ? 'Credit' : 'Debit',
+                typeLabel,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: isCredit ? AppColors.success : AppColors.danger,
                 ),

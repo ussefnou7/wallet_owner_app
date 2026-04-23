@@ -11,7 +11,14 @@ final transactionsRepositoryProvider = Provider<TransactionsRepository>((ref) {
 });
 
 abstract interface class TransactionsRepository {
-  Future<List<TransactionRecord>> getTransactions();
+  Future<List<TransactionRecord>> getTransactions({
+    String? walletId,
+    TransactionEntryType? type,
+    DateTime? dateFrom,
+    DateTime? dateTo,
+  });
+
+  Future<TransactionRecord> getTransactionById(String transactionId);
 
   Future<TransactionSubmissionResult> submitTransaction(TransactionDraft draft);
 }

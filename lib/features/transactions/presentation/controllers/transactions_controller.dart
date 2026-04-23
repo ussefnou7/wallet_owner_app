@@ -54,6 +54,12 @@ final filteredTransactionsProvider = Provider<List<TransactionRecord>>((ref) {
   );
 });
 
+final transactionDetailsProvider =
+    FutureProvider.family<TransactionRecord, String>((ref, transactionId) {
+      final repository = ref.watch(transactionsRepositoryProvider);
+      return repository.getTransactionById(transactionId);
+    });
+
 class TransactionsController extends AsyncNotifier<List<TransactionRecord>> {
   @override
   Future<List<TransactionRecord>> build() async {

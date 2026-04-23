@@ -60,7 +60,8 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: walletsState.when(
-        loading: () => const AppLoadingView(message: 'Loading wallet options...'),
+        loading: () =>
+            const AppLoadingView(message: 'Loading wallet options...'),
         error: (error, stackTrace) => AppErrorState(
           message: 'Unable to load wallet options.',
           onRetry: () => ref.read(walletsControllerProvider.notifier).reload(),
@@ -173,9 +174,7 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
                           controller: _dateController,
                           label: 'Date',
                           readOnly: true,
-                          prefixIcon: const Icon(
-                            Icons.calendar_today_outlined,
-                          ),
+                          prefixIcon: const Icon(Icons.calendar_today_outlined),
                           onTap: _pickDate,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
@@ -288,6 +287,7 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
     }
 
     ref.invalidate(transactionsControllerProvider);
+    ref.invalidate(walletsControllerProvider);
 
     final selectedWallet = wallets.firstWhere(
       (wallet) => wallet.id == _selectedWalletId,
