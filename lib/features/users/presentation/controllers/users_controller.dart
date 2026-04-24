@@ -4,14 +4,9 @@ import '../../../auth/domain/entities/session.dart';
 import '../../domain/entities/app_user.dart';
 import '../../domain/repositories/users_repository.dart';
 
-enum UserStatusFilter { all, active, inactive }
-
 enum UserRoleFilter { all, owner, user }
 
 final usersSearchQueryProvider = StateProvider<String>((ref) => '');
-final usersStatusFilterProvider = StateProvider<UserStatusFilter>(
-  (ref) => UserStatusFilter.all,
-);
 final usersRoleFilterProvider = StateProvider<UserRoleFilter>(
   (ref) => UserRoleFilter.all,
 );
@@ -22,25 +17,16 @@ final usersControllerProvider =
 final filteredUsersProvider = Provider<List<AppUser>>((ref) {
   final usersAsync = ref.watch(usersControllerProvider);
   final query = ref.watch(usersSearchQueryProvider).trim().toLowerCase();
-  final statusFilter = ref.watch(usersStatusFilterProvider);
   final roleFilter = ref.watch(usersRoleFilterProvider);
 
   return usersAsync.maybeWhen(
     data: (users) {
-      final statusFiltered = switch (statusFilter) {
-        UserStatusFilter.all => users,
-        UserStatusFilter.active =>
-          users.where((user) => user.status == AppUserStatus.active).toList(),
-        UserStatusFilter.inactive =>
-          users.where((user) => user.status == AppUserStatus.inactive).toList(),
-      };
-
       final roleFiltered = switch (roleFilter) {
-        UserRoleFilter.all => statusFiltered,
+        UserRoleFilter.all => users,
         UserRoleFilter.owner =>
-          statusFiltered.where((user) => user.role == UserRole.owner).toList(),
+          users.where((user) => user.role == UserRole.owner).toList(),
         UserRoleFilter.user =>
-          statusFiltered.where((user) => user.role == UserRole.user).toList(),
+          users.where((user) => user.role == UserRole.user).toList(),
       };
 
       if (query.isEmpty) {
@@ -48,9 +34,9 @@ final filteredUsersProvider = Provider<List<AppUser>>((ref) {
       }
 
       return roleFiltered.where((user) {
-        return user.fullName.toLowerCase().contains(query) ||
-            user.email.toLowerCase().contains(query) ||
-            (user.branchName?.toLowerCase().contains(query) ?? false);
+        return user.username.toLowerCase().contains(query) ||
+            user.tenantName.toLowerCase().contains(query) ||
+            user.role.name.toLowerCase().contains(query);
       }).toList();
     },
     orElse: () => const [],
@@ -74,10 +60,6 @@ class UsersController extends AsyncNotifier<List<AppUser>> {
 
   void updateQuery(String value) {
     ref.read(usersSearchQueryProvider.notifier).state = value;
-  }
-
-  void updateStatusFilter(UserStatusFilter value) {
-    ref.read(usersStatusFilterProvider.notifier).state = value;
   }
 
   void updateRoleFilter(UserRoleFilter value) {

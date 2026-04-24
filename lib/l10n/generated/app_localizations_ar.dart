@@ -370,10 +370,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String get cash => 'نقدي';
 
   @override
+  String get branchName => 'الفرع';
+
+  @override
   String get description => 'الوصف';
 
   @override
+  String get occurredAt => 'وقت العملية';
+
+  @override
   String get optionalDescription => 'وصف اختياري';
+
+  @override
+  String get createdByUser => 'تم الإنشاء بواسطة';
+
+  @override
+  String get yes => 'نعم';
+
+  @override
+  String get no => 'لا';
 
   @override
   String get saveTransaction => 'حفظ المعاملة';
@@ -499,36 +514,87 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notificationsComingSoon => 'ستتوفر الإشعارات قريبًا.';
 
   @override
-  String get reportingWorkspace => 'مساحة التقارير';
+  String get genericReportsSubtitle =>
+      'شغّل تقارير الخادم مع مرشحات ديناميكية وعرض عام للبيانات.';
 
   @override
-  String get reportingWorkspaceSubtitle =>
-      'اختر تقريرًا لمراجعة الأداء المالي والتشغيلي.';
+  String get selectReport => 'اختر التقرير';
 
   @override
-  String get financialReports => 'التقارير المالية';
+  String get filters => 'المرشحات';
 
   @override
-  String get financialReportsSubtitle =>
-      'عروض مالية عالية المستوى لمتابعة المالك.';
+  String get dynamicFiltersSubtitle =>
+      'تظهر فقط المرشحات التي يدعمها التقرير المحدد.';
 
   @override
-  String get operationalReports => 'التقارير التشغيلية';
+  String get loadingReports => 'جار تحميل التقارير...';
 
   @override
-  String get operationalReportsSubtitle =>
-      'ملخصات النشاط التشغيلي عبر الفرق والفروع.';
+  String get unableToLoadReports => 'تعذر تحميل التقارير الآن.';
 
   @override
-  String get exportFormats => 'صيغ التصدير';
+  String get applyFilters => 'تطبيق المرشحات';
 
   @override
-  String get exportFormatsSubtitle =>
-      'جهّز التقارير للمشاركة والمراجعة دون اتصال.';
+  String get clearFilters => 'مسح المرشحات';
 
   @override
-  String reportAvailableLater(String title) {
-    return 'سيتوفر $title لاحقًا.';
+  String get reportResultsSubtitle =>
+      'تُعرض النتائج من عنوان وأعمدة وبيانات الخادم مباشرة.';
+
+  @override
+  String get noReportData => 'لم يُرجع التقرير المحدد صفوفًا أو قيمًا.';
+
+  @override
+  String get unsupportedReportData =>
+      'تعذر عرض استجابة هذا التقرير في العرض العام الحالي.';
+
+  @override
+  String get fromDate => 'من تاريخ';
+
+  @override
+  String get toDate => 'إلى تاريخ';
+
+  @override
+  String get walletId => 'معرف المحفظة';
+
+  @override
+  String get walletIdHint => 'أدخل معرف المحفظة';
+
+  @override
+  String get period => 'الفترة';
+
+  @override
+  String get reportTypeTransactionSummary => 'ملخص المعاملات';
+
+  @override
+  String get reportTypeTransactionDetails => 'تفاصيل المعاملات';
+
+  @override
+  String get reportTypeWalletConsumption => 'استهلاك المحافظ';
+
+  @override
+  String get reportTypeProfitSummary => 'ملخص الأرباح';
+
+  @override
+  String get reportTypeTransactionTimeAggregation => 'تجميع العمليات حسب الوقت';
+
+  @override
+  String get totalTransactions => 'إجمالي المعاملات';
+
+  @override
+  String get transactionCount => 'عدد العمليات';
+
+  @override
+  String get net => 'الصافي';
+
+  @override
+  String get netAmount => 'الصافي';
+
+  @override
+  String pageSummary(String page, String totalPages, String totalElements) {
+    return 'الصفحة $page من $totalPages - $totalElements عنصر';
   }
 
   @override
@@ -768,4 +834,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String planSelectionComingSoon(String planName) {
     return 'سيتم ربط اختيار $planName في مرحلة لاحقة.';
   }
+
+  @override
+  String get unableToSignIn => 'تعذر تسجيل الدخول. حاول مرة أخرى.';
+
+  @override
+  String get unableToSaveTransaction => 'تعذر حفظ المعاملة. حاول مرة أخرى.';
+
+  @override
+  String get sessionExpired => 'انتهت جلستك. يرجى تسجيل الدخول مرة أخرى.';
+
+  @override
+  String get walletLoadError => 'تعذر تحميل المحافظ. حاول مرة أخرى.';
+
+  @override
+  String get walletCreateError => 'تعذر إنشاء المحفظة. حاول مرة أخرى.';
+
+  @override
+  String get walletUpdateError => 'تعذر تحديث المحفظة. حاول مرة أخرى.';
+
+  @override
+  String get walletDeleteError => 'تعذر حذف المحفظة. حاول مرة أخرى.';
 }

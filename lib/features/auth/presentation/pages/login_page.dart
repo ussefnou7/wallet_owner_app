@@ -111,7 +111,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               if (authState.errorMessage != null) ...[
                                 const SizedBox(height: AppSpacing.md),
                                 AppErrorState(
-                                  message: authState.errorMessage!,
+                                  message: _getErrorMessage(authState.errorMessage!, l10n),
                                   compact: true,
                                 ),
                               ],
@@ -162,6 +162,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     }
 
     return null;
+  }
+
+  String _getErrorMessage(String error, AppLocalizations l10n) {
+    if (error == 'signin_error') {
+      return l10n.unableToSignIn;
+    }
+    return error;
   }
 
   Future<void> _submit() async {

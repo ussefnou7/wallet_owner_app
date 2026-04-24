@@ -374,10 +374,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cash => 'Cash';
 
   @override
+  String get branchName => 'Branch';
+
+  @override
   String get description => 'Description';
 
   @override
+  String get occurredAt => 'Occurred At';
+
+  @override
   String get optionalDescription => 'Optional description';
+
+  @override
+  String get createdByUser => 'Created By';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
 
   @override
   String get saveTransaction => 'Save Transaction';
@@ -509,36 +524,88 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notificationsComingSoon => 'Notifications will be available soon.';
 
   @override
-  String get reportingWorkspace => 'Reporting Workspace';
+  String get genericReportsSubtitle =>
+      'Run backend-driven reports with dynamic filters and generic rendering.';
 
   @override
-  String get reportingWorkspaceSubtitle =>
-      'Choose a report entry point to review financial and operational performance.';
+  String get selectReport => 'Select Report';
 
   @override
-  String get financialReports => 'Financial Reports';
+  String get filters => 'Filters';
 
   @override
-  String get financialReportsSubtitle =>
-      'High-level financial views for owner monitoring.';
+  String get dynamicFiltersSubtitle =>
+      'Only filters supported by the selected report are shown.';
 
   @override
-  String get operationalReports => 'Operational Reports';
+  String get loadingReports => 'Loading reports...';
 
   @override
-  String get operationalReportsSubtitle =>
-      'Operational activity summaries across teams and branches.';
+  String get unableToLoadReports => 'Unable to load reports right now.';
 
   @override
-  String get exportFormats => 'Export Formats';
+  String get applyFilters => 'Apply Filters';
 
   @override
-  String get exportFormatsSubtitle =>
-      'Prepare reports for sharing and offline review.';
+  String get clearFilters => 'Clear Filters';
 
   @override
-  String reportAvailableLater(String title) {
-    return '$title will be available later.';
+  String get reportResultsSubtitle =>
+      'Results are rendered from backend title, columns, and data.';
+
+  @override
+  String get noReportData => 'The selected report returned no rows or values.';
+
+  @override
+  String get unsupportedReportData =>
+      'This report response could not be rendered with the current generic view.';
+
+  @override
+  String get fromDate => 'From Date';
+
+  @override
+  String get toDate => 'To Date';
+
+  @override
+  String get walletId => 'Wallet ID';
+
+  @override
+  String get walletIdHint => 'Enter a wallet id';
+
+  @override
+  String get period => 'Period';
+
+  @override
+  String get reportTypeTransactionSummary => 'Transaction Summary';
+
+  @override
+  String get reportTypeTransactionDetails => 'Transaction Details';
+
+  @override
+  String get reportTypeWalletConsumption => 'Wallet Consumption';
+
+  @override
+  String get reportTypeProfitSummary => 'Profit Summary';
+
+  @override
+  String get reportTypeTransactionTimeAggregation =>
+      'Transaction Time Aggregation';
+
+  @override
+  String get totalTransactions => 'Total Transactions';
+
+  @override
+  String get transactionCount => 'Transactions';
+
+  @override
+  String get net => 'Net';
+
+  @override
+  String get netAmount => 'Net Amount';
+
+  @override
+  String pageSummary(String page, String totalPages, String totalElements) {
+    return 'Page $page of $totalPages - $totalElements items';
   }
 
   @override
@@ -780,4 +847,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String planSelectionComingSoon(String planName) {
     return '$planName selection will be connected in a later phase.';
   }
+
+  @override
+  String get unableToSignIn => 'Unable to sign in. Please try again.';
+
+  @override
+  String get unableToSaveTransaction =>
+      'Unable to save the transaction. Please try again.';
+
+  @override
+  String get sessionExpired =>
+      'Your session has expired. Please sign in again.';
+
+  @override
+  String get walletLoadError => 'Unable to load wallets. Please try again.';
+
+  @override
+  String get walletCreateError => 'Unable to create wallet. Please try again.';
+
+  @override
+  String get walletUpdateError => 'Unable to update wallet. Please try again.';
+
+  @override
+  String get walletDeleteError => 'Unable to delete wallet. Please try again.';
 }

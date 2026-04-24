@@ -13,7 +13,14 @@ abstract interface class WalletsRepository {
 
   Future<Wallet> getWalletById(String walletId);
 
-  Future<Wallet> createWallet({required String name});
+  Future<Wallet> createWallet({
+    required String name,
+    required String number,
+    required String branchId,
+    required double balance,
+    required String type,
+    required String tenantId,
+  });
 
   Future<Wallet> updateWallet({
     required String walletId,

@@ -24,6 +24,11 @@ class OwnerAppDrawer extends ConsumerWidget {
     final roleLabel = session?.roleLabel ?? 'OWNER';
     final items = [
       _DrawerItemData(
+        label: l10n.reports,
+        route: AppRoutes.reports,
+        icon: Icons.bar_chart_outlined,
+      ),
+      _DrawerItemData(
         label: l10n.branches,
         route: AppRoutes.branches,
         icon: Icons.storefront_outlined,

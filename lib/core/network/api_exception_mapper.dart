@@ -83,9 +83,16 @@ class ApiExceptionMapper {
 
   String? _responseMessage(Object? data) {
     if (data is Map<String, dynamic>) {
-      final message = data['message'];
+      // Try to get message first (most specific)
+      var message = data['message'];
       if (message is String && message.trim().isNotEmpty) {
-        return message;
+        return message.trim();
+      }
+
+      // Fall back to error field (more general)
+      final error = data['error'];
+      if (error is String && error.trim().isNotEmpty) {
+        return error.trim();
       }
     }
 

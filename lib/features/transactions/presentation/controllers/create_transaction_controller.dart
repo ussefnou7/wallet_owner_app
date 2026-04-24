@@ -59,7 +59,7 @@ class CreateTransactionController
     } catch (_) {
       state = state.copyWith(
         isSubmitting: false,
-        errorMessage: 'Unable to save the transaction. Please try again.',
+        errorMessage: 'transaction_save_error',
       );
       return false;
     }

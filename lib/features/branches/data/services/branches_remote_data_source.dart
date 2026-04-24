@@ -5,24 +5,25 @@ import '../../../../core/network/api_exception_mapper.dart';
 import '../../../../core/network/api_response_extractor.dart';
 import '../../../../core/network/api_result.dart';
 import '../../../../core/network/network_constants.dart';
-import '../models/login_request_model.dart';
-import '../models/login_response_model.dart';
+import '../models/branch_model.dart';
 
-final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
+final branchesRemoteDataSourceProvider = Provider<BranchesRemoteDataSource>((
+  ref,
+) {
   final apiClient = ref.watch(apiClientProvider);
   final exceptionMapper = ref.watch(apiExceptionMapperProvider);
-  return DioAuthRemoteDataSource(
+  return DioBranchesRemoteDataSource(
     apiClient: apiClient,
     exceptionMapper: exceptionMapper,
   );
 });
 
-abstract interface class AuthRemoteDataSource {
-  Future<ApiResult<LoginResponseModel>> login(LoginRequestModel request);
+abstract interface class BranchesRemoteDataSource {
+  Future<ApiResult<List<BranchModel>>> getBranches();
 }
 
-class DioAuthRemoteDataSource implements AuthRemoteDataSource {
-  DioAuthRemoteDataSource({
+class DioBranchesRemoteDataSource implements BranchesRemoteDataSource {
+  DioBranchesRemoteDataSource({
     required ApiClient apiClient,
     required ApiExceptionMapper exceptionMapper,
   }) : _apiClient = apiClient,
@@ -32,15 +33,15 @@ class DioAuthRemoteDataSource implements AuthRemoteDataSource {
   final ApiExceptionMapper _exceptionMapper;
 
   @override
-  Future<ApiResult<LoginResponseModel>> login(LoginRequestModel request) async {
+  Future<ApiResult<List<BranchModel>>> getBranches() async {
     try {
-      final response = await _apiClient.post<Map<String, dynamic>>(
-        NetworkConstants.authLoginPath,
-        data: request.toJson(),
+      final response = await _apiClient.get<Object?>(
+        NetworkConstants.branchesPath,
       );
-
-      ApiResponseExtractor.validateNotEmpty(response.data);
-      return ApiSuccess(LoginResponseModel.fromJson(response.data!));
+      final branches = ApiResponseExtractor.extractList(response.data)
+          .map(BranchModel.fromJson)
+          .toList();
+      return ApiSuccess(branches);
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));
     }

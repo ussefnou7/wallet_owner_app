@@ -46,7 +46,6 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     final usersState = ref.watch(usersControllerProvider);
     final filteredUsers = ref.watch(filteredUsersProvider);
     final searchQuery = ref.watch(usersSearchQueryProvider);
-    final statusFilter = ref.watch(usersStatusFilterProvider);
     final roleFilter = ref.watch(usersRoleFilterProvider);
     final l10n = appL10n(context);
 
@@ -82,27 +81,6 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             hintText: l10n.searchUsersHint,
             prefixIcon: const Icon(Icons.search_rounded),
             onChanged: ref.read(usersControllerProvider.notifier).updateQuery,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          FilterChipRow<UserStatusFilter>(
-            selectedValue: statusFilter,
-            onSelected: ref
-                .read(usersControllerProvider.notifier)
-                .updateStatusFilter,
-            options: [
-              FilterChipOption(
-                value: UserStatusFilter.all,
-                label: l10n.allStatus,
-              ),
-              FilterChipOption(
-                value: UserStatusFilter.active,
-                label: l10n.active,
-              ),
-              FilterChipOption(
-                value: UserStatusFilter.inactive,
-                label: l10n.inactive,
-              ),
-            ],
           ),
           const SizedBox(height: AppSpacing.sm),
           FilterChipRow<UserRoleFilter>(

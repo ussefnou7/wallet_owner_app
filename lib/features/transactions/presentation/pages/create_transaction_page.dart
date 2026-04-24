@@ -14,6 +14,7 @@ import '../../../../core/widgets/app_form_section.dart';
 import '../../../../core/widgets/app_loading_view.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../wallets/domain/entities/wallet.dart';
 import '../../../wallets/presentation/controllers/wallets_controller.dart';
 import '../../domain/entities/transaction_draft.dart';
@@ -57,73 +58,74 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
-      child: walletsState.when(
-        loading: () => AppLoadingView(message: l10n.loadingWalletOptions),
-        error: (error, stackTrace) => AppErrorState(
-          message: l10n.unableToLoadWalletOptions,
-          onRetry: () => ref.read(walletsControllerProvider.notifier).reload(),
-        ),
-        data: (wallets) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: AppSpacing.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppSectionHeader(
-                  title: l10n.recordTransaction,
-                  subtitle: l10n.recordTransactionSubtitle,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                if (submissionState.lastResult != null) ...[
-                  TransactionSuccessBanner(
-                    referenceId: submissionState.lastResult!.referenceId,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                ],
-                if (submissionState.errorMessage != null) ...[
-                  AppErrorState(
-                    message: submissionState.errorMessage!,
-                    compact: true,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                ],
-                AppFormSection(
-                  title: l10n.transactionDetails,
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        AppDropdownField<String>(
-                          value: _selectedWalletId,
-                          label: l10n.wallet,
-                          hintText: l10n.selectWallet,
-                          prefixIcon: const Icon(
-                            Icons.account_balance_wallet_outlined,
-                          ),
-                          items: wallets
-                              .map(
-                                (wallet) => DropdownMenuItem<String>(
-                                  value: wallet.id,
-                                  child: Text(wallet.name),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (value) {
-                            setState(() => _selectedWalletId = value);
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return l10n.walletRequired;
-                            }
-                            return null;
-                          },
+      child: walletsState.isLoading
+          ? AppLoadingView(message: l10n.loadingWalletOptions)
+          : walletsState.error != null
+              ? AppErrorState(
+                  message: l10n.unableToLoadWalletOptions,
+                  onRetry: () =>
+                      ref.read(walletsControllerProvider.notifier).reload(),
+                )
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppSectionHeader(
+                        title: l10n.recordTransaction,
+                        subtitle: l10n.recordTransactionSubtitle,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      if (submissionState.lastResult != null) ...[
+                        TransactionSuccessBanner(
+                          referenceId: submissionState.lastResult!.referenceId,
                         ),
                         const SizedBox(height: AppSpacing.md),
-                        AppDropdownField<TransactionEntryType>(
-                          value: _selectedType,
-                          label: l10n.transactionType,
-                          hintText: l10n.selectCreditOrDebit,
-                          prefixIcon: const Icon(Icons.swap_vert_rounded),
+                      ],
+                      if (submissionState.errorMessage != null) ...[
+                        AppErrorState(
+                          message: _getErrorMessage(submissionState.errorMessage!, l10n),
+                          compact: true,
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                      ],
+                      AppFormSection(
+                        title: l10n.transactionDetails,
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              AppDropdownField<String>(
+                                value: _selectedWalletId,
+                                label: '${l10n.wallet} *',
+                                hintText: l10n.selectWallet,
+                                prefixIcon: const Icon(
+                                  Icons.account_balance_wallet_outlined,
+                                ),
+                                items: walletsState.data
+                                    .map(
+                                      (wallet) => DropdownMenuItem<String>(
+                                        value: wallet.id,
+                                        child: Text(wallet.name),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: (value) {
+                                  setState(() => _selectedWalletId = value);
+                                },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return l10n.walletRequired;
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: AppSpacing.lg),
+                              AppDropdownField<TransactionEntryType>(
+                                value: _selectedType,
+                                label: '${l10n.transactionType} *',
+                                hintText: l10n.selectCreditOrDebit,
+                                prefixIcon: const Icon(Icons.swap_vert_rounded),
                           items: [
                             DropdownMenuItem(
                               value: TransactionEntryType.credit,
@@ -149,10 +151,10 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: AppSpacing.md),
+                        const SizedBox(height: AppSpacing.lg),
                         AppTextField(
                           controller: _amountController,
-                          label: l10n.amount,
+                          label: '${l10n.amount} *',
                           hintText: '0.00',
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
@@ -173,7 +175,7 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
                         const SizedBox(height: AppSpacing.md),
                         AppTextField(
                           controller: _percentController,
-                          label: l10n.percent,
+                          label: '${l10n.percent} *',
                           hintText: '0.00',
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
@@ -194,7 +196,7 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
                         const SizedBox(height: AppSpacing.md),
                         AppTextField(
                           controller: _phoneNumberController,
-                          label: l10n.phoneNumber,
+                          label: '${l10n.phoneNumber} *',
                           hintText: '01000256987',
                           keyboardType: TextInputType.phone,
                           prefixIcon: const Icon(Icons.phone_outlined),
@@ -240,14 +242,12 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
                   child: AppPrimaryButton(
                     label: l10n.saveTransaction,
                     isLoading: submissionState.isSubmitting,
-                    onPressed: () => _submit(wallets),
+                    onPressed: () => _submit(walletsState.data),
                   ),
                 ),
               ],
             ),
-          );
-        },
-      ),
+          ),
     );
   }
 
@@ -323,5 +323,12 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
     return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-'
         '${hex.substring(12, 16)}-${hex.substring(16, 20)}-'
         '${hex.substring(20)}';
+  }
+
+  String _getErrorMessage(String error, AppLocalizations l10n) {
+    if (error == 'transaction_save_error') {
+      return l10n.unableToSaveTransaction;
+    }
+    return error;
   }
 }

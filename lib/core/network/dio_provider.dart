@@ -3,17 +3,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../config/app_config.dart';
 import 'auth_interceptor.dart';
+import 'safe_log_interceptor.dart';
+import 'session_error_interceptor.dart';
 
 final dioProvider = Provider<Dio>((ref) {
   final config = ref.watch(appConfigProvider);
   final authInterceptor = ref.watch(authInterceptorProvider);
+  final sessionErrorInterceptor = ref.watch(sessionErrorInterceptorProvider);
 
-  return createDio(config: config, authInterceptor: authInterceptor);
+  return createDio(
+    config: config,
+    authInterceptor: authInterceptor,
+    sessionErrorInterceptor: sessionErrorInterceptor,
+  );
 });
 
 Dio createDio({
   required AppConfig config,
   required AuthInterceptor authInterceptor,
+  required SessionErrorInterceptor? sessionErrorInterceptor,
 }) {
   final dio = Dio(
     BaseOptions(
@@ -31,14 +39,15 @@ Dio createDio({
   );
 
   dio.interceptors.add(authInterceptor);
+  if (sessionErrorInterceptor != null) {
+    dio.interceptors.add(sessionErrorInterceptor);
+  }
 
   if (config.enableNetworkLogs) {
     dio.interceptors.add(
-      LogInterceptor(
-        requestBody: true,
-        responseBody: true,
-        requestHeader: false,
-        responseHeader: false,
+      SafeLogInterceptor(
+        logRequestBody: true,
+        logResponseBody: true,
       ),
     );
   }

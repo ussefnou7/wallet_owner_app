@@ -8,7 +8,11 @@ import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading_view.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../l10n/generated/app_localizations.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../../branches/presentation/controllers/branches_controller.dart';
 import '../../domain/entities/wallet.dart';
+import '../../domain/repositories/wallets_repository.dart';
 import '../controllers/wallets_controller.dart';
 import '../widgets/wallet_card.dart';
 
@@ -40,7 +44,7 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final walletsState = ref.watch(walletsControllerProvider);
+    final walletState = ref.watch(walletsControllerProvider);
     final filteredWallets = ref.watch(filteredWalletsProvider);
     final searchQuery = ref.watch(walletsSearchQueryProvider);
     final canManageWallets = !widget.readOnly;
@@ -56,6 +60,14 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
               : l10n.walletDirectoryReadOnlySubtitle,
         ),
         const SizedBox(height: AppSpacing.md),
+        if (walletState.error != null) ...[
+          AppErrorState(
+            message: _getErrorMessage(walletState.error!, l10n),
+            onRetry: () =>
+                ref.read(walletsControllerProvider.notifier).reload(),
+          ),
+          const SizedBox(height: AppSpacing.md),
+        ],
         Row(
           children: [
             Expanded(
@@ -71,7 +83,7 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
             ),
             const SizedBox(width: AppSpacing.sm),
             OutlinedButton.icon(
-              onPressed: walletsState.isLoading
+              onPressed: walletState.isLoading
                   ? null
                   : () => ref.read(walletsControllerProvider.notifier).reload(),
               icon: const Icon(Icons.refresh_rounded),
@@ -80,7 +92,7 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
             if (canManageWallets) ...[
               const SizedBox(width: AppSpacing.sm),
               FilledButton.icon(
-                onPressed: walletsState.isLoading
+                onPressed: walletState.isLoading || walletState.isCreating
                     ? null
                     : () => _showWalletFormDialog(context),
                 icon: const Icon(Icons.add_rounded),
@@ -91,45 +103,35 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
         ),
         const SizedBox(height: AppSpacing.md),
         Expanded(
-          child: walletsState.when(
-            loading: () => AppLoadingView(message: l10n.loadingWallets),
-            error: (error, stackTrace) => AppErrorState(
-              message: l10n.unableToLoadWallets,
-              onRetry: () =>
-                  ref.read(walletsControllerProvider.notifier).reload(),
-            ),
-            data: (_) {
-              if (filteredWallets.isEmpty) {
-                return AppEmptyState(
-                  title: searchQuery.trim().isEmpty
-                      ? l10n.noWalletsFound
-                      : l10n.noMatchingWallets,
-                  message: searchQuery.trim().isEmpty
-                      ? l10n.walletsEmptyMessage
-                      : l10n.walletsSearchEmptyMessage,
-                  icon: Icons.account_balance_wallet_outlined,
-                );
-              }
-
-              return ListView.separated(
-                itemCount: filteredWallets.length,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: AppSpacing.md),
-                itemBuilder: (context, index) {
-                  final wallet = filteredWallets[index];
-                  return WalletCard(
-                    wallet: wallet,
-                    onEdit: canManageWallets
-                        ? () => _showWalletFormDialog(context, wallet: wallet)
-                        : null,
-                    onDelete: canManageWallets
-                        ? () => _confirmDeleteWallet(context, wallet)
-                        : null,
-                  );
-                },
-              );
-            },
-          ),
+          child: walletState.isLoading
+              ? AppLoadingView(message: l10n.loadingWallets)
+              : filteredWallets.isEmpty
+                  ? AppEmptyState(
+                      title: searchQuery.trim().isEmpty
+                          ? l10n.noWalletsFound
+                          : l10n.noMatchingWallets,
+                      message: searchQuery.trim().isEmpty
+                          ? l10n.walletsEmptyMessage
+                          : l10n.walletsSearchEmptyMessage,
+                      icon: Icons.account_balance_wallet_outlined,
+                    )
+                  : ListView.separated(
+                      itemCount: filteredWallets.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: AppSpacing.md),
+                      itemBuilder: (context, index) {
+                        final wallet = filteredWallets[index];
+                        return WalletCard(
+                          wallet: wallet,
+                          onEdit: canManageWallets
+                              ? () => _showWalletFormDialog(context, wallet: wallet)
+                              : null,
+                          onDelete: canManageWallets
+                              ? () => _confirmDeleteWallet(context, wallet)
+                              : null,
+                        );
+                      },
+                    ),
         ),
       ],
     );
@@ -139,39 +141,40 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
     BuildContext context, {
     Wallet? wallet,
   }) async {
-    final controller = TextEditingController(text: wallet?.name ?? '');
-    var active = wallet?.active ?? true;
-    final formKey = GlobalKey<FormState>();
-    final l10n = appL10n(context);
+    // For edit mode only
+    if (wallet != null) {
+      final controller = TextEditingController(text: wallet.name);
+      var active = wallet.active ?? true;
+      final formKey = GlobalKey<FormState>();
+      final l10n = appL10n(context);
 
-    final submitted = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              title: Text(wallet == null ? l10n.createWallet : l10n.editWallet),
-              content: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextFormField(
-                      controller: controller,
-                      decoration: InputDecoration(
-                        labelText: l10n.walletName,
-                        prefixIcon: const Icon(
-                          Icons.account_balance_wallet_outlined,
+      final submitted = await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(
+            builder: (context, setDialogState) {
+              return AlertDialog(
+                title: Text(l10n.editWallet),
+                content: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: controller,
+                        decoration: InputDecoration(
+                          labelText: l10n.walletName,
+                          prefixIcon: const Icon(
+                            Icons.account_balance_wallet_outlined,
+                          ),
                         ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return l10n.walletNameRequired;
+                          }
+                          return null;
+                        },
                       ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return l10n.walletNameRequired;
-                        }
-                        return null;
-                      },
-                    ),
-                    if (wallet != null) ...[
                       const SizedBox(height: AppSpacing.md),
                       SwitchListTile.adaptive(
                         contentPadding: EdgeInsets.zero,
@@ -182,7 +185,216 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
                         },
                       ),
                     ],
-                  ],
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text(l10n.cancel),
+                  ),
+                  FilledButton(
+                    onPressed: () {
+                      if (formKey.currentState?.validate() == true) {
+                        Navigator.of(context).pop(true);
+                      }
+                    },
+                    child: Text(l10n.save),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      );
+
+      if (submitted != true || !mounted) {
+        controller.dispose();
+        return;
+      }
+
+      final name = controller.text.trim();
+      controller.dispose();
+
+      final notifier = ref.read(walletsControllerProvider.notifier);
+      await notifier.updateWallet(
+        walletId: wallet.id,
+        name: name,
+        active: active,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      final state = ref.read(walletsControllerProvider);
+      if (state.error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              _getErrorMessage(state.error!, l10n),
+            ),
+          ),
+        );
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.walletUpdated)),
+      );
+      return;
+    }
+
+    // Create mode: show comprehensive form
+    final nameController = TextEditingController();
+    final numberController = TextEditingController();
+    final balanceController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    final l10n = appL10n(context);
+
+    String? selectedBranchId;
+    String? selectedType;
+
+    final submitted = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            final branchesAsync = ref.watch(branchesControllerProvider);
+
+            return AlertDialog(
+              title: Text(l10n.createWallet),
+              content: SingleChildScrollView(
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                          labelText: l10n.walletName,
+                          prefixIcon: const Icon(
+                            Icons.account_balance_wallet_outlined,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return l10n.walletNameRequired;
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      TextFormField(
+                        controller: numberController,
+                        decoration: InputDecoration(
+                          labelText: l10n.number,
+                          prefixIcon: const Icon(Icons.phone_rounded),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Wallet number is required';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      TextFormField(
+                        controller: balanceController,
+                        decoration: InputDecoration(
+                          labelText: l10n.balance,
+                          prefixIcon: const Icon(Icons.attach_money_rounded),
+                        ),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Balance is required';
+                          }
+                          if (double.tryParse(value) == null) {
+                            return 'Enter a valid amount';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      branchesAsync.when(
+                        data: (branches) => DropdownButtonFormField<String>(
+                          value: selectedBranchId,
+                          hint: const Text('Select branch'),
+                          items: branches
+                              .map((branch) => DropdownMenuItem(
+                                    value: branch.id,
+                                    child: Text(branch.name),
+                                  ))
+                              .toList(),
+                          onChanged: (value) {
+                            setDialogState(
+                                () => selectedBranchId = value);
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Branch is required';
+                            }
+                            return null;
+                          },
+                        ),
+                        loading: () => const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        ),
+                        error: (_, __) => const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text('Failed to load branches'),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      ref.watch(walletTypesProvider).when(
+                        data: (types) => DropdownButtonFormField<String>(
+                          value: selectedType,
+                          hint: const Text('Select wallet type'),
+                          items: types
+                              .map((type) => DropdownMenuItem(
+                                    value: type,
+                                    child: Text(type),
+                                  ))
+                              .toList(),
+                          onChanged: (value) {
+                            setDialogState(
+                                () => selectedType = value);
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Wallet type is required';
+                            }
+                            return null;
+                          },
+                        ),
+                        loading: () => const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        ),
+                        error: (_, __) => const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text('Failed to load wallet types'),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               actions: [
@@ -196,7 +408,7 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
                       Navigator.of(context).pop(true);
                     }
                   },
-                  child: Text(wallet == null ? l10n.create : l10n.save),
+                  child: Text(l10n.create),
                 ),
               ],
             );
@@ -206,49 +418,60 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
     );
 
     if (submitted != true || !mounted) {
-      controller.dispose();
+      nameController.dispose();
+      numberController.dispose();
+      balanceController.dispose();
       return;
     }
 
-    final name = controller.text.trim();
-    controller.dispose();
+    final authState = ref.read(authControllerProvider);
+    final tenantId = authState.session?.tenantId;
 
-    try {
-      final notifier = ref.read(walletsControllerProvider.notifier);
-      if (wallet == null) {
-        await notifier.createWallet(name: name);
-      } else {
-        await notifier.updateWallet(
-          walletId: wallet.id,
-          name: name,
-          active: active,
-        );
-      }
-
-      if (!context.mounted) {
-        return;
-      }
-
+    if (tenantId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            wallet == null ? l10n.walletCreated : l10n.walletUpdated,
-          ),
+        const SnackBar(
+          content: Text('Session expired. Please log in again.'),
         ),
       );
-    } catch (_) {
-      if (!context.mounted) {
-        return;
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            wallet == null ? l10n.walletCreateFailed : l10n.walletUpdateFailed,
-          ),
-        ),
-      );
+      nameController.dispose();
+      numberController.dispose();
+      balanceController.dispose();
+      return;
     }
+
+    final notifier = ref.read(walletsControllerProvider.notifier);
+    await notifier.createWallet(
+      name: nameController.text.trim(),
+      number: numberController.text.trim(),
+      branchId: selectedBranchId!,
+      balance: double.parse(balanceController.text.trim()),
+      type: selectedType!,
+      tenantId: tenantId,
+    );
+
+    nameController.dispose();
+    numberController.dispose();
+    balanceController.dispose();
+
+    if (!mounted) {
+      return;
+    }
+
+    final state = ref.read(walletsControllerProvider);
+    if (state.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _getErrorMessage(state.error!, l10n),
+          ),
+        ),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.walletCreated)),
+    );
   }
 
   Future<void> _confirmDeleteWallet(BuildContext context, Wallet wallet) async {
@@ -277,25 +500,34 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
       return;
     }
 
-    try {
-      await ref
-          .read(walletsControllerProvider.notifier)
-          .deleteWallet(wallet.id);
-      if (!context.mounted) {
-        return;
-      }
+    await ref
+        .read(walletsControllerProvider.notifier)
+        .deleteWallet(wallet.id);
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.walletDeleted)));
-    } catch (_) {
-      if (!context.mounted) {
-        return;
-      }
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.walletDeleteFailed)));
+    if (!context.mounted) {
+      return;
     }
+
+    final state = ref.read(walletsControllerProvider);
+    if (state.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_getErrorMessage(state.error!, l10n))),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.walletDeleted)),
+    );
+  }
+
+  String _getErrorMessage(String error, AppLocalizations l10n) {
+    return switch (error) {
+      'wallet_load_error' => l10n.walletLoadError,
+      'wallet_create_error' => l10n.walletCreateError,
+      'wallet_update_error' => l10n.walletUpdateError,
+      'wallet_delete_error' => l10n.walletDeleteError,
+      _ => error,
+    };
   }
 }

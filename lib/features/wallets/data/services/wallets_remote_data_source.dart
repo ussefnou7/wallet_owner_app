@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/errors/app_failure.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exception_mapper.dart';
+import '../../../../core/network/api_response_extractor.dart';
 import '../../../../core/network/api_result.dart';
 import '../../../../core/network/network_constants.dart';
 import '../models/wallet_model.dart';
@@ -31,6 +31,8 @@ abstract interface class WalletsRemoteDataSource {
   });
 
   Future<ApiResult<void>> deleteWallet(String walletId);
+
+  Future<ApiResult<List<String>>> getWalletTypes();
 }
 
 class DioWalletsRemoteDataSource implements WalletsRemoteDataSource {
@@ -49,9 +51,9 @@ class DioWalletsRemoteDataSource implements WalletsRemoteDataSource {
       final response = await _apiClient.get<Object?>(
         NetworkConstants.walletsPath,
       );
-      final wallets = _extractList(
-        response.data,
-      ).map(WalletModel.fromJson).toList();
+      final wallets = ApiResponseExtractor.extractList(response.data)
+          .map(WalletModel.fromJson)
+          .toList();
       return ApiSuccess(wallets);
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));
@@ -64,7 +66,9 @@ class DioWalletsRemoteDataSource implements WalletsRemoteDataSource {
       final response = await _apiClient.get<Object?>(
         '${NetworkConstants.walletsPath}/$walletId',
       );
-      return ApiSuccess(WalletModel.fromJson(_extractObject(response.data)));
+      return ApiSuccess(
+        WalletModel.fromJson(ApiResponseExtractor.extractObject(response.data)),
+      );
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));
     }
@@ -79,7 +83,9 @@ class DioWalletsRemoteDataSource implements WalletsRemoteDataSource {
         NetworkConstants.walletsPath,
         data: request.toJson(),
       );
-      return ApiSuccess(WalletModel.fromJson(_extractObject(response.data)));
+      return ApiSuccess(
+        WalletModel.fromJson(ApiResponseExtractor.extractObject(response.data)),
+      );
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));
     }
@@ -95,7 +101,9 @@ class DioWalletsRemoteDataSource implements WalletsRemoteDataSource {
         '${NetworkConstants.walletsPath}/$walletId',
         data: request.toJson(),
       );
-      return ApiSuccess(WalletModel.fromJson(_extractObject(response.data)));
+      return ApiSuccess(
+        WalletModel.fromJson(ApiResponseExtractor.extractObject(response.data)),
+      );
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));
     }
@@ -113,53 +121,18 @@ class DioWalletsRemoteDataSource implements WalletsRemoteDataSource {
     }
   }
 
-  List<Map<String, dynamic>> _extractList(Object? payload) {
-    final listPayload = switch (payload) {
-      final List<Object?> value => value,
-      final Map<String, dynamic> value => _wrappedList(value),
-      _ => null,
-    };
-
-    if (listPayload == null) {
-      throw const AppFailureException(
-        UnknownFailure('Unexpected wallets response received from the server.'),
+  @override
+  Future<ApiResult<List<String>>> getWalletTypes() async {
+    try {
+      final response = await _apiClient.get<Object?>(
+        '${NetworkConstants.walletsPath}/types',
       );
+      final types = ApiResponseExtractor.extractList(response.data)
+          .map((item) => (item['name'] as String?) ?? (item as String))
+          .toList();
+      return ApiSuccess(types);
+    } catch (error) {
+      return ApiError(_exceptionMapper.map(error));
     }
-
-    return listPayload.whereType<Map<String, dynamic>>().toList();
-  }
-
-  List<Object?>? _wrappedList(Map<String, dynamic> payload) {
-    for (final key in const ['data', 'content', 'items', 'results']) {
-      final value = payload[key];
-      if (value is List<Object?>) {
-        return value;
-      }
-      if (value is Map<String, dynamic>) {
-        final nested = _wrappedList(value);
-        if (nested != null) {
-          return nested;
-        }
-      }
-    }
-
-    return null;
-  }
-
-  Map<String, dynamic> _extractObject(Object? payload) {
-    if (payload is Map<String, dynamic>) {
-      for (final key in const ['data', 'content', 'item', 'result']) {
-        final value = payload[key];
-        if (value is Map<String, dynamic>) {
-          return _extractObject(value);
-        }
-      }
-
-      return payload;
-    }
-
-    throw const AppFailureException(
-      UnknownFailure('Unexpected wallet response received from the server.'),
-    );
   }
 }

@@ -81,20 +81,23 @@ class TransactionRecordTile extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.lg),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
                 typeLabel,
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: isCredit ? AppColors.success : AppColors.danger,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm),
               Text(
                 formatCurrency(transaction.amount),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: isCredit ? AppColors.success : AppColors.danger,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],

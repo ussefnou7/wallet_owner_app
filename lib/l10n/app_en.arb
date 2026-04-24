@@ -131,8 +131,13 @@
   "phoneNumberRequired": "Phone number is required",
   "validPhoneNumberRequired": "Enter a valid phone number",
   "cash": "Cash",
+  "branchName": "Branch",
   "description": "Description",
+  "occurredAt": "Occurred At",
   "optionalDescription": "Optional description",
+  "createdByUser": "Created By",
+  "yes": "Yes",
+  "no": "No",
   "saveTransaction": "Save Transaction",
   "loadingWalletOptions": "Loading wallet options...",
   "unableToLoadWalletOptions": "Unable to load wallet options.",
@@ -188,18 +193,41 @@
   },
   "logoutSubtitle": "Sign out from the current owner session.",
   "notificationsComingSoon": "Notifications will be available soon.",
-  "reportingWorkspace": "Reporting Workspace",
-  "reportingWorkspaceSubtitle": "Choose a report entry point to review financial and operational performance.",
-  "financialReports": "Financial Reports",
-  "financialReportsSubtitle": "High-level financial views for owner monitoring.",
-  "operationalReports": "Operational Reports",
-  "operationalReportsSubtitle": "Operational activity summaries across teams and branches.",
-  "exportFormats": "Export Formats",
-  "exportFormatsSubtitle": "Prepare reports for sharing and offline review.",
-  "reportAvailableLater": "{title} will be available later.",
-  "@reportAvailableLater": {
+  "genericReportsSubtitle": "Run backend-driven reports with dynamic filters and generic rendering.",
+  "selectReport": "Select Report",
+  "filters": "Filters",
+  "dynamicFiltersSubtitle": "Only filters supported by the selected report are shown.",
+  "loadingReports": "Loading reports...",
+  "unableToLoadReports": "Unable to load reports right now.",
+  "applyFilters": "Apply Filters",
+  "clearFilters": "Clear Filters",
+  "reportResultsSubtitle": "Results are rendered from backend title, columns, and data.",
+  "noReportData": "The selected report returned no rows or values.",
+  "unsupportedReportData": "This report response could not be rendered with the current generic view.",
+  "fromDate": "From Date",
+  "toDate": "To Date",
+  "walletId": "Wallet ID",
+  "walletIdHint": "Enter a wallet id",
+  "period": "Period",
+  "reportTypeTransactionSummary": "Transaction Summary",
+  "reportTypeTransactionDetails": "Transaction Details",
+  "reportTypeWalletConsumption": "Wallet Consumption",
+  "reportTypeProfitSummary": "Profit Summary",
+  "reportTypeTransactionTimeAggregation": "Transaction Time Aggregation",
+  "totalTransactions": "Total Transactions",
+  "transactionCount": "Transactions",
+  "net": "Net",
+  "netAmount": "Net Amount",
+  "pageSummary": "Page {page} of {totalPages} - {totalElements} items",
+  "@pageSummary": {
     "placeholders": {
-      "title": {
+      "page": {
+        "type": "String"
+      },
+      "totalPages": {
+        "type": "String"
+      },
+      "totalElements": {
         "type": "String"
       }
     }
@@ -317,5 +345,12 @@
         "type": "String"
       }
     }
-  }
+  },
+  "unableToSignIn": "Unable to sign in. Please try again.",
+  "unableToSaveTransaction": "Unable to save the transaction. Please try again.",
+  "sessionExpired": "Your session has expired. Please sign in again.",
+  "walletLoadError": "Unable to load wallets. Please try again.",
+  "walletCreateError": "Unable to create wallet. Please try again.",
+  "walletUpdateError": "Unable to update wallet. Please try again.",
+  "walletDeleteError": "Unable to delete wallet. Please try again."
 }

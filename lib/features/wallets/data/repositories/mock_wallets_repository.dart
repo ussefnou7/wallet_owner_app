@@ -56,15 +56,25 @@ class MockWalletsRepository implements WalletsRepository {
   }
 
   @override
-  Future<Wallet> createWallet({required String name}) async {
+  Future<Wallet> createWallet({
+    required String name,
+    required String number,
+    required String branchId,
+    required double balance,
+    required String type,
+    required String tenantId,
+  }) async {
     await Future<void>.delayed(const Duration(milliseconds: 250));
     return WalletModel(
       id: 'wallet-${DateTime.now().millisecondsSinceEpoch}',
       name: name,
+      number: number,
       code: 'NEW',
-      balance: 0,
+      balance: balance,
       status: WalletStatus.active,
       transactionCount: 0,
+      branchId: branchId,
+      rawType: type,
     );
   }
 

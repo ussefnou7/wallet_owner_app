@@ -2,38 +2,19 @@ import 'package:equatable/equatable.dart';
 
 import '../../../auth/domain/entities/session.dart';
 
-enum AppUserStatus { active, inactive }
-
 class AppUser extends Equatable {
   const AppUser({
     required this.id,
-    required this.fullName,
+    required this.username,
     required this.role,
-    required this.email,
-    required this.status,
-    required this.walletCount,
-    this.branchName,
-    this.phone,
+    required this.tenantName,
   });
 
   final String id;
-  final String fullName;
+  final String username;
   final UserRole role;
-  final String email;
-  final AppUserStatus status;
-  final int walletCount;
-  final String? branchName;
-  final String? phone;
+  final String tenantName;
 
   @override
-  List<Object?> get props => [
-    id,
-    fullName,
-    role,
-    email,
-    status,
-    walletCount,
-    branchName,
-    phone,
-  ];
+  List<Object?> get props => [id, username, role, tenantName];
 }

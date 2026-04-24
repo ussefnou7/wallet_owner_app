@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/errors/app_failure.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exception_mapper.dart';
+import '../../../../core/network/api_response_extractor.dart';
 import '../../../../core/network/api_result.dart';
 import '../../../../core/network/network_constants.dart';
 import '../../domain/entities/transaction_draft.dart';
@@ -64,9 +64,9 @@ class DioTransactionsRemoteDataSource implements TransactionsRemoteDataSource {
           if (dateTo != null) 'dateTo': dateTo.toIso8601String(),
         },
       );
-      final transactions = _extractList(
-        response.data,
-      ).map(TransactionRecordModel.fromJson).toList();
+      final transactions = ApiResponseExtractor.extractList(response.data)
+          .map(TransactionRecordModel.fromJson)
+          .toList();
       return ApiSuccess(transactions);
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));
@@ -82,7 +82,9 @@ class DioTransactionsRemoteDataSource implements TransactionsRemoteDataSource {
         '${NetworkConstants.transactionsPath}/$transactionId',
       );
       return ApiSuccess(
-        TransactionRecordModel.fromJson(_extractObject(response.data)),
+        TransactionRecordModel.fromJson(
+          ApiResponseExtractor.extractObject(response.data),
+        ),
       );
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));
@@ -99,7 +101,9 @@ class DioTransactionsRemoteDataSource implements TransactionsRemoteDataSource {
         data: request.toJson(),
       );
       return ApiSuccess(
-        TransactionRecordModel.fromJson(_extractObject(response.data)),
+        TransactionRecordModel.fromJson(
+          ApiResponseExtractor.extractObject(response.data),
+        ),
       );
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));
@@ -112,59 +116,5 @@ class DioTransactionsRemoteDataSource implements TransactionsRemoteDataSource {
       TransactionEntryType.debit => 'DEBIT',
       TransactionEntryType.unknown => 'UNKNOWN',
     };
-  }
-
-  List<Map<String, dynamic>> _extractList(Object? payload) {
-    final listPayload = switch (payload) {
-      final List<Object?> value => value,
-      final Map<String, dynamic> value => _wrappedList(value),
-      _ => null,
-    };
-
-    if (listPayload == null) {
-      throw const AppFailureException(
-        UnknownFailure(
-          'Unexpected transactions response received from the server.',
-        ),
-      );
-    }
-
-    return listPayload.whereType<Map<String, dynamic>>().toList();
-  }
-
-  List<Object?>? _wrappedList(Map<String, dynamic> payload) {
-    for (final key in const ['data', 'content', 'items', 'results']) {
-      final value = payload[key];
-      if (value is List<Object?>) {
-        return value;
-      }
-      if (value is Map<String, dynamic>) {
-        final nested = _wrappedList(value);
-        if (nested != null) {
-          return nested;
-        }
-      }
-    }
-
-    return null;
-  }
-
-  Map<String, dynamic> _extractObject(Object? payload) {
-    if (payload is Map<String, dynamic>) {
-      for (final key in const ['data', 'content', 'item', 'result']) {
-        final value = payload[key];
-        if (value is Map<String, dynamic>) {
-          return _extractObject(value);
-        }
-      }
-
-      return payload;
-    }
-
-    throw const AppFailureException(
-      UnknownFailure(
-        'Unexpected transaction response received from the server.',
-      ),
-    );
   }
 }

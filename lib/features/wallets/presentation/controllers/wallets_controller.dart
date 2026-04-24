@@ -2,32 +2,41 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/entities/wallet.dart';
 import '../../domain/repositories/wallets_repository.dart';
+import '../../data/services/wallets_remote_data_source.dart';
 
 final walletsSearchQueryProvider = StateProvider<String>((ref) => '');
 
+final walletTypesProvider = FutureProvider<List<String>>((ref) async {
+  final remoteDataSource = ref.watch(walletsRemoteDataSourceProvider);
+  final result = await remoteDataSource.getWalletTypes();
+  return result.when(
+    success: (data) => data,
+    failure: (_) => [],
+  );
+});
+
 final walletsControllerProvider =
-    AsyncNotifierProvider<WalletsController, List<Wallet>>(
-      WalletsController.new,
+    StateNotifierProvider<WalletsController, WalletListState>(
+      (ref) {
+        final repository = ref.watch(walletsRepositoryProvider);
+        return WalletsController(repository, ref);
+      },
     );
 
 final filteredWalletsProvider = Provider<List<Wallet>>((ref) {
-  final walletsAsync = ref.watch(walletsControllerProvider);
+  final state = ref.watch(walletsControllerProvider);
   final query = ref.watch(walletsSearchQueryProvider).trim().toLowerCase();
 
-  return walletsAsync.maybeWhen(
-    data: (wallets) {
-      if (query.isEmpty) {
-        return wallets;
-      }
+  final wallets = state.data ?? [];
+  if (query.isEmpty) {
+    return wallets;
+  }
 
-      return wallets.where((wallet) {
-        return wallet.name.toLowerCase().contains(query) ||
-            wallet.code.toLowerCase().contains(query) ||
-            (wallet.branchName?.toLowerCase().contains(query) ?? false);
-      }).toList();
-    },
-    orElse: () => const [],
-  );
+  return wallets.where((wallet) {
+    return wallet.name.toLowerCase().contains(query) ||
+        wallet.code.toLowerCase().contains(query) ||
+        (wallet.branchName?.toLowerCase().contains(query) ?? false);
+  }).toList();
 });
 
 final walletDetailsProvider = FutureProvider.family<Wallet, String>((
@@ -38,25 +47,94 @@ final walletDetailsProvider = FutureProvider.family<Wallet, String>((
   return repository.getWalletById(walletId);
 });
 
-class WalletsController extends AsyncNotifier<List<Wallet>> {
-  @override
-  Future<List<Wallet>> build() async {
-    final repository = ref.watch(walletsRepositoryProvider);
-    return repository.getWallets();
+class WalletListState {
+  const WalletListState({
+    this.data = const [],
+    this.isLoading = false,
+    this.error,
+    this.isCreating = false,
+    this.isUpdating = false,
+    this.isDeleting = false,
+  });
+
+  final List<Wallet> data;
+  final bool isLoading;
+  final String? error;
+  final bool isCreating;
+  final bool isUpdating;
+  final bool isDeleting;
+
+  WalletListState copyWith({
+    List<Wallet>? data,
+    bool? isLoading,
+    String? error,
+    bool? isCreating,
+    bool? isUpdating,
+    bool? isDeleting,
+    bool clearError = false,
+  }) {
+    return WalletListState(
+      data: data ?? this.data,
+      isLoading: isLoading ?? this.isLoading,
+      error: clearError ? null : error ?? this.error,
+      isCreating: isCreating ?? this.isCreating,
+      isUpdating: isUpdating ?? this.isUpdating,
+      isDeleting: isDeleting ?? this.isDeleting,
+    );
+  }
+}
+
+class WalletsController extends StateNotifier<WalletListState> {
+  WalletsController(this._repository, this._ref)
+      : super(const WalletListState()) {
+    _loadWallets();
+  }
+
+  final WalletsRepository _repository;
+  final StateNotifierProviderRef _ref;
+
+  Future<void> _loadWallets() async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      final wallets = await _repository.getWallets();
+      state = state.copyWith(data: wallets, isLoading: false);
+    } catch (_) {
+      state = state.copyWith(
+        isLoading: false,
+        error: 'wallet_load_error',
+      );
+    }
   }
 
   Future<void> reload() async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      final repository = ref.read(walletsRepositoryProvider);
-      return repository.getWallets();
-    });
+    await _loadWallets();
   }
 
-  Future<void> createWallet({required String name}) async {
-    final repository = ref.read(walletsRepositoryProvider);
-    await repository.createWallet(name: name);
-    await reload();
+  Future<void> createWallet({
+    required String name,
+    required String number,
+    required String branchId,
+    required double balance,
+    required String type,
+    required String tenantId,
+  }) async {
+    state = state.copyWith(isCreating: true, clearError: true);
+    try {
+      await _repository.createWallet(
+        name: name,
+        number: number,
+        branchId: branchId,
+        balance: balance,
+        type: type,
+        tenantId: tenantId,
+      );
+      await _loadWallets();
+    } catch (_) {
+      state = state.copyWith(
+        isCreating: false,
+        error: 'wallet_create_error',
+      );
+    }
   }
 
   Future<void> updateWallet({
@@ -64,24 +142,36 @@ class WalletsController extends AsyncNotifier<List<Wallet>> {
     required String name,
     required bool active,
   }) async {
-    final repository = ref.read(walletsRepositoryProvider);
-    await repository.updateWallet(
-      walletId: walletId,
-      name: name,
-      active: active,
-    );
-    await reload();
-    ref.invalidate(walletDetailsProvider(walletId));
+    state = state.copyWith(isUpdating: true, clearError: true);
+    try {
+      await _repository.updateWallet(
+        walletId: walletId,
+        name: name,
+        active: active,
+      );
+      await _loadWallets();
+    } catch (_) {
+      state = state.copyWith(
+        isUpdating: false,
+        error: 'wallet_update_error',
+      );
+    }
   }
 
   Future<void> deleteWallet(String walletId) async {
-    final repository = ref.read(walletsRepositoryProvider);
-    await repository.deleteWallet(walletId);
-    await reload();
-    ref.invalidate(walletDetailsProvider(walletId));
+    state = state.copyWith(isDeleting: true, clearError: true);
+    try {
+      await _repository.deleteWallet(walletId);
+      await _loadWallets();
+    } catch (_) {
+      state = state.copyWith(
+        isDeleting: false,
+        error: 'wallet_delete_error',
+      );
+    }
   }
 
   void updateQuery(String value) {
-    ref.read(walletsSearchQueryProvider.notifier).state = value;
+    _ref.read(walletsSearchQueryProvider.notifier).state = value;
   }
 }

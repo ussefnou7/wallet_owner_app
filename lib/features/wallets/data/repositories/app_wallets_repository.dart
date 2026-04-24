@@ -22,9 +22,25 @@ class AppWalletsRepository implements WalletsRepository {
   }
 
   @override
-  Future<Wallet> createWallet({required String name}) {
+  Future<Wallet> createWallet({
+    required String name,
+    required String number,
+    required String branchId,
+    required double balance,
+    required String type,
+    required String tenantId,
+  }) {
     return _remoteDataSource
-        .createWallet(CreateWalletRequestModel(name: name))
+        .createWallet(
+          CreateWalletRequestModel(
+            name: name,
+            number: number,
+            branchId: branchId,
+            balance: balance,
+            type: type,
+            tenantId: tenantId,
+          ),
+        )
         .then(_unwrap);
   }
 

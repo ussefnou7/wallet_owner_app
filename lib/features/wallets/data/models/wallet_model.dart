@@ -65,11 +65,30 @@ class WalletModel extends Wallet {
 }
 
 class CreateWalletRequestModel {
-  const CreateWalletRequestModel({required this.name});
+  const CreateWalletRequestModel({
+    required this.name,
+    required this.number,
+    required this.branchId,
+    required this.balance,
+    required this.type,
+    required this.tenantId,
+  });
 
   final String name;
+  final String number;
+  final String branchId;
+  final double balance;
+  final String type;
+  final String tenantId;
 
-  Map<String, dynamic> toJson() => {'name': name};
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'number': number,
+        'branchId': branchId,
+        'balance': balance,
+        'type': type,
+        'tenantId': tenantId,
+      };
 }
 
 class UpdateWalletRequestModel {

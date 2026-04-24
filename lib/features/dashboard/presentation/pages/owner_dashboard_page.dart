@@ -104,6 +104,8 @@ class _BalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final totalBalance = this.totalBalance;
+    final activeWallets = this.activeWallets;
     final l10n = appL10n(context);
     return Container(
       width: double.infinity,
@@ -124,7 +126,7 @@ class _BalanceCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           Text(
             formatCurrency(totalBalance),
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.w700,
             ),
@@ -195,23 +197,21 @@ class _PeriodSelector extends StatelessWidget {
                 duration: const Duration(milliseconds: 180),
                 padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppColors.primarySoft
-                      : AppColors.surfaceVariant,
+                  color: isSelected ? AppColors.primary : AppColors.surfaceVariant,
                   borderRadius: BorderRadius.circular(AppRadii.lg),
                   border: Border.all(
                     color: isSelected
                         ? AppColors.primary
-                        : AppColors.surfaceVariant,
+                        : AppColors.border,
+                    width: isSelected ? 2 : 1,
                   ),
                 ),
                 child: Text(
                   label,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: isSelected
-                        ? AppColors.primary
-                        : AppColors.textSecondary,
+                    color: isSelected ? Colors.white : AppColors.textSecondary,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   ),
                 ),
               ),

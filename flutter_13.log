@@ -1,0 +1,121 @@
+Flutter crash report.
+Please report a bug at https://github.com/flutter/flutter/issues.
+
+## command
+
+flutter gen-l10n
+
+## exception
+
+ProcessException: ProcessException: `dart format` failed with exit code 1
+
+stdout:
+
+
+stderr:
+PathAccessException: Cannot open file, path = '/home/ussef/.pub-cache/hosted/pub.dev/flutter_lints-6.0.0/lib/flutter.yaml' (OS Error: Permission denied, errno = 13)
+#0      _checkForErrorResponse (dart:io/common.dart:58)
+#1      _File.open.<anonymous closure> (dart:io/file_impl.dart:438)
+<asynchronous suspension>
+#2      _File.readAsBytes.<anonymous closure> (dart:io/file_impl.dart:645)
+<asynchronous suspension>
+#3      _File.readAsString (dart:io/file_impl.dart:712)
+<asynchronous suspension>
+#4      readAnalysisOptions (package:dart_style/src/analysis_options/analysis_options_file.dart:69)
+<asynchronous suspension>
+#5      readAnalysisOptions.optionsFromInclude (package:dart_style/src/analysis_options/analysis_options_file.dart:105)
+<asynchronous suspension>
+#6      readAnalysisOptions (package:dart_style/src/analysis_options/analysis_options_file.dart:120)
+<asynchronous suspension>
+#7      ConfigCache._findFormatterOptions (package:dart_style/src/config_cache.dart:122)
+<asynchronous suspension>
+#8      ConfigCache.findPageWidth (package:dart_style/src/config_cache.dart:89)
+<asynchronous suspension>
+#9      _processFile (package:dart_style/src/io.dart:193)
+<asynchronous suspension>
+#10     formatPaths (package:dart_style/src/io.dart:123)
+<asynchronous suspension>
+#11     FormatCommand.run (package:dart_style/src/cli/format_command.dart:332)
+<asynchronous suspension>
+#12     CommandRunner.runCommand (package:args/command_runner.dart:236)
+<asynchronous suspension>
+#13     DartdevRunner.runCommand (package:dartdev/dartdev.dart:265)
+<asynchronous suspension>
+#14     runDartdev (package:dartdev/dartdev.dart:51)
+<asynchronous suspension>
+#15     main (file:///b/s/w/ir/x/w/sdk/pkg/dartdev/bin/dartdev.dart:13)
+<asynchronous suspension>
+
+
+  Command: /home/ussef/development/flutter/bin/cache/dart-sdk/bin/dart /home/ussef/development/flutter/bin/cache/dart-sdk/bin/dart format /home/ussef/development/wallet_owner_app/lib/l10n/generated/app_localizations_ar.dart /home/ussef/development/wallet_owner_app/lib/l10n/generated/app_localizations_en.dart /home/ussef/development/wallet_owner_app/lib/l10n/generated/app_localizations.dart
+
+```
+#0      generateLocalizations (package:flutter_tools/src/localizations/gen_l10n.dart:96:7)
+<asynchronous suspension>
+#1      GenerateLocalizationsCommand.runCommand (package:flutter_tools/src/commands/generate_localizations.dart:263:5)
+<asynchronous suspension>
+#2      FlutterCommand.run.<anonymous closure> (package:flutter_tools/src/runner/flutter_command.dart:1590:27)
+<asynchronous suspension>
+#3      AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+<asynchronous suspension>
+#4      CommandRunner.runCommand (package:args/command_runner.dart:212:13)
+<asynchronous suspension>
+#5      FlutterCommandRunner.runCommand.<anonymous closure> (package:flutter_tools/src/runner/flutter_command_runner.dart:496:9)
+<asynchronous suspension>
+#6      AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+<asynchronous suspension>
+#7      FlutterCommandRunner.runCommand (package:flutter_tools/src/runner/flutter_command_runner.dart:431:5)
+<asynchronous suspension>
+#8      FlutterCommandRunner.run.<anonymous closure> (package:flutter_tools/src/runner/flutter_command_runner.dart:307:33)
+<asynchronous suspension>
+#9      run.<anonymous closure>.<anonymous closure> (package:flutter_tools/runner.dart:104:11)
+<asynchronous suspension>
+#10     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+<asynchronous suspension>
+#11     main (package:flutter_tools/executable.dart:103:3)
+<asynchronous suspension>
+```
+
+## flutter doctor
+
+```
+[!] Flutter (Channel stable, 3.41.5, on Ubuntu Core 24 6.17.0-20-generic, locale en_US.UTF-8) [50ms]
+    • Flutter version 3.41.5 on channel stable at /home/ussef/development/flutter
+    ! The flutter binary is not on your path. Consider adding /home/ussef/development/flutter/bin to your path.
+    ! The dart binary is not on your path. Consider adding /home/ussef/development/flutter/bin to your path.
+    • Upstream repository https://github.com/flutter/flutter.git
+    • Framework revision 2c9eb20739 (5 weeks ago), 2026-03-17 16:14:01 -0700
+    • Engine revision 052f31d115
+    • Dart version 3.11.3
+    • DevTools version 2.54.2
+    • Feature flags: enable-web, enable-linux-desktop, enable-macos-desktop, enable-windows-desktop, enable-android, enable-ios, cli-animations, enable-native-assets, omit-legacy-version-file, enable-lldb-debugging, enable-uiscene-migration
+    • If those were intentional, you can disregard the above warnings; however it is recommended to use "git" directly to perform update checks and upgrades.
+
+[!] Android toolchain - develop for Android devices (Android SDK version 36.1.0) [41ms]
+    • Android SDK at /home/ussef/Android/Sdk
+    • Emulator version unknown
+    • Platform android-36, build-tools 36.1.0
+    • ANDROID_HOME = /home/ussef/Android/Sdk
+    ✗ No Java Development Kit (JDK) found; You must have the environment variable JAVA_HOME set and the java binary in your PATH. You can download the JDK from https://www.oracle.com/technetwork/java/javase/downloads/.
+
+[✗] Chrome - develop for the web (Cannot find Chrome executable at google-chrome) [10ms]
+    ! Cannot find Chrome. Try setting CHROME_EXECUTABLE to a Chrome executable.
+
+[✗] Linux toolchain - develop for Linux desktop [18ms]
+    ✗ clang++ is required for Linux development.
+      It is likely available from your distribution (e.g.: apt install clang), or can be downloaded from https://releases.llvm.org/
+    ✗ CMake is required for Linux development.
+      It is likely available from your distribution (e.g.: apt install cmake), or can be downloaded from https://cmake.org/download/
+    ✗ ninja is required for Linux development.
+      It is likely available from your distribution (e.g.: apt install ninja-build), or can be downloaded from https://github.com/ninja-build/ninja/releases
+    ✗ pkg-config is required for Linux development.
+      It is likely available from your distribution (e.g.: apt install pkg-config), or can be downloaded from https://www.freedesktop.org/wiki/Software/pkg-config/
+
+[✓] Connected device (1 available) [65ms]
+    • Linux (desktop) • linux • linux-x64 • Ubuntu Core 24 6.17.0-20-generic
+
+[✓] Network resources [884ms]
+    • All expected network resources are available.
+
+! Doctor found issues in 4 categories.
+```

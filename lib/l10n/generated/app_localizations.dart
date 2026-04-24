@@ -800,17 +800,47 @@ abstract class AppLocalizations {
   /// **'Cash'**
   String get cash;
 
+  /// No description provided for @branchName.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch'**
+  String get branchName;
+
   /// No description provided for @description.
   ///
   /// In en, this message translates to:
   /// **'Description'**
   String get description;
 
+  /// No description provided for @occurredAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Occurred At'**
+  String get occurredAt;
+
   /// No description provided for @optionalDescription.
   ///
   /// In en, this message translates to:
   /// **'Optional description'**
   String get optionalDescription;
+
+  /// No description provided for @createdByUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Created By'**
+  String get createdByUser;
+
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
 
   /// No description provided for @saveTransaction.
   ///
@@ -1040,59 +1070,161 @@ abstract class AppLocalizations {
   /// **'Notifications will be available soon.'**
   String get notificationsComingSoon;
 
-  /// No description provided for @reportingWorkspace.
+  /// No description provided for @genericReportsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Reporting Workspace'**
-  String get reportingWorkspace;
+  /// **'Run backend-driven reports with dynamic filters and generic rendering.'**
+  String get genericReportsSubtitle;
 
-  /// No description provided for @reportingWorkspaceSubtitle.
+  /// No description provided for @selectReport.
   ///
   /// In en, this message translates to:
-  /// **'Choose a report entry point to review financial and operational performance.'**
-  String get reportingWorkspaceSubtitle;
+  /// **'Select Report'**
+  String get selectReport;
 
-  /// No description provided for @financialReports.
+  /// No description provided for @filters.
   ///
   /// In en, this message translates to:
-  /// **'Financial Reports'**
-  String get financialReports;
+  /// **'Filters'**
+  String get filters;
 
-  /// No description provided for @financialReportsSubtitle.
+  /// No description provided for @dynamicFiltersSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'High-level financial views for owner monitoring.'**
-  String get financialReportsSubtitle;
+  /// **'Only filters supported by the selected report are shown.'**
+  String get dynamicFiltersSubtitle;
 
-  /// No description provided for @operationalReports.
+  /// No description provided for @loadingReports.
   ///
   /// In en, this message translates to:
-  /// **'Operational Reports'**
-  String get operationalReports;
+  /// **'Loading reports...'**
+  String get loadingReports;
 
-  /// No description provided for @operationalReportsSubtitle.
+  /// No description provided for @unableToLoadReports.
   ///
   /// In en, this message translates to:
-  /// **'Operational activity summaries across teams and branches.'**
-  String get operationalReportsSubtitle;
+  /// **'Unable to load reports right now.'**
+  String get unableToLoadReports;
 
-  /// No description provided for @exportFormats.
+  /// No description provided for @applyFilters.
   ///
   /// In en, this message translates to:
-  /// **'Export Formats'**
-  String get exportFormats;
+  /// **'Apply Filters'**
+  String get applyFilters;
 
-  /// No description provided for @exportFormatsSubtitle.
+  /// No description provided for @clearFilters.
   ///
   /// In en, this message translates to:
-  /// **'Prepare reports for sharing and offline review.'**
-  String get exportFormatsSubtitle;
+  /// **'Clear Filters'**
+  String get clearFilters;
 
-  /// No description provided for @reportAvailableLater.
+  /// No description provided for @reportResultsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'{title} will be available later.'**
-  String reportAvailableLater(String title);
+  /// **'Results are rendered from backend title, columns, and data.'**
+  String get reportResultsSubtitle;
+
+  /// No description provided for @noReportData.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected report returned no rows or values.'**
+  String get noReportData;
+
+  /// No description provided for @unsupportedReportData.
+  ///
+  /// In en, this message translates to:
+  /// **'This report response could not be rendered with the current generic view.'**
+  String get unsupportedReportData;
+
+  /// No description provided for @fromDate.
+  ///
+  /// In en, this message translates to:
+  /// **'From Date'**
+  String get fromDate;
+
+  /// No description provided for @toDate.
+  ///
+  /// In en, this message translates to:
+  /// **'To Date'**
+  String get toDate;
+
+  /// No description provided for @walletId.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet ID'**
+  String get walletId;
+
+  /// No description provided for @walletIdHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a wallet id'**
+  String get walletIdHint;
+
+  /// No description provided for @period.
+  ///
+  /// In en, this message translates to:
+  /// **'Period'**
+  String get period;
+
+  /// No description provided for @reportTypeTransactionSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction Summary'**
+  String get reportTypeTransactionSummary;
+
+  /// No description provided for @reportTypeTransactionDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction Details'**
+  String get reportTypeTransactionDetails;
+
+  /// No description provided for @reportTypeWalletConsumption.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet Consumption'**
+  String get reportTypeWalletConsumption;
+
+  /// No description provided for @reportTypeProfitSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit Summary'**
+  String get reportTypeProfitSummary;
+
+  /// No description provided for @reportTypeTransactionTimeAggregation.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction Time Aggregation'**
+  String get reportTypeTransactionTimeAggregation;
+
+  /// No description provided for @totalTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Transactions'**
+  String get totalTransactions;
+
+  /// No description provided for @transactionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get transactionCount;
+
+  /// No description provided for @net.
+  ///
+  /// In en, this message translates to:
+  /// **'Net'**
+  String get net;
+
+  /// No description provided for @netAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Net Amount'**
+  String get netAmount;
+
+  /// No description provided for @pageSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {totalPages} - {totalElements} items'**
+  String pageSummary(String page, String totalPages, String totalElements);
 
   /// No description provided for @signIn.
   ///
@@ -1525,6 +1657,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{planName} selection will be connected in a later phase.'**
   String planSelectionComingSoon(String planName);
+
+  /// No description provided for @unableToSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to sign in. Please try again.'**
+  String get unableToSignIn;
+
+  /// No description provided for @unableToSaveTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to save the transaction. Please try again.'**
+  String get unableToSaveTransaction;
+
+  /// No description provided for @sessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has expired. Please sign in again.'**
+  String get sessionExpired;
+
+  /// No description provided for @walletLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load wallets. Please try again.'**
+  String get walletLoadError;
+
+  /// No description provided for @walletCreateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to create wallet. Please try again.'**
+  String get walletCreateError;
+
+  /// No description provided for @walletUpdateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to update wallet. Please try again.'**
+  String get walletUpdateError;
+
+  /// No description provided for @walletDeleteError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to delete wallet. Please try again.'**
+  String get walletDeleteError;
 }
 
 class _AppLocalizationsDelegate

@@ -5,7 +5,6 @@ import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_initials_avatar.dart';
-import '../../../../core/widgets/app_status_badge.dart';
 import '../../../auth/domain/entities/session.dart';
 import '../../domain/entities/app_user.dart';
 
@@ -17,7 +16,6 @@ class UserCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = appL10n(context);
-    final isActive = user.status == AppUserStatus.active;
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -32,32 +30,23 @@ class UserCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AppInitialsAvatar(name: user.fullName),
+              AppInitialsAvatar(name: user.username),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      user.fullName,
+                      user.username,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      user.email,
+                      user.tenantName,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
                 ),
-              ),
-              AppStatusBadge(
-                label: isActive ? l10n.active : l10n.inactive,
-                foregroundColor: isActive
-                    ? AppColors.success
-                    : AppColors.textSecondary,
-                backgroundColor: isActive
-                    ? AppColors.successSoft
-                    : AppColors.surfaceVariant,
               ),
             ],
           ),
@@ -71,14 +60,10 @@ class UserCard extends StatelessWidget {
                     ? l10n.ownerRole
                     : l10n.userRole,
               ),
-              _MetaPill(label: user.branchName ?? l10n.noBranch),
-              _MetaPill(label: l10n.walletsCount(user.walletCount)),
+              _MetaPill(label: user.tenantName),
+              _MetaPill(label: user.id),
             ],
           ),
-          if (user.phone != null) ...[
-            const SizedBox(height: AppSpacing.sm),
-            Text(user.phone!, style: Theme.of(context).textTheme.bodySmall),
-          ],
         ],
       ),
     );

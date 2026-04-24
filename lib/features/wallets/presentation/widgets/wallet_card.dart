@@ -41,12 +41,16 @@ class WalletCard extends StatelessWidget {
                   children: [
                     Text(
                       wallet.name,
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
                       wallet.branchName ?? 'No branch assigned',
-                      style: Theme.of(context).textTheme.bodySmall,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ],
                 ),
@@ -67,17 +71,19 @@ class WalletCard extends StatelessWidget {
                     ),
                     child: Text(
                       isActive ? 'Active' : 'Inactive',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: isActive
                             ? AppColors.success
                             : AppColors.textSecondary,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                   if (onEdit != null || onDelete != null) ...[
-                    const SizedBox(width: AppSpacing.xs),
+                    const SizedBox(width: AppSpacing.sm),
                     PopupMenuButton<_WalletAction>(
                       tooltip: 'Wallet actions',
+                      padding: const EdgeInsets.all(AppSpacing.sm),
                       onSelected: (action) {
                         switch (action) {
                           case _WalletAction.edit:
@@ -112,20 +118,25 @@ class WalletCard extends StatelessWidget {
                           ),
                       ],
                       icon: const Icon(Icons.more_vert_rounded),
+                      iconSize: 24,
                     ),
                   ],
                 ],
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
-          Text('Current Balance', style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: AppSpacing.lg),
+          Text('Current Balance', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: AppColors.textSecondary,
+          )),
           const SizedBox(height: AppSpacing.xs),
           Text(
             formatCurrency(wallet.balance),
-            style: Theme.of(context).textTheme.titleLarge,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.lg),
           Wrap(
             spacing: AppSpacing.md,
             runSpacing: AppSpacing.sm,

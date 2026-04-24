@@ -84,7 +84,7 @@ class AuthController extends StateNotifier<AuthState> {
     } on AppFailureException catch (error) {
       state = AuthState.unauthenticated(error.failure.message);
     } catch (_) {
-      state = AuthState.unauthenticated('Unable to sign in. Please try again.');
+      state = AuthState.unauthenticated('signin_error');
     }
   }
 
