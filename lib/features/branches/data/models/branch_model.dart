@@ -8,6 +8,8 @@ class BranchModel extends Branch {
     required super.usersCount,
     required super.walletsCount,
     required super.status,
+    super.tenantId,
+    super.tenantName,
     super.location,
   });
 
@@ -32,9 +34,28 @@ class BranchModel extends Branch {
           (json['walletCount'] as num?)?.toInt() ??
           0,
       status: _statusFromJson(statusValue, activeValue),
+      tenantId: json['tenantId'] as String?,
+      tenantName: json['tenantName'] as String?,
       location: json['location'] as String?,
     );
   }
+}
+
+class CreateBranchRequestModel {
+  const CreateBranchRequestModel({required this.name});
+
+  final String name;
+
+  Map<String, dynamic> toJson() => {'name': name};
+}
+
+class UpdateBranchRequestModel {
+  const UpdateBranchRequestModel({required this.name, required this.active});
+
+  final String name;
+  final bool active;
+
+  Map<String, dynamic> toJson() => {'name': name, 'active': active};
 }
 
 BranchStatus _statusFromJson(String? statusValue, bool? activeValue) {

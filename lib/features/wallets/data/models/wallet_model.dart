@@ -34,6 +34,7 @@ class WalletModel extends Wallet {
     final number = json['number'] as String?;
     final code = json['code'] as String? ?? number ?? json['id'] as String;
     final rawType = json['type'] as String?;
+    final branch = json['branch'];
 
     return WalletModel(
       id: json['id'] as String,
@@ -59,7 +60,9 @@ class WalletModel extends Wallet {
       createdAt: _dateTimeFromJson(json['createdAt']),
       updatedAt: _dateTimeFromJson(json['updatedAt']),
       transactionCount: json['transactionCount'] as int? ?? 0,
-      branchName: json['branchName'] as String?,
+      branchName:
+          json['branchName'] as String? ??
+          (branch is Map<String, dynamic> ? branch['name'] as String? : null),
     );
   }
 }

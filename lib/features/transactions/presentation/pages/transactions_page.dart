@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_empty_state.dart';
@@ -43,6 +44,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
     final filter = ref.watch(transactionsFilterProvider);
     final searchQuery = ref.watch(transactionsSearchQueryProvider);
     final l10n = appL10n(context);
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,6 +120,9 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
               }
 
               return ListView.separated(
+                padding: EdgeInsets.only(
+                  bottom: bottomInset + AppDimensions.floatingBottomNavContentPadding,
+                ),
                 itemCount: filteredTransactions.length,
                 separatorBuilder: (context, index) =>
                     const SizedBox(height: AppSpacing.md),

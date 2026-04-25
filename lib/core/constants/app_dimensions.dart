@@ -7,6 +7,8 @@ abstract final class AppDimensions {
   static const double compactContentMaxWidth = 420;
   static const double buttonHeight = 52;
   static const double navigationBarHeight = 72;
+  static const double floatingBottomNavReservedHeight = 108;
+  static const double floatingBottomNavContentPadding = 116;
   static const double iconSm = 18;
   static const double iconMd = 22;
   static const double iconLg = 28;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_empty_state.dart';
@@ -49,6 +50,7 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
     final searchQuery = ref.watch(walletsSearchQueryProvider);
     final canManageWallets = !widget.readOnly;
     final l10n = appL10n(context);
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,6 +118,10 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
                       icon: Icons.account_balance_wallet_outlined,
                     )
                   : ListView.separated(
+                      padding: EdgeInsets.only(
+                        bottom: bottomInset +
+                            AppDimensions.floatingBottomNavContentPadding,
+                      ),
                       itemCount: filteredWallets.length,
                       separatorBuilder: (context, index) =>
                           const SizedBox(height: AppSpacing.md),
@@ -358,26 +364,34 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
                       ),
                       const SizedBox(height: AppSpacing.md),
                       ref.watch(walletTypesProvider).when(
-                        data: (types) => DropdownButtonFormField<String>(
-                          value: selectedType,
-                          hint: const Text('Select wallet type'),
-                          items: types
-                              .map((type) => DropdownMenuItem(
-                                    value: type,
-                                    child: Text(type),
-                                  ))
-                              .toList(),
-                          onChanged: (value) {
-                            setDialogState(
-                                () => selectedType = value);
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Wallet type is required';
-                            }
-                            return null;
-                          },
-                        ),
+                        data: (types) {
+                          if (types.isEmpty) {
+                            return const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text('No wallet types available'),
+                            );
+                          }
+
+                          return DropdownButtonFormField<String>(
+                            initialValue: selectedType,
+                            hint: const Text('Select wallet type'),
+                            items: types
+                                .map((type) => DropdownMenuItem(
+                                      value: type,
+                                      child: Text(type),
+                                    ))
+                                .toList(),
+                            onChanged: (value) {
+                              setDialogState(() => selectedType = value);
+                            },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Wallet type is required';
+                              }
+                              return null;
+                            },
+                          );
+                        },
                         loading: () => const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: SizedBox(

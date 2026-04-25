@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/errors/app_failure.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exception_mapper.dart';
 import '../../../../core/network/api_response_extractor.dart';
@@ -127,12 +128,62 @@ class DioWalletsRemoteDataSource implements WalletsRemoteDataSource {
       final response = await _apiClient.get<Object?>(
         '${NetworkConstants.walletsPath}/types',
       );
-      final types = ApiResponseExtractor.extractList(response.data)
-          .map((item) => (item['name'] as String?) ?? (item as String))
-          .toList();
+      final types = _extractWalletTypes(response.data);
       return ApiSuccess(types);
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));
     }
+  }
+
+  List<String> _extractWalletTypes(Object? payload) {
+    final rawItems = switch (payload) {
+      final List<Object?> list => list,
+      final Map<String, dynamic> map => _unwrapWalletTypes(map),
+      _ => null,
+    };
+
+    if (rawItems == null) {
+      throw const AppFailureException(
+        UnknownFailure('Unexpected wallet types response format.'),
+      );
+    }
+
+    return rawItems
+        .map(_walletTypeFromItem)
+        .whereType<String>()
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toList();
+  }
+
+  List<Object?>? _unwrapWalletTypes(Map<String, dynamic> payload) {
+    for (final key in const ['data', 'content', 'items', 'results']) {
+      final value = payload[key];
+      if (value is List<Object?>) {
+        return value;
+      }
+      if (value is Map<String, dynamic>) {
+        final nested = _unwrapWalletTypes(value);
+        if (nested != null) {
+          return nested;
+        }
+      }
+    }
+    return null;
+  }
+
+  String? _walletTypeFromItem(Object? item) {
+    if (item is String) {
+      return item;
+    }
+    if (item is Map<String, dynamic>) {
+      for (final key in const ['name', 'type', 'value', 'label']) {
+        final value = item[key];
+        if (value is String && value.trim().isNotEmpty) {
+          return value;
+        }
+      }
+    }
+    return null;
   }
 }

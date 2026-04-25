@@ -5,7 +5,7 @@ abstract final class Env {
   );
   static const apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://localhost:7000',
+    defaultValue: 'http://192.168.1.28:7000',
   );
   static const apiTimeoutSeconds = int.fromEnvironment(
     'API_TIMEOUT_SECONDS',

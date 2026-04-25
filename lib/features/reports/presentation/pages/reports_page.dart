@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
@@ -10,7 +8,6 @@ import '../../../../core/constants/app_shadows.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/utils/formatters.dart';
-import '../../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../../core/widgets/app_dropdown_field.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
@@ -19,9 +16,9 @@ import '../../../../core/widgets/app_loading_view.dart';
 import '../../../../core/widgets/app_metric_card.dart';
 import '../../../../core/widgets/app_page_scaffold.dart';
 import '../../../../core/widgets/app_section_header.dart';
-import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/owner_app_drawer.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../../../wallets/presentation/controllers/wallets_controller.dart';
 import '../../domain/entities/report_column.dart';
 import '../../domain/entities/report_filters.dart';
 import '../../domain/entities/report_response.dart';
@@ -61,7 +58,9 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
     final reportAsync = ref.watch(reportsControllerProvider);
     final selectedReportType = ref.watch(reportsSelectedTypeProvider);
     final appliedFilters = ref.watch(reportsAppliedFiltersProvider);
+    final walletsState = ref.watch(walletsControllerProvider);
     final l10n = appL10n(context);
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return AppPageScaffold(
       title: l10n.reports,
@@ -75,13 +74,14 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
           },
         ),
       ],
-      endDrawer: const OwnerAppDrawer(currentRoute: AppRoutes.reports),
-      bottomNavigationBar: AppBottomNavBar(
-        currentRoute: AppRoutes.reports,
-        onDestinationSelected: context.go,
-      ),
+      endDrawer: const OwnerAppDrawer(currentRoute: AppRoutes.ownerReports),
+      embedded: true,
       maxWidth: AppDimensions.contentMaxWidth,
       child: ListView(
+        padding: EdgeInsets.only(
+          top: AppSpacing.md,
+          bottom: bottomInset + AppDimensions.floatingBottomNavContentPadding,
+        ),
         children: [
           AppSectionHeader(
             title: l10n.reports,
@@ -121,7 +121,10 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
               children: [
                 _FiltersGrid(
                   reportType: selectedReportType,
-                  walletIdController: _walletIdController,
+                  walletsState: walletsState,
+                  selectedWalletId: _walletIdController.text.isEmpty
+                      ? null
+                      : _walletIdController.text,
                   fromDate: _fromDate,
                   toDate: _toDate,
                   selectedType: _type,
@@ -129,6 +132,8 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
                   selectedPeriod: _period,
                   onPickFromDate: () => _pickDate(isFromDate: true),
                   onPickToDate: () => _pickDate(isFromDate: false),
+                  onWalletIdChanged: (value) =>
+                      setState(() => _walletIdController.text = value ?? ''),
                   onTypeChanged: (value) => setState(() => _type = value),
                   onActiveChanged: (value) => setState(() => _active = value),
                   onPeriodChanged: (value) => setState(() => _period = value),
@@ -249,7 +254,8 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
 class _FiltersGrid extends StatelessWidget {
   const _FiltersGrid({
     required this.reportType,
-    required this.walletIdController,
+    required this.walletsState,
+    required this.selectedWalletId,
     required this.fromDate,
     required this.toDate,
     required this.selectedType,
@@ -257,13 +263,15 @@ class _FiltersGrid extends StatelessWidget {
     required this.selectedPeriod,
     required this.onPickFromDate,
     required this.onPickToDate,
+    required this.onWalletIdChanged,
     required this.onTypeChanged,
     required this.onActiveChanged,
     required this.onPeriodChanged,
   });
 
   final ReportType reportType;
-  final TextEditingController walletIdController;
+  final WalletListState walletsState;
+  final String? selectedWalletId;
   final DateTime? fromDate;
   final DateTime? toDate;
   final String? selectedType;
@@ -271,6 +279,7 @@ class _FiltersGrid extends StatelessWidget {
   final String? selectedPeriod;
   final VoidCallback onPickFromDate;
   final VoidCallback onPickToDate;
+  final ValueChanged<String?> onWalletIdChanged;
   final ValueChanged<String?> onTypeChanged;
   final ValueChanged<bool?> onActiveChanged;
   final ValueChanged<String?> onPeriodChanged;
@@ -297,12 +306,31 @@ class _FiltersGrid extends StatelessWidget {
         ),
       if (reportType.supportedFilters.contains(ReportFilterField.walletId))
         _FilterFieldContainer(
-          child: AppTextField(
-            controller: walletIdController,
-            label: l10n.walletId,
-            hintText: l10n.walletIdHint,
-            prefixIcon: const Icon(Icons.account_balance_wallet_outlined),
-          ),
+          child: walletsState.isLoading
+              ? AppLoadingView(message: l10n.loadingWalletOptions)
+              : walletsState.error != null
+              ? AppErrorState(
+                  message: l10n.unableToLoadWalletOptions,
+                  compact: true,
+                )
+              : AppDropdownField<String>(
+                  value: selectedWalletId,
+                  label: l10n.wallet,
+                  hintText: l10n.selectWallet,
+                  prefixIcon: const Icon(
+                    Icons.account_balance_wallet_outlined,
+                  ),
+                  items: [
+                    DropdownMenuItem(value: null, child: Text(l10n.all)),
+                    ...walletsState.data.map(
+                      (wallet) => DropdownMenuItem<String>(
+                        value: wallet.id,
+                        child: Text(wallet.name),
+                      ),
+                    ),
+                  ],
+                  onChanged: onWalletIdChanged,
+                ),
         ),
       if (reportType.supportedFilters.contains(ReportFilterField.type))
         _FilterFieldContainer(
@@ -472,7 +500,11 @@ class _ReportCards extends StatelessWidget {
     final entries = columns.isNotEmpty
         ? columns
               .map((column) => MapEntry(column, data[column.key]))
-              .where((entry) => entry.value != null)
+              .where(
+                (entry) =>
+                    entry.value != null &&
+                    !_isHiddenReportField(entry.key.key, entry.value),
+              )
               .toList()
         : data.entries
               .map(
@@ -480,6 +512,11 @@ class _ReportCards extends StatelessWidget {
                   ReportColumn(key: entry.key, labelKey: entry.key),
                   entry.value,
                 ),
+              )
+              .where(
+                (entry) =>
+                    entry.value != null &&
+                    !_isHiddenReportField(entry.key.key, entry.value),
               )
               .toList();
 
@@ -562,6 +599,7 @@ class _ReportRowsList extends StatelessWidget {
   ) {
     return switch (reportType) {
       ReportType.transactionDetails => _TransactionDetailsCard(row: row),
+      ReportType.walletConsumption => _WalletConsumptionCard(row: row),
       ReportType.transactionTimeAggregation => _TransactionTimeAggregationCard(
         row: row,
       ),
@@ -620,7 +658,11 @@ class _GenericReportRowCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final entries = columns
         .map((column) => MapEntry(column, row[column.key]))
-        .where((entry) => entry.value != null)
+        .where(
+          (entry) =>
+              entry.value != null &&
+              !_isHiddenReportField(entry.key.key, entry.value),
+        )
         .toList();
 
     return _ReportCardShell(
@@ -641,6 +683,153 @@ class _GenericReportRowCard extends StatelessWidget {
             ),
             if (index < entries.length - 1)
               const SizedBox(height: AppSpacing.sm),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _WalletConsumptionCard extends StatelessWidget {
+  const _WalletConsumptionCard({required this.row});
+
+  final Map<String, dynamic> row;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = appL10n(context);
+    final walletName =
+        _formatReportValue(context, 'walletName', row['walletName']) == '-'
+        ? l10n.reportTypeWalletConsumption
+        : _formatReportValue(context, 'walletName', row['walletName']);
+    final branchName = row['branchName'];
+    final tenantName = row['tenantName'];
+    final isActive = row['active'];
+    final updatedAt = row['updatedAt'];
+    final nearDailyLimit = row['nearDailyLimit'] == true;
+    final nearMonthlyLimit = row['nearMonthlyLimit'] == true;
+
+    return _ReportCardShell(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  walletName,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              if (isActive != null)
+                _ReportBadge(
+                  label: _formatReportValue(context, 'active', isActive),
+                  backgroundColor: isActive == true
+                      ? AppColors.successSoft
+                      : AppColors.surfaceVariant,
+                  foregroundColor: isActive == true
+                      ? AppColors.success
+                      : AppColors.textSecondary,
+                ),
+            ],
+          ),
+          if (branchName != null || tenantName != null) ...[
+            const SizedBox(height: AppSpacing.sm),
+            if (branchName != null)
+              Text(
+                '${l10n.reportsFieldsBranchName}: ${_formatReportValue(context, 'branchName', branchName)}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            if (tenantName != null) ...[
+              if (branchName != null) const SizedBox(height: AppSpacing.xs),
+              Text(
+                '${l10n.reportsFieldsTenantName}: ${_formatReportValue(context, 'tenantName', tenantName)}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ],
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            children: [
+              Expanded(
+                child: _ConsumptionSummaryBox(
+                  title: l10n.daily,
+                  spentLabel: l10n.reportsFieldsDailySpent,
+                  limitLabel: l10n.reportsFieldsDailyLimit,
+                  spentValue: _formatReportValue(
+                    context,
+                    'dailySpent',
+                    row['dailySpent'],
+                  ),
+                  limitValue: _formatReportValue(
+                    context,
+                    'dailyLimit',
+                    row['dailyLimit'],
+                  ),
+                  percentLabel: l10n.reportsFieldsDailyPercent,
+                  percentValue: _formatReportValue(
+                    context,
+                    'dailyPercent',
+                    row['dailyPercent'],
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: _ConsumptionSummaryBox(
+                  title: l10n.monthly,
+                  spentLabel: l10n.reportsFieldsMonthlySpent,
+                  limitLabel: l10n.reportsFieldsMonthlyLimit,
+                  spentValue: _formatReportValue(
+                    context,
+                    'monthlySpent',
+                    row['monthlySpent'],
+                  ),
+                  limitValue: _formatReportValue(
+                    context,
+                    'monthlyLimit',
+                    row['monthlyLimit'],
+                  ),
+                  percentLabel: l10n.reportsFieldsMonthlyPercent,
+                  percentValue: _formatReportValue(
+                    context,
+                    'monthlyPercent',
+                    row['monthlyPercent'],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (nearDailyLimit || nearMonthlyLimit) ...[
+            const SizedBox(height: AppSpacing.md),
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: [
+                if (nearDailyLimit)
+                  _ReportBadge(
+                    label: l10n.reportsFieldsNearDailyLimit,
+                    backgroundColor: AppColors.warningSoft,
+                    foregroundColor: AppColors.warning,
+                  ),
+                if (nearMonthlyLimit)
+                  _ReportBadge(
+                    label: l10n.reportsFieldsNearMonthlyLimit,
+                    backgroundColor: AppColors.warningSoft,
+                    foregroundColor: AppColors.warning,
+                  ),
+              ],
+            ),
+          ],
+          if (updatedAt != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            _ReportFieldRow(
+              label: l10n.reportsFieldsUpdatedAt,
+              value: _formatReportValue(context, 'updatedAt', updatedAt),
+            ),
           ],
         ],
       ),
@@ -849,6 +1038,105 @@ class _ReportCardShell extends StatelessWidget {
   }
 }
 
+class _ConsumptionSummaryBox extends StatelessWidget {
+  const _ConsumptionSummaryBox({
+    required this.title,
+    required this.spentLabel,
+    required this.limitLabel,
+    required this.spentValue,
+    required this.limitValue,
+    required this.percentLabel,
+    required this.percentValue,
+  });
+
+  final String title;
+  final String spentLabel;
+  final String limitLabel;
+  final String spentValue;
+  final String limitValue;
+  final String percentLabel;
+  final String percentValue;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(AppRadii.md),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            '$spentValue / $limitValue',
+            style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            '$spentLabel / $limitLabel',
+            style: textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            percentValue,
+            style: textTheme.titleSmall?.copyWith(
+              color: AppColors.primary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            percentLabel,
+            style: textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReportBadge extends StatelessWidget {
+  const _ReportBadge({
+    required this.label,
+    required this.backgroundColor,
+    required this.foregroundColor,
+  });
+
+  final String label;
+  final Color backgroundColor;
+  final Color foregroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(AppRadii.md),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+          color: foregroundColor,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
 class _ReportFieldRow extends StatelessWidget {
   const _ReportFieldRow({required this.label, required this.value});
 
@@ -918,10 +1206,46 @@ String _resolveBackendLabel(
   }
 
   switch (normalized) {
+    case 'reports.fields.totalCredits':
+      return l10n.reportsFieldsTotalCredits;
+    case 'reports.fields.totalDebits':
+      return l10n.reportsFieldsTotalDebits;
+    case 'reports.fields.netAmount':
+      return l10n.reportsFieldsNetAmount;
+    case 'reports.fields.transactionCount':
+      return l10n.reportsFieldsTransactionCount;
+    case 'reports.fields.walletName':
+      return l10n.reportsFieldsWalletName;
+    case 'reports.fields.branchName':
+      return l10n.reportsFieldsBranchName;
+    case 'reports.fields.tenantName':
+      return l10n.reportsFieldsTenantName;
+    case 'reports.fields.dailySpent':
+      return l10n.reportsFieldsDailySpent;
+    case 'reports.fields.monthlySpent':
+      return l10n.reportsFieldsMonthlySpent;
+    case 'reports.fields.dailyLimit':
+      return l10n.reportsFieldsDailyLimit;
+    case 'reports.fields.monthlyLimit':
+      return l10n.reportsFieldsMonthlyLimit;
+    case 'reports.fields.dailyPercent':
+      return l10n.reportsFieldsDailyPercent;
+    case 'reports.fields.monthlyPercent':
+      return l10n.reportsFieldsMonthlyPercent;
+    case 'reports.fields.updatedAt':
+      return l10n.reportsFieldsUpdatedAt;
+    case 'reports.fields.active':
+      return l10n.reportsFieldsActive;
+    case 'reports.fields.nearDailyLimit':
+      return l10n.reportsFieldsNearDailyLimit;
+    case 'reports.fields.nearMonthlyLimit':
+      return l10n.reportsFieldsNearMonthlyLimit;
     case 'walletName':
       return l10n.walletName;
     case 'branchName':
       return l10n.branchName;
+    case 'tenantName':
+      return l10n.reportsFieldsTenantName;
     case 'walletId':
       return l10n.walletId;
     case 'amount':
@@ -940,6 +1264,24 @@ String _resolveBackendLabel(
       return l10n.type;
     case 'active':
       return l10n.active;
+    case 'dailySpent':
+      return l10n.reportsFieldsDailySpent;
+    case 'monthlySpent':
+      return l10n.reportsFieldsMonthlySpent;
+    case 'dailyLimit':
+      return l10n.reportsFieldsDailyLimit;
+    case 'monthlyLimit':
+      return l10n.reportsFieldsMonthlyLimit;
+    case 'dailyPercent':
+      return l10n.reportsFieldsDailyPercent;
+    case 'monthlyPercent':
+      return l10n.reportsFieldsMonthlyPercent;
+    case 'nearDailyLimit':
+      return l10n.reportsFieldsNearDailyLimit;
+    case 'nearMonthlyLimit':
+      return l10n.reportsFieldsNearMonthlyLimit;
+    case 'updatedAt':
+      return l10n.reportsFieldsUpdatedAt;
     case 'cash':
       return l10n.cash;
     case 'phoneNumber':
@@ -1052,6 +1394,9 @@ String _formatReportValue(BuildContext context, String key, Object? value) {
   }
 
   if (value is num) {
+    if (_isPercentField(key)) {
+      return '${value.toString()}%';
+    }
     return value.toString();
   }
 
@@ -1072,9 +1417,13 @@ String _formatReportValue(BuildContext context, String key, Object? value) {
       };
     }
 
+    if (_isPercentField(key) && !value.trim().endsWith('%')) {
+      return '${value.trim()}%';
+    }
+
     final parsedDate = DateTime.tryParse(value);
     if (parsedDate != null) {
-      if (key == 'occurredAt') {
+      if (key == 'occurredAt' || key == 'updatedAt') {
         return formatDateTime(parsedDate);
       }
       return formatDate(parsedDate);
@@ -1090,8 +1439,16 @@ bool _isAmountField(String key) {
   return key == 'amount' ||
       key == 'totalCredits' ||
       key == 'totalDebits' ||
+      key == 'dailySpent' ||
+      key == 'monthlySpent' ||
+      key == 'dailyLimit' ||
+      key == 'monthlyLimit' ||
       key == 'netAmount' ||
       key == 'net';
+}
+
+bool _isPercentField(String key) {
+  return key == 'dailyPercent' || key == 'monthlyPercent';
 }
 
 num? _asNum(Object? value) {
@@ -1123,6 +1480,44 @@ Color _netAmountColor(Object? value) {
     return AppColors.success;
   }
   return AppColors.textPrimary;
+}
+
+bool _isHiddenReportField(String key, Object? value) {
+  final normalizedKey = key.trim();
+  final lowerKey = normalizedKey.toLowerCase();
+
+  if (_isAllowedVisibleIdField(normalizedKey)) {
+    return false;
+  }
+
+  if (lowerKey == 'id' ||
+      lowerKey == 'tenantid' ||
+      lowerKey == 'walletid' ||
+      lowerKey == 'branchid' ||
+      lowerKey == 'walletconsumptionid' ||
+      lowerKey == 'transactionid' ||
+      lowerKey.endsWith('id')) {
+    return true;
+  }
+
+  if (value is String && _looksLikeUuid(value)) {
+    return true;
+  }
+
+  return false;
+}
+
+bool _isAllowedVisibleIdField(String key) {
+  return key == 'walletName' ||
+      key == 'branchName' ||
+      key == 'tenantName' ||
+      key == 'createdByUsername';
+}
+
+bool _looksLikeUuid(String value) {
+  return RegExp(
+    r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$',
+  ).hasMatch(value.trim());
 }
 
 bool _hasAppliedFilters(ReportFilters filters) {

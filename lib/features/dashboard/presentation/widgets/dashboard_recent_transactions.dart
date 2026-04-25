@@ -11,12 +11,12 @@ import '../../../transactions/domain/entities/recent_transaction.dart';
 class DashboardRecentTransactions extends StatelessWidget {
   const DashboardRecentTransactions({
     required this.items,
-    required this.onSeeAll,
+    this.onSeeAll,
     super.key,
   });
 
   final List<RecentTransaction> items;
-  final VoidCallback onSeeAll;
+  final VoidCallback? onSeeAll;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,7 @@ class DashboardRecentTransactions extends StatelessWidget {
           AppSectionHeader(
             title: 'Recent Transactions',
             subtitle: 'Latest recorded activity',
-            actionLabel: 'See All',
+            actionLabel: onSeeAll == null ? null : 'See All',
             onActionPressed: onSeeAll,
           ),
           const SizedBox(height: AppSpacing.md),

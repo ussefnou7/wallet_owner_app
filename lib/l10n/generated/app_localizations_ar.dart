@@ -63,10 +63,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get yearly => 'سنوي';
 
   @override
-  String get credits => 'الإيداعات';
+  String get credits => 'الإيداع';
 
   @override
-  String get debits => 'السحوبات';
+  String get debits => 'السحب';
 
   @override
   String get credit => 'إيداع';
@@ -196,10 +196,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'تابع حركة الرصيد ونشاط المحافظ في حساب المالك.';
 
   @override
-  String get totalCredits => 'إجمالي الإيداعات';
+  String get totalCredits => 'إجمالي الإيداع';
 
   @override
-  String get totalDebits => 'إجمالي السحوبات';
+  String get totalDebits => 'إجمالي السحب';
 
   @override
   String activeWalletsCount(int count) {
@@ -581,6 +581,57 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reportTypeTransactionTimeAggregation => 'تجميع العمليات حسب الوقت';
 
   @override
+  String get reportsFieldsTotalCredits => 'إجمالي الإيداع';
+
+  @override
+  String get reportsFieldsTotalDebits => 'إجمالي السحب';
+
+  @override
+  String get reportsFieldsNetAmount => 'الصافي';
+
+  @override
+  String get reportsFieldsTransactionCount => 'عدد العمليات';
+
+  @override
+  String get reportsFieldsWalletName => 'اسم المحفظة';
+
+  @override
+  String get reportsFieldsBranchName => 'الفرع';
+
+  @override
+  String get reportsFieldsTenantName => 'المؤسسة';
+
+  @override
+  String get reportsFieldsDailySpent => 'المصروف اليومي';
+
+  @override
+  String get reportsFieldsMonthlySpent => 'المصروف الشهري';
+
+  @override
+  String get reportsFieldsDailyLimit => 'الحد اليومي';
+
+  @override
+  String get reportsFieldsMonthlyLimit => 'الحد الشهري';
+
+  @override
+  String get reportsFieldsDailyPercent => 'النسبة اليومية';
+
+  @override
+  String get reportsFieldsMonthlyPercent => 'النسبة الشهرية';
+
+  @override
+  String get reportsFieldsUpdatedAt => 'آخر تحديث';
+
+  @override
+  String get reportsFieldsActive => 'نشط';
+
+  @override
+  String get reportsFieldsNearDailyLimit => 'قريب من الحد اليومي';
+
+  @override
+  String get reportsFieldsNearMonthlyLimit => 'قريب من الحد الشهري';
+
+  @override
   String get totalTransactions => 'إجمالي المعاملات';
 
   @override
@@ -710,6 +761,27 @@ class AppLocalizationsAr extends AppLocalizations {
   String get branchesSearchEmptyMessage => 'جرّب بحثًا أو حالة مختلفة.';
 
   @override
+  String get createBranch => 'إنشاء فرع';
+
+  @override
+  String get editBranch => 'تعديل فرع';
+
+  @override
+  String get deleteBranch => 'حذف فرع';
+
+  @override
+  String get branchCreatedSuccessfully => 'تم إنشاء الفرع بنجاح';
+
+  @override
+  String get branchUpdatedSuccessfully => 'تم تحديث الفرع بنجاح';
+
+  @override
+  String get branchDeletedSuccessfully => 'تم حذف الفرع بنجاح';
+
+  @override
+  String get branchNameRequired => 'اسم الفرع مطلوب';
+
+  @override
   String usersCount(int count) {
     return '$count مستخدمين';
   }
@@ -758,6 +830,47 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get usersSearchEmptyMessage => 'جرّب بحثًا أو تصفية مختلفة.';
+
+  @override
+  String get createUser => 'إنشاء مستخدم';
+
+  @override
+  String get editUser => 'تعديل مستخدم';
+
+  @override
+  String get deleteUser => 'حذف مستخدم';
+
+  @override
+  String get assignBranch => 'تعيين فرع';
+
+  @override
+  String get unassignBranch => 'إلغاء تعيين الفرع';
+
+  @override
+  String get selectBranch => 'اختر الفرع';
+
+  @override
+  String get confirmDelete => 'تأكيد الحذف';
+
+  @override
+  String get confirmUnassign => 'تأكيد إلغاء التعيين';
+
+  @override
+  String get userCreatedSuccessfully => 'تم إنشاء المستخدم بنجاح';
+
+  @override
+  String get userUpdatedSuccessfully => 'تم تحديث المستخدم بنجاح';
+
+  @override
+  String get userDeletedSuccessfully => 'تم حذف المستخدم بنجاح';
+
+  @override
+  String get userAssignedToBranchSuccessfully =>
+      'تم تعيين المستخدم للفرع بنجاح';
+
+  @override
+  String get userUnassignedFromBranchSuccessfully =>
+      'تم إلغاء تعيين المستخدم من الفرع بنجاح';
 
   @override
   String get ownerRole => 'مالك';

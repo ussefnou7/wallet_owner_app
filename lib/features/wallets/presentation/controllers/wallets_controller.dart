@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/errors/app_failure.dart';
 import '../../domain/entities/wallet.dart';
 import '../../domain/repositories/wallets_repository.dart';
 import '../../data/services/wallets_remote_data_source.dart';
@@ -11,7 +12,7 @@ final walletTypesProvider = FutureProvider<List<String>>((ref) async {
   final result = await remoteDataSource.getWalletTypes();
   return result.when(
     success: (data) => data,
-    failure: (_) => [],
+    failure: (failure) => throw AppFailureException(failure),
   );
 });
 

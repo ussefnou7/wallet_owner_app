@@ -113,6 +113,36 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             name: 'owner-create-transaction',
             builder: (context, state) => const CreateTransactionPage(),
           ),
+          GoRoute(
+            path: AppRoutes.ownerReports,
+            name: 'owner-reports',
+            builder: (context, state) => const ReportsPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.ownerUsers,
+            name: 'owner-users',
+            builder: (context, state) => const UsersPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.ownerBranches,
+            name: 'owner-branches',
+            builder: (context, state) => const BranchesPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.ownerPlans,
+            name: 'owner-plans',
+            builder: (context, state) => const PlansPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.ownerRequestRenewal,
+            name: 'owner-request-renewal',
+            builder: (context, state) => const RequestRenewalPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.ownerSettings,
+            name: 'owner-settings',
+            builder: (context, state) => const SettingsPage(),
+          ),
         ],
       ),
       ShellRoute(
@@ -144,36 +174,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const CreateTransactionPage(),
           ),
         ],
-      ),
-      GoRoute(
-        path: AppRoutes.ownerReports,
-        name: 'owner-reports',
-        builder: (context, state) => const ReportsPage(),
-      ),
-      GoRoute(
-        path: AppRoutes.ownerUsers,
-        name: 'owner-users',
-        builder: (context, state) => const UsersPage(),
-      ),
-      GoRoute(
-        path: AppRoutes.ownerBranches,
-        name: 'owner-branches',
-        builder: (context, state) => const BranchesPage(),
-      ),
-      GoRoute(
-        path: AppRoutes.ownerPlans,
-        name: 'owner-plans',
-        builder: (context, state) => const PlansPage(),
-      ),
-      GoRoute(
-        path: AppRoutes.ownerRequestRenewal,
-        name: 'owner-request-renewal',
-        builder: (context, state) => const RequestRenewalPage(),
-      ),
-      GoRoute(
-        path: AppRoutes.ownerSettings,
-        name: 'owner-settings',
-        builder: (context, state) => const SettingsPage(),
       ),
     ],
   );

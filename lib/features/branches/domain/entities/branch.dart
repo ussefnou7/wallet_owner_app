@@ -10,6 +10,8 @@ class Branch extends Equatable {
     required this.usersCount,
     required this.walletsCount,
     required this.status,
+    this.tenantId,
+    this.tenantName,
     this.location,
   });
 
@@ -19,6 +21,8 @@ class Branch extends Equatable {
   final int usersCount;
   final int walletsCount;
   final BranchStatus status;
+  final String? tenantId;
+  final String? tenantName;
   final String? location;
 
   @override
@@ -29,6 +33,8 @@ class Branch extends Equatable {
     usersCount,
     walletsCount,
     status,
+    tenantId,
+    tenantName,
     location,
   ];
 }

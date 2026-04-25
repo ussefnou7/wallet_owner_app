@@ -17,6 +17,9 @@ import '../features/auth/presentation/controllers/auth_controller.dart';
 import '../features/branches/data/repositories/app_branches_repository.dart';
 import '../features/branches/data/services/branches_remote_data_source.dart';
 import '../features/branches/domain/repositories/branches_repository.dart';
+import '../features/dashboard/data/repositories/app_dashboard_repository.dart';
+import '../features/dashboard/data/services/dashboard_remote_data_source.dart';
+import '../features/dashboard/domain/repositories/dashboard_repository.dart';
 import '../features/plans/data/repositories/mock_plans_repository.dart';
 import '../features/plans/domain/repositories/plans_repository.dart';
 import '../features/reports/data/repositories/app_reports_repository.dart';
@@ -98,6 +101,13 @@ Future<ProviderContainer> bootstrap() async {
   final branchesRepository = AppBranchesRepository(
     remoteDataSource: branchesRemoteDataSource,
   );
+  final dashboardRemoteDataSource = DioDashboardRemoteDataSource(
+    apiClient: apiClientWithErrorHandler,
+    exceptionMapper: apiExceptionMapper,
+  );
+  final dashboardRepository = AppDashboardRepository(
+    remoteDataSource: dashboardRemoteDataSource,
+  );
   final reportsRemoteDataSource = DioReportsRemoteDataSource(
     apiClient: apiClientWithErrorHandler,
     exceptionMapper: apiExceptionMapper,
@@ -140,6 +150,10 @@ Future<ProviderContainer> bootstrap() async {
         branchesRemoteDataSource,
       ),
       branchesRepositoryProvider.overrideWithValue(branchesRepository),
+      dashboardRemoteDataSourceProvider.overrideWithValue(
+        dashboardRemoteDataSource,
+      ),
+      dashboardRepositoryProvider.overrideWithValue(dashboardRepository),
       reportsRemoteDataSourceProvider.overrideWithValue(
         reportsRemoteDataSource,
       ),

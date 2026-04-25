@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../../core/widgets/app_buttons.dart';
 import '../../../../core/widgets/app_dropdown_field.dart';
 import '../../../../core/widgets/app_error_state.dart';
@@ -60,10 +57,7 @@ class _RequestRenewalPageState extends ConsumerState<RequestRenewalPage> {
           ),
         ],
         endDrawer: const OwnerAppDrawer(currentRoute: AppRoutes.requestRenewal),
-        bottomNavigationBar: AppBottomNavBar(
-          currentRoute: '',
-          onDestinationSelected: context.go,
-        ),
+        embedded: true,
         maxWidth: AppDimensions.compactContentMaxWidth,
         child: AnimatedPadding(
           duration: const Duration(milliseconds: 150),

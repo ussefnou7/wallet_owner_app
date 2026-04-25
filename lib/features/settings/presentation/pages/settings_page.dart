@@ -8,7 +8,6 @@ import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/utils/formatters.dart';
-import '../../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading_view.dart';
 import '../../../../core/widgets/app_page_scaffold.dart';
@@ -57,10 +56,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         ),
       ],
       endDrawer: const OwnerAppDrawer(currentRoute: AppRoutes.settings),
-      bottomNavigationBar: AppBottomNavBar(
-        currentRoute: '',
-        onDestinationSelected: context.go,
-      ),
+      embedded: true,
       maxWidth: AppDimensions.contentMaxWidth,
       child: SingleChildScrollView(
         child: Column(

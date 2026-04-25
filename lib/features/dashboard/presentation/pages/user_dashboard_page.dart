@@ -16,11 +16,27 @@ import '../../../transactions/domain/entities/transaction_record.dart';
 import '../../../transactions/presentation/controllers/transactions_controller.dart';
 import '../../../transactions/presentation/widgets/transaction_record_tile.dart';
 
-class UserDashboardPage extends ConsumerWidget {
+class UserDashboardPage extends ConsumerStatefulWidget {
   const UserDashboardPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<UserDashboardPage> createState() => _UserDashboardPageState();
+}
+
+class _UserDashboardPageState extends ConsumerState<UserDashboardPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      ref.invalidate(transactionsControllerProvider);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final transactionsState = ref.watch(transactionsControllerProvider);
 
     return SingleChildScrollView(
@@ -46,34 +62,15 @@ class UserDashboardPage extends ConsumerWidget {
               final todayTransactions = _todayTransactions(transactions);
               return Column(
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _SummaryCard(
-                          label: 'Credits',
-                          amount: _totalFor(
-                            todayTransactions,
-                            TransactionEntryType.credit,
-                          ),
-                          icon: Icons.south_west_rounded,
-                          toneColor: AppColors.success,
-                          background: AppColors.successSoft,
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: _SummaryCard(
-                          label: 'Debits',
-                          amount: _totalFor(
-                            todayTransactions,
-                            TransactionEntryType.debit,
-                          ),
-                          icon: Icons.north_east_rounded,
-                          toneColor: AppColors.danger,
-                          background: AppColors.dangerSoft,
-                        ),
-                      ),
-                    ],
+                  _UserSummaryCards(
+                    creditAmount: _totalFor(
+                      todayTransactions,
+                      TransactionEntryType.credit,
+                    ),
+                    debitAmount: _totalFor(
+                      todayTransactions,
+                      TransactionEntryType.debit,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.md),
                   _QuickActionCard(
@@ -112,6 +109,85 @@ class UserDashboardPage extends ConsumerWidget {
   }
 }
 
+class _UserSummaryCards extends StatelessWidget {
+  const _UserSummaryCards({
+    required this.creditAmount,
+    required this.debitAmount,
+  });
+
+  final double creditAmount;
+  final double debitAmount;
+
+  @override
+  Widget build(BuildContext context) {
+    final textScale = MediaQuery.textScalerOf(context).scale(1);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final shouldStack = constraints.maxWidth < 360 || textScale > 1.15;
+
+        if (shouldStack) {
+          return Column(
+            children: [
+              AspectRatio(
+                aspectRatio: 3.1,
+                child: _SummaryCard(
+                  label: 'Credits',
+                  amount: creditAmount,
+                  icon: Icons.south_west_rounded,
+                  toneColor: AppColors.success,
+                  background: AppColors.successSoft,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              AspectRatio(
+                aspectRatio: 3.1,
+                child: _SummaryCard(
+                  label: 'Debits',
+                  amount: debitAmount,
+                  icon: Icons.north_east_rounded,
+                  toneColor: AppColors.danger,
+                  background: AppColors.dangerSoft,
+                ),
+              ),
+            ],
+          );
+        }
+
+        return Row(
+          children: [
+            Expanded(
+              child: AspectRatio(
+                aspectRatio: 1.28,
+                child: _SummaryCard(
+                  label: 'Credits',
+                  amount: creditAmount,
+                  icon: Icons.south_west_rounded,
+                  toneColor: AppColors.success,
+                  background: AppColors.successSoft,
+                ),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: AspectRatio(
+                aspectRatio: 1.28,
+                child: _SummaryCard(
+                  label: 'Debits',
+                  amount: debitAmount,
+                  icon: Icons.north_east_rounded,
+                  toneColor: AppColors.danger,
+                  background: AppColors.dangerSoft,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
 class _SummaryCard extends StatelessWidget {
   const _SummaryCard({
     required this.label,
@@ -139,23 +215,44 @@ class _SummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: background,
-              borderRadius: BorderRadius.circular(AppRadii.md),
-            ),
-            child: Icon(icon, color: toneColor, size: 20),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: background,
+                  borderRadius: BorderRadius.circular(AppRadii.md),
+                ),
+                child: Icon(icon, color: toneColor, size: 20),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: AppSpacing.md),
-          Text(label, style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            formatCurrency(amount),
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: toneColor,
-              fontWeight: FontWeight.w700,
+          const Spacer(),
+          Align(
+            alignment: AlignmentDirectional.bottomStart,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.bottomStart,
+              child: Text(
+                formatCurrency(amount),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: toneColor,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
           ),
         ],
@@ -198,6 +295,8 @@ class _QuickActionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Create transaction',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,

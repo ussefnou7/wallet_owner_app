@@ -62,6 +62,24 @@ class BranchesController extends AsyncNotifier<List<Branch>> {
     });
   }
 
+  Future<void> createBranch(String name) async {
+    final repository = ref.read(branchesRepositoryProvider);
+    await repository.createBranch(name);
+    await reload();
+  }
+
+  Future<void> updateBranch(String branchId, String name, bool active) async {
+    final repository = ref.read(branchesRepositoryProvider);
+    await repository.updateBranch(branchId, name, active);
+    await reload();
+  }
+
+  Future<void> deleteBranch(String branchId) async {
+    final repository = ref.read(branchesRepositoryProvider);
+    await repository.deleteBranch(branchId);
+    await reload();
+  }
+
   void updateQuery(String value) {
     ref.read(branchesSearchQueryProvider.notifier).state = value;
   }

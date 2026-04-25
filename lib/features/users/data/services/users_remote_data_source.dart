@@ -18,6 +18,22 @@ final usersRemoteDataSourceProvider = Provider<UsersRemoteDataSource>((ref) {
 
 abstract interface class UsersRemoteDataSource {
   Future<ApiResult<List<AppUserModel>>> getUsers();
+
+  Future<ApiResult<AppUserModel>> createUser(CreateUserRequestModel request);
+
+  Future<ApiResult<AppUserModel>> updateUser({
+    required String userId,
+    required UpdateUserRequestModel request,
+  });
+
+  Future<ApiResult<void>> deleteUser(String userId);
+
+  Future<ApiResult<AppUserModel>> assignUserToBranch({
+    required String userId,
+    required AssignUserBranchRequestModel request,
+  });
+
+  Future<ApiResult<void>> unassignUserFromBranch(String userId);
 }
 
 class DioUsersRemoteDataSource implements UsersRemoteDataSource {
@@ -38,6 +54,81 @@ class DioUsersRemoteDataSource implements UsersRemoteDataSource {
         response.data,
       ).map(AppUserModel.fromJson).toList();
       return ApiSuccess(users);
+    } catch (error) {
+      return ApiError(_exceptionMapper.map(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<AppUserModel>> createUser(
+    CreateUserRequestModel request,
+  ) async {
+    try {
+      final response = await _apiClient.post<Object?>(
+        NetworkConstants.usersPath,
+        data: request.toJson(),
+      );
+      return ApiSuccess(
+        AppUserModel.fromJson(ApiResponseExtractor.extractObject(response.data)),
+      );
+    } catch (error) {
+      return ApiError(_exceptionMapper.map(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<AppUserModel>> updateUser({
+    required String userId,
+    required UpdateUserRequestModel request,
+  }) async {
+    try {
+      final response = await _apiClient.put<Object?>(
+        NetworkConstants.userPath(userId),
+        data: request.toJson(),
+      );
+      return ApiSuccess(
+        AppUserModel.fromJson(ApiResponseExtractor.extractObject(response.data)),
+      );
+    } catch (error) {
+      return ApiError(_exceptionMapper.map(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<void>> deleteUser(String userId) async {
+    try {
+      await _apiClient.delete<Object?>(NetworkConstants.userPath(userId));
+      return const ApiSuccess(null);
+    } catch (error) {
+      return ApiError(_exceptionMapper.map(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<AppUserModel>> assignUserToBranch({
+    required String userId,
+    required AssignUserBranchRequestModel request,
+  }) async {
+    try {
+      final response = await _apiClient.put<Object?>(
+        NetworkConstants.userBranchAssignmentPath(userId),
+        data: request.toJson(),
+      );
+      return ApiSuccess(
+        AppUserModel.fromJson(ApiResponseExtractor.extractObject(response.data)),
+      );
+    } catch (error) {
+      return ApiError(_exceptionMapper.map(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<void>> unassignUserFromBranch(String userId) async {
+    try {
+      await _apiClient.delete<Object?>(
+        NetworkConstants.userBranchAssignmentPath(userId),
+      );
+      return const ApiSuccess(null);
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));
     }

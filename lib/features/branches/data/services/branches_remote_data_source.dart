@@ -20,6 +20,15 @@ final branchesRemoteDataSourceProvider = Provider<BranchesRemoteDataSource>((
 
 abstract interface class BranchesRemoteDataSource {
   Future<ApiResult<List<BranchModel>>> getBranches();
+
+  Future<ApiResult<BranchModel>> createBranch(CreateBranchRequestModel request);
+
+  Future<ApiResult<BranchModel>> updateBranch({
+    required String branchId,
+    required UpdateBranchRequestModel request,
+  });
+
+  Future<ApiResult<void>> deleteBranch(String branchId);
 }
 
 class DioBranchesRemoteDataSource implements BranchesRemoteDataSource {
@@ -42,6 +51,51 @@ class DioBranchesRemoteDataSource implements BranchesRemoteDataSource {
           .map(BranchModel.fromJson)
           .toList();
       return ApiSuccess(branches);
+    } catch (error) {
+      return ApiError(_exceptionMapper.map(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<BranchModel>> createBranch(
+    CreateBranchRequestModel request,
+  ) async {
+    try {
+      final response = await _apiClient.post<Object?>(
+        NetworkConstants.branchesPath,
+        data: request.toJson(),
+      );
+      return ApiSuccess(
+        BranchModel.fromJson(ApiResponseExtractor.extractObject(response.data)),
+      );
+    } catch (error) {
+      return ApiError(_exceptionMapper.map(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<BranchModel>> updateBranch({
+    required String branchId,
+    required UpdateBranchRequestModel request,
+  }) async {
+    try {
+      final response = await _apiClient.put<Object?>(
+        NetworkConstants.branchPath(branchId),
+        data: request.toJson(),
+      );
+      return ApiSuccess(
+        BranchModel.fromJson(ApiResponseExtractor.extractObject(response.data)),
+      );
+    } catch (error) {
+      return ApiError(_exceptionMapper.map(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<void>> deleteBranch(String branchId) async {
+    try {
+      await _apiClient.delete<Object?>(NetworkConstants.branchPath(branchId));
+      return const ApiSuccess(null);
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));
     }

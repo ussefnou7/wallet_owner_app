@@ -10,4 +10,10 @@ final branchesRepositoryProvider = Provider<BranchesRepository>((ref) {
 
 abstract interface class BranchesRepository {
   Future<List<Branch>> getBranches();
+
+  Future<Branch> createBranch(String name);
+
+  Future<Branch> updateBranch(String branchId, String name, bool active);
+
+  Future<void> deleteBranch(String branchId);
 }

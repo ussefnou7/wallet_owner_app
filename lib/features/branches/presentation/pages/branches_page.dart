@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_l10n.dart';
+import '../../../../core/widgets/app_buttons.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading_view.dart';
@@ -14,6 +14,7 @@ import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/filter_chip_row.dart';
 import '../../../../core/widgets/owner_app_drawer.dart';
+import '../../domain/entities/branch.dart';
 import '../controllers/branches_controller.dart';
 import '../widgets/branch_card.dart';
 
@@ -48,15 +49,11 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
     final statusFilter = ref.watch(branchesStatusFilterProvider);
     final searchQuery = ref.watch(branchesSearchQueryProvider);
     final l10n = appL10n(context);
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return AppPageScaffold(
       title: l10n.branches,
       actions: [
-        IconButton(
-          onPressed: () =>
-              ref.read(branchesControllerProvider.notifier).reload(),
-          icon: const Icon(Icons.refresh_rounded),
-        ),
         Builder(
           builder: (context) {
             return IconButton(
@@ -66,7 +63,8 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
           },
         ),
       ],
-      endDrawer: const OwnerAppDrawer(currentRoute: AppRoutes.branches),
+      endDrawer: const OwnerAppDrawer(currentRoute: AppRoutes.ownerBranches),
+      embedded: true,
       maxWidth: AppDimensions.contentMaxWidth,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,6 +72,23 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
           AppSectionHeader(
             title: l10n.branchDirectory,
             subtitle: l10n.branchDirectorySubtitle,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            children: [
+              AppPrimaryButton(
+                label: l10n.createBranch,
+                icon: const Icon(Icons.add_rounded),
+                onPressed: () => _showBranchFormDialog(context),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              IconButton.outlined(
+                onPressed: () =>
+                    ref.read(branchesControllerProvider.notifier).reload(),
+                icon: const Icon(Icons.refresh_rounded),
+                tooltip: l10n.refresh,
+              ),
+            ],
           ),
           const SizedBox(height: AppSpacing.md),
           AppTextField(
@@ -135,10 +150,18 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
 
                 return ListView.separated(
                   itemCount: filteredBranches.length,
+                  padding: EdgeInsets.only(
+                    bottom: bottomInset + AppDimensions.floatingBottomNavContentPadding,
+                  ),
                   separatorBuilder: (context, index) =>
                       const SizedBox(height: AppSpacing.md),
                   itemBuilder: (context, index) {
-                    return BranchCard(branch: filteredBranches[index]);
+                    final branch = filteredBranches[index];
+                    return BranchCard(
+                      branch: branch,
+                      onEdit: () => _showBranchFormDialog(context, branch: branch),
+                      onDelete: () => _confirmDeleteBranch(context, branch),
+                    );
                   },
                 );
               },
@@ -147,5 +170,154 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
         ],
       ),
     );
+  }
+
+  Future<void> _showBranchFormDialog(
+    BuildContext context, {
+    Branch? branch,
+  }) async {
+    final l10n = appL10n(context);
+    final controller = TextEditingController(text: branch?.name ?? '');
+    var active = branch?.status == BranchStatus.active;
+    final formKey = GlobalKey<FormState>();
+
+    final submitted = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text(branch == null ? l10n.createBranch : l10n.editBranch),
+              content: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: controller,
+                      decoration: InputDecoration(
+                        labelText: l10n.branchName,
+                        prefixIcon: const Icon(Icons.storefront_outlined),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return l10n.branchNameRequired;
+                        }
+                        return null;
+                      },
+                    ),
+                    if (branch != null) ...[
+                      const SizedBox(height: AppSpacing.md),
+                      SwitchListTile.adaptive(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(l10n.active),
+                        value: active,
+                        onChanged: (value) {
+                          setDialogState(() => active = value);
+                        },
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(l10n.cancel),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    if (formKey.currentState?.validate() == true) {
+                      Navigator.of(context).pop(true);
+                    }
+                  },
+                  child: Text(l10n.save),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (submitted != true || !context.mounted) {
+      controller.dispose();
+      return;
+    }
+
+    try {
+      if (branch == null) {
+        await ref
+            .read(branchesControllerProvider.notifier)
+            .createBranch(controller.text.trim());
+        if (!context.mounted) {
+          return;
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.branchCreatedSuccessfully)),
+        );
+      } else {
+        await ref
+            .read(branchesControllerProvider.notifier)
+            .updateBranch(branch.id, controller.text.trim(), active);
+        if (!context.mounted) {
+          return;
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.branchUpdatedSuccessfully)),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.unableToLoadBranches)),
+        );
+      }
+    } finally {
+      controller.dispose();
+    }
+  }
+
+  Future<void> _confirmDeleteBranch(BuildContext context, Branch branch) async {
+    final l10n = appL10n(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(l10n.deleteBranch),
+          content: Text(l10n.confirmDelete),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(l10n.delete),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true || !context.mounted) {
+      return;
+    }
+
+    try {
+      await ref.read(branchesControllerProvider.notifier).deleteBranch(branch.id);
+      if (!context.mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.branchDeletedSuccessfully)),
+      );
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.unableToLoadBranches)),
+        );
+      }
+    }
   }
 }

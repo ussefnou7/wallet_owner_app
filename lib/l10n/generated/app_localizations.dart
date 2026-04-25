@@ -1196,6 +1196,108 @@ abstract class AppLocalizations {
   /// **'Transaction Time Aggregation'**
   String get reportTypeTransactionTimeAggregation;
 
+  /// No description provided for @reportsFieldsTotalCredits.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Credits'**
+  String get reportsFieldsTotalCredits;
+
+  /// No description provided for @reportsFieldsTotalDebits.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Debits'**
+  String get reportsFieldsTotalDebits;
+
+  /// No description provided for @reportsFieldsNetAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Net Amount'**
+  String get reportsFieldsNetAmount;
+
+  /// No description provided for @reportsFieldsTransactionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get reportsFieldsTransactionCount;
+
+  /// No description provided for @reportsFieldsWalletName.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet Name'**
+  String get reportsFieldsWalletName;
+
+  /// No description provided for @reportsFieldsBranchName.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch'**
+  String get reportsFieldsBranchName;
+
+  /// No description provided for @reportsFieldsTenantName.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenant'**
+  String get reportsFieldsTenantName;
+
+  /// No description provided for @reportsFieldsDailySpent.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Spent'**
+  String get reportsFieldsDailySpent;
+
+  /// No description provided for @reportsFieldsMonthlySpent.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Spent'**
+  String get reportsFieldsMonthlySpent;
+
+  /// No description provided for @reportsFieldsDailyLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Limit'**
+  String get reportsFieldsDailyLimit;
+
+  /// No description provided for @reportsFieldsMonthlyLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Limit'**
+  String get reportsFieldsMonthlyLimit;
+
+  /// No description provided for @reportsFieldsDailyPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Percent'**
+  String get reportsFieldsDailyPercent;
+
+  /// No description provided for @reportsFieldsMonthlyPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Percent'**
+  String get reportsFieldsMonthlyPercent;
+
+  /// No description provided for @reportsFieldsUpdatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated At'**
+  String get reportsFieldsUpdatedAt;
+
+  /// No description provided for @reportsFieldsActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get reportsFieldsActive;
+
+  /// No description provided for @reportsFieldsNearDailyLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Near Daily Limit'**
+  String get reportsFieldsNearDailyLimit;
+
+  /// No description provided for @reportsFieldsNearMonthlyLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Near Monthly Limit'**
+  String get reportsFieldsNearMonthlyLimit;
+
   /// No description provided for @totalTransactions.
   ///
   /// In en, this message translates to:
@@ -1430,6 +1532,48 @@ abstract class AppLocalizations {
   /// **'Try a different search or status filter.'**
   String get branchesSearchEmptyMessage;
 
+  /// No description provided for @createBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Branch'**
+  String get createBranch;
+
+  /// No description provided for @editBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Branch'**
+  String get editBranch;
+
+  /// No description provided for @deleteBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Branch'**
+  String get deleteBranch;
+
+  /// No description provided for @branchCreatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch created successfully'**
+  String get branchCreatedSuccessfully;
+
+  /// No description provided for @branchUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch updated successfully'**
+  String get branchUpdatedSuccessfully;
+
+  /// No description provided for @branchDeletedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch deleted successfully'**
+  String get branchDeletedSuccessfully;
+
+  /// No description provided for @branchNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch name is required'**
+  String get branchNameRequired;
+
   /// No description provided for @usersCount.
   ///
   /// In en, this message translates to:
@@ -1519,6 +1663,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try a different search or filter combination.'**
   String get usersSearchEmptyMessage;
+
+  /// No description provided for @createUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Create User'**
+  String get createUser;
+
+  /// No description provided for @editUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit User'**
+  String get editUser;
+
+  /// No description provided for @deleteUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete User'**
+  String get deleteUser;
+
+  /// No description provided for @assignBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign Branch'**
+  String get assignBranch;
+
+  /// No description provided for @unassignBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Unassign Branch'**
+  String get unassignBranch;
+
+  /// No description provided for @selectBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Branch'**
+  String get selectBranch;
+
+  /// No description provided for @confirmDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm delete'**
+  String get confirmDelete;
+
+  /// No description provided for @confirmUnassign.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm unassign'**
+  String get confirmUnassign;
+
+  /// No description provided for @userCreatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'User created successfully'**
+  String get userCreatedSuccessfully;
+
+  /// No description provided for @userUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'User updated successfully'**
+  String get userUpdatedSuccessfully;
+
+  /// No description provided for @userDeletedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'User deleted successfully'**
+  String get userDeletedSuccessfully;
+
+  /// No description provided for @userAssignedToBranchSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'User assigned to branch successfully'**
+  String get userAssignedToBranchSuccessfully;
+
+  /// No description provided for @userUnassignedFromBranchSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'User unassigned from branch successfully'**
+  String get userUnassignedFromBranchSuccessfully;
 
   /// No description provided for @ownerRole.
   ///

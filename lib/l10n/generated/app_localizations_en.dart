@@ -592,6 +592,57 @@ class AppLocalizationsEn extends AppLocalizations {
       'Transaction Time Aggregation';
 
   @override
+  String get reportsFieldsTotalCredits => 'Total Credits';
+
+  @override
+  String get reportsFieldsTotalDebits => 'Total Debits';
+
+  @override
+  String get reportsFieldsNetAmount => 'Net Amount';
+
+  @override
+  String get reportsFieldsTransactionCount => 'Transactions';
+
+  @override
+  String get reportsFieldsWalletName => 'Wallet Name';
+
+  @override
+  String get reportsFieldsBranchName => 'Branch';
+
+  @override
+  String get reportsFieldsTenantName => 'Tenant';
+
+  @override
+  String get reportsFieldsDailySpent => 'Daily Spent';
+
+  @override
+  String get reportsFieldsMonthlySpent => 'Monthly Spent';
+
+  @override
+  String get reportsFieldsDailyLimit => 'Daily Limit';
+
+  @override
+  String get reportsFieldsMonthlyLimit => 'Monthly Limit';
+
+  @override
+  String get reportsFieldsDailyPercent => 'Daily Percent';
+
+  @override
+  String get reportsFieldsMonthlyPercent => 'Monthly Percent';
+
+  @override
+  String get reportsFieldsUpdatedAt => 'Updated At';
+
+  @override
+  String get reportsFieldsActive => 'Active';
+
+  @override
+  String get reportsFieldsNearDailyLimit => 'Near Daily Limit';
+
+  @override
+  String get reportsFieldsNearMonthlyLimit => 'Near Monthly Limit';
+
+  @override
   String get totalTransactions => 'Total Transactions';
 
   @override
@@ -722,6 +773,27 @@ class AppLocalizationsEn extends AppLocalizations {
       'Try a different search or status filter.';
 
   @override
+  String get createBranch => 'Create Branch';
+
+  @override
+  String get editBranch => 'Edit Branch';
+
+  @override
+  String get deleteBranch => 'Delete Branch';
+
+  @override
+  String get branchCreatedSuccessfully => 'Branch created successfully';
+
+  @override
+  String get branchUpdatedSuccessfully => 'Branch updated successfully';
+
+  @override
+  String get branchDeletedSuccessfully => 'Branch deleted successfully';
+
+  @override
+  String get branchNameRequired => 'Branch name is required';
+
+  @override
   String usersCount(int count) {
     return '$count users';
   }
@@ -771,6 +843,47 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get usersSearchEmptyMessage =>
       'Try a different search or filter combination.';
+
+  @override
+  String get createUser => 'Create User';
+
+  @override
+  String get editUser => 'Edit User';
+
+  @override
+  String get deleteUser => 'Delete User';
+
+  @override
+  String get assignBranch => 'Assign Branch';
+
+  @override
+  String get unassignBranch => 'Unassign Branch';
+
+  @override
+  String get selectBranch => 'Select Branch';
+
+  @override
+  String get confirmDelete => 'Confirm delete';
+
+  @override
+  String get confirmUnassign => 'Confirm unassign';
+
+  @override
+  String get userCreatedSuccessfully => 'User created successfully';
+
+  @override
+  String get userUpdatedSuccessfully => 'User updated successfully';
+
+  @override
+  String get userDeletedSuccessfully => 'User deleted successfully';
+
+  @override
+  String get userAssignedToBranchSuccessfully =>
+      'User assigned to branch successfully';
+
+  @override
+  String get userUnassignedFromBranchSuccessfully =>
+      'User unassigned from branch successfully';
 
   @override
   String get ownerRole => 'OWNER';

@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_l10n.dart';
-import '../../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading_view.dart';
@@ -29,10 +26,6 @@ class PlansPage extends ConsumerWidget {
     return AppPageScaffold(
       title: l10n.plans,
       actions: [
-        IconButton(
-          onPressed: () => ref.read(plansControllerProvider.notifier).reload(),
-          icon: const Icon(Icons.refresh_rounded),
-        ),
         Builder(
           builder: (context) {
             return IconButton(
@@ -43,10 +36,7 @@ class PlansPage extends ConsumerWidget {
         ),
       ],
       endDrawer: const OwnerAppDrawer(currentRoute: AppRoutes.plans),
-      bottomNavigationBar: AppBottomNavBar(
-        currentRoute: '',
-        onDestinationSelected: context.go,
-      ),
+      embedded: true,
       maxWidth: AppDimensions.contentMaxWidth,
       child: plansState.when(
         loading: () => AppLoadingView(message: l10n.loadingSubscriptionPlans),
@@ -70,6 +60,16 @@ class PlansPage extends ConsumerWidget {
                 AppSectionHeader(
                   title: l10n.subscriptionPlans,
                   subtitle: l10n.subscriptionPlansSubtitle,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: IconButton.outlined(
+                    onPressed: () =>
+                        ref.read(plansControllerProvider.notifier).reload(),
+                    icon: const Icon(Icons.refresh_rounded),
+                    tooltip: l10n.refresh,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 SubscriptionSummaryCard(

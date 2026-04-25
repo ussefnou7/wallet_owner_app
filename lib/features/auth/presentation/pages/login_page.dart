@@ -38,106 +38,129 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final authState = ref.watch(authControllerProvider);
     final isSubmitting = authState.status == AuthStatus.loading;
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    final screenPadding = AppDimensions.screenPadding.resolve(
+      Directionality.of(context),
+    );
     final l10n = appL10n(context);
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
+        resizeToAvoidBottomInset: true,
         body: SafeArea(
-          child: AnimatedPadding(
-            duration: const Duration(milliseconds: 150),
-            curve: Curves.easeOut,
-            padding: EdgeInsets.only(bottom: bottomInset),
-            child: Center(
-              child: SingleChildScrollView(
-                padding: AppDimensions.screenPadding,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                padding: EdgeInsetsDirectional.fromSTEB(
+                  screenPadding.left,
+                  screenPadding.top,
+                  screenPadding.right,
+                  screenPadding.bottom + bottomInset,
+                ),
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: AppDimensions.compactContentMaxWidth,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Align(
-                        alignment: AlignmentDirectional.centerEnd,
-                        child: LanguageSwitcher(),
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: AppDimensions.compactContentMaxWidth,
                       ),
-                      const SizedBox(height: AppSpacing.lg),
-                      const _LoginBrandHeader(),
-                      const SizedBox(height: AppSpacing.xl),
-                      Container(
-                        padding: const EdgeInsets.all(AppSpacing.lg),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(AppRadii.xl),
-                          border: Border.all(color: AppColors.border),
-                          boxShadow: AppShadows.card,
-                        ),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l10n.signIn,
-                                style: Theme.of(context).textTheme.titleLarge,
-                              ),
-                              const SizedBox(height: AppSpacing.xs),
-                              Text(
-                                l10n.signInSubtitle,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                              const SizedBox(height: AppSpacing.lg),
-                              AppTextField(
-                                controller: _usernameController,
-                                textInputAction: TextInputAction.next,
-                                label: l10n.username,
-                                hintText: l10n.usernamePlaceholder,
-                                prefixIcon: const Icon(Icons.person_outline),
-                                validator: (value) =>
-                                    _validateUsername(value, l10n),
-                              ),
-                              const SizedBox(height: AppSpacing.md),
-                              AppTextField(
-                                controller: _passwordController,
-                                obscureText: true,
-                                textInputAction: TextInputAction.done,
-                                label: l10n.password,
-                                hintText: l10n.passwordPlaceholder,
-                                prefixIcon: const Icon(Icons.lock_outline),
-                                validator: (value) =>
-                                    _validatePassword(value, l10n),
-                              ),
-                              if (authState.errorMessage != null) ...[
-                                const SizedBox(height: AppSpacing.md),
-                                AppErrorState(
-                                  message: _getErrorMessage(authState.errorMessage!, l10n),
-                                  compact: true,
-                                ),
-                              ],
-                              const SizedBox(height: AppSpacing.lg),
-                              SizedBox(
-                                width: double.infinity,
-                                child: AppPrimaryButton(
-                                  label: l10n.login,
-                                  isLoading: isSubmitting,
-                                  onPressed: _submit,
-                                ),
-                              ),
-                              const SizedBox(height: AppSpacing.md),
-                              Text(
-                                l10n.authStorageNote,
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Align(
+                            alignment: AlignmentDirectional.centerEnd,
+                            child: LanguageSwitcher(),
                           ),
-                        ),
+                          const SizedBox(height: AppSpacing.lg),
+                          const _LoginBrandHeader(),
+                          const SizedBox(height: AppSpacing.xl),
+                          Container(
+                            padding: const EdgeInsets.all(AppSpacing.lg),
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(AppRadii.xl),
+                              border: Border.all(color: AppColors.border),
+                              boxShadow: AppShadows.card,
+                            ),
+                            child: Form(
+                              key: _formKey,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n.signIn,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleLarge,
+                                  ),
+                                  const SizedBox(height: AppSpacing.xs),
+                                  Text(
+                                    l10n.signInSubtitle,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium,
+                                  ),
+                                  const SizedBox(height: AppSpacing.lg),
+                                  AppTextField(
+                                    controller: _usernameController,
+                                    textInputAction: TextInputAction.next,
+                                    label: l10n.username,
+                                    hintText: l10n.usernamePlaceholder,
+                                    prefixIcon: const Icon(
+                                      Icons.person_outline,
+                                    ),
+                                    validator: (value) =>
+                                        _validateUsername(value, l10n),
+                                  ),
+                                  const SizedBox(height: AppSpacing.md),
+                                  AppTextField(
+                                    controller: _passwordController,
+                                    obscureText: true,
+                                    textInputAction: TextInputAction.done,
+                                    label: l10n.password,
+                                    hintText: l10n.passwordPlaceholder,
+                                    prefixIcon: const Icon(Icons.lock_outline),
+                                    validator: (value) =>
+                                        _validatePassword(value, l10n),
+                                  ),
+                                  if (authState.errorMessage != null) ...[
+                                    const SizedBox(height: AppSpacing.md),
+                                    AppErrorState(
+                                      message: _getErrorMessage(
+                                        authState.errorMessage!,
+                                        l10n,
+                                      ),
+                                      compact: true,
+                                    ),
+                                  ],
+                                  const SizedBox(height: AppSpacing.lg),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: AppPrimaryButton(
+                                      label: l10n.login,
+                                      isLoading: isSubmitting,
+                                      onPressed: _submit,
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppSpacing.md),
+                                  Text(
+                                    l10n.authStorageNote,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ),
       ),

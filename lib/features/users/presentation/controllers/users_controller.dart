@@ -58,6 +58,41 @@ class UsersController extends AsyncNotifier<List<AppUser>> {
     });
   }
 
+  Future<void> createUser(String username, String password) async {
+    final repository = ref.read(usersRepositoryProvider);
+    await repository.createUser(username, password);
+    await reload();
+  }
+
+  Future<void> updateUser(
+    String userId,
+    String username,
+    String password,
+    bool active,
+  ) async {
+    final repository = ref.read(usersRepositoryProvider);
+    await repository.updateUser(userId, username, password, active);
+    await reload();
+  }
+
+  Future<void> deleteUser(String userId) async {
+    final repository = ref.read(usersRepositoryProvider);
+    await repository.deleteUser(userId);
+    await reload();
+  }
+
+  Future<void> assignUserToBranch(String userId, String branchId) async {
+    final repository = ref.read(usersRepositoryProvider);
+    await repository.assignUserToBranch(userId, branchId);
+    await reload();
+  }
+
+  Future<void> unassignUserFromBranch(String userId) async {
+    final repository = ref.read(usersRepositoryProvider);
+    await repository.unassignUserFromBranch(userId);
+    await reload();
+  }
+
   void updateQuery(String value) {
     ref.read(usersSearchQueryProvider.notifier).state = value;
   }
