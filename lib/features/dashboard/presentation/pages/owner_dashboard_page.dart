@@ -5,6 +5,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/errors/error_message_mapper.dart';
 import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_error_state.dart';
@@ -57,7 +58,7 @@ class _OwnerDashboardPageState extends ConsumerState<OwnerDashboardPage> {
           overview.when(
             loading: () => const _OverviewLoadingState(),
             error: (error, stackTrace) => AppErrorState(
-              message: error.toString(),
+              message: ErrorMessageMapper.getMessage(error),
               compact: true,
               onRetry: () => ref.invalidate(dashboardOverviewProvider),
             ),
@@ -68,7 +69,7 @@ class _OwnerDashboardPageState extends ConsumerState<OwnerDashboardPage> {
             loading: () =>
                 const AppLoadingView(message: 'Loading recent transactions...'),
             error: (error, stackTrace) => AppErrorState(
-              message: error.toString(),
+              message: ErrorMessageMapper.getMessage(error),
               compact: true,
               onRetry: () =>
                   ref.invalidate(dashboardRecentTransactionsProvider),

@@ -22,7 +22,8 @@ class OwnerAppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final contentMaxWidth = currentRoute == AppRoutes.createTransaction
+    final contentMaxWidth = currentRoute == AppRoutes.createTransaction ||
+            currentRoute == AppRoutes.ownerCreateSupport
         ? AppDimensions.compactContentMaxWidth
         : maxWidth;
 
@@ -39,6 +40,13 @@ class OwnerAppShell extends StatelessWidget {
 
   static String _titleForRoute(BuildContext context, String route) {
     final l10n = appL10n(context);
+    if (route == AppRoutes.ownerCreateRenewalRequest) {
+      return l10n.newRequest;
+    }
+    if (route == AppRoutes.ownerCreateSupport) {
+      return l10n.newTicket;
+    }
+
     switch (route) {
       case AppRoutes.ownerWallets:
         return l10n.wallets;
@@ -55,7 +63,9 @@ class OwnerAppShell extends StatelessWidget {
       case AppRoutes.ownerPlans:
         return l10n.plans;
       case AppRoutes.ownerRequestRenewal:
-        return l10n.requestRenewal;
+        return l10n.renewalRequests;
+      case AppRoutes.ownerSupport:
+        return l10n.supportTickets;
       case AppRoutes.ownerSettings:
         return l10n.settings;
       case AppRoutes.ownerDashboard:

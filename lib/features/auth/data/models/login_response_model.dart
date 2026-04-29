@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../../../../core/errors/app_failure.dart';
+import '../../../../core/errors/app_exception.dart';
 import '../../domain/entities/session.dart';
 
 class LoginResponseModel {
@@ -35,8 +35,9 @@ class LoginResponseModel {
       'jwt',
     ]);
     if (accessToken == null || accessToken.isEmpty) {
-      throw const AppFailureException(
-        UnknownFailure('Unexpected login response. Access token is missing.'),
+      throw const AppException(
+        code: 'UNKNOWN_ERROR',
+        message: 'Unexpected login response. Access token is missing.',
       );
     }
 

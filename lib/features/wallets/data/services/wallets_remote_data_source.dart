@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/errors/app_failure.dart';
+import '../../../../core/errors/app_exception.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exception_mapper.dart';
 import '../../../../core/network/api_response_extractor.dart';
@@ -143,8 +143,9 @@ class DioWalletsRemoteDataSource implements WalletsRemoteDataSource {
     };
 
     if (rawItems == null) {
-      throw const AppFailureException(
-        UnknownFailure('Unexpected wallet types response format.'),
+      throw const AppException(
+        code: 'UNKNOWN_ERROR',
+        message: 'Unexpected wallet types response format.',
       );
     }
 

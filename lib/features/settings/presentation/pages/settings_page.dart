@@ -7,16 +7,17 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_l10n.dart';
-import '../../../../core/utils/formatters.dart';
-import '../../../../core/widgets/app_error_state.dart';
-import '../../../../core/widgets/app_loading_view.dart';
 import '../../../../core/widgets/app_page_scaffold.dart';
 import '../../../../core/widgets/app_section_header.dart';
-import '../../../../core/widgets/app_status_badge.dart';
 import '../../../../core/widgets/language_switcher.dart';
 import '../../../../core/widgets/owner_app_drawer.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
-import '../../../plans/presentation/controllers/plans_controller.dart';
+import '../../../branches/presentation/controllers/branches_controller.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
+import '../../../reports/presentation/controllers/reports_controller.dart';
+import '../../../transactions/presentation/controllers/transactions_controller.dart';
+import '../../../users/presentation/controllers/users_controller.dart';
+import '../../../wallets/presentation/controllers/wallets_controller.dart';
 import '../widgets/settings_action_tile.dart';
 import '../widgets/settings_profile_card.dart';
 import '../widgets/settings_section_card.dart';
@@ -34,12 +35,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(authControllerProvider).session;
-    final plansState = ref.watch(plansControllerProvider);
     final l10n = appL10n(context);
 
     if (session == null) {
-      return Scaffold(
-        body: AppLoadingView(message: '${l10n.loading} ${l10n.settings}...'),
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -106,59 +106,28 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               ),
             ),
             const SizedBox(height: AppSpacing.md),
-            plansState.when(
-              loading: () =>
-                  AppLoadingView(message: l10n.loadingWorkspaceSubscription),
-              error: (error, stackTrace) => AppErrorState(
-                message: l10n.unableToLoadSubscription,
-                onRetry: () =>
-                    ref.read(plansControllerProvider.notifier).reload(),
-              ),
-              data: (catalog) {
-                final summary = catalog.currentSubscription;
-                return SettingsSectionCard(
-                  title: l10n.workspaceSubscription,
-                  subtitle: l10n.workspaceSubscriptionSubtitle,
-                  child: Column(
-                    children: [
-                      SettingsActionTile(
-                        title: l10n.currentPlan,
-                        subtitle: summary.planName,
-                        leading: const Icon(Icons.workspace_premium_outlined),
-                        trailing: AppStatusBadge(label: summary.statusLabel),
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      SettingsActionTile(
-                        title: l10n.renewalDate,
-                        subtitle: formatDate(summary.renewalDate),
-                        leading: const Icon(Icons.event_outlined),
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      SettingsActionTile(
-                        title: l10n.workspace,
-                        subtitle: session.tenantName,
-                        leading: const Icon(Icons.business_outlined),
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      SettingsActionTile(
-                        title: l10n.openPlans,
-                        subtitle: l10n.openPlansSubtitle,
-                        leading: const Icon(Icons.open_in_new_rounded),
-                        trailing: const Icon(Icons.chevron_right_rounded),
-                        onTap: () => context.go(AppRoutes.plans),
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      SettingsActionTile(
-                        title: l10n.requestRenewal,
-                        subtitle: l10n.requestRenewalSubtitle,
-                        leading: const Icon(Icons.autorenew_rounded),
-                        trailing: const Icon(Icons.chevron_right_rounded),
-                        onTap: () => context.go(AppRoutes.requestRenewal),
-                      ),
-                    ],
+            SettingsSectionCard(
+              title: l10n.workspaceSubscription,
+              subtitle: l10n.workspaceSubscriptionSubtitle,
+              child: Column(
+                children: [
+                  SettingsActionTile(
+                    title: l10n.openPlans,
+                    subtitle: l10n.openPlansSubtitle,
+                    leading: const Icon(Icons.workspace_premium_outlined),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => context.go(AppRoutes.plans),
                   ),
-                );
-              },
+                  const SizedBox(height: AppSpacing.sm),
+                  SettingsActionTile(
+                    title: l10n.requestRenewal,
+                    subtitle: l10n.requestRenewalSubtitle,
+                    leading: const Icon(Icons.autorenew_rounded),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => context.go(AppRoutes.requestRenewal),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: AppSpacing.md),
             SettingsSectionCard(
@@ -235,6 +204,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   SettingsActionTile(
+                    key: const Key('logout_button'),
                     title: l10n.logout,
                     subtitle: l10n.logoutSubtitle,
                     leading: const Icon(Icons.logout_rounded),
@@ -262,10 +232,25 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   Future<void> _signOut() async {
     await ref.read(authControllerProvider.notifier).signOut();
+    _invalidateCachedProviders();
+
     if (!mounted) {
       return;
     }
 
     context.go(AppRoutes.login);
+  }
+
+  void _invalidateCachedProviders() {
+    ref.invalidate(walletsControllerProvider);
+    ref.invalidate(transactionsControllerProvider);
+    ref.invalidate(branchesControllerProvider);
+    ref.invalidate(usersControllerProvider);
+    ref.invalidate(dashboardOverviewProvider);
+    ref.invalidate(dashboardTransactionSummaryProvider);
+    ref.invalidate(dashboardRecentTransactionsProvider);
+    ref.invalidate(reportsControllerProvider);
+    ref.invalidate(reportsSelectedTypeProvider);
+    ref.invalidate(reportsAppliedFiltersProvider);
   }
 }

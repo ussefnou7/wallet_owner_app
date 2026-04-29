@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/errors/app_failure.dart';
+import '../../../../core/errors/app_exception.dart';
 import '../../domain/entities/session.dart';
 import '../../domain/repositories/auth_repository.dart';
 
@@ -22,11 +22,11 @@ final authControllerProvider = StateNotifierProvider<AuthController, AuthState>(
 enum AuthStatus { loading, authenticated, unauthenticated }
 
 class AuthState {
-  const AuthState({required this.status, this.session, this.errorMessage});
+  const AuthState({required this.status, this.session, this.error});
 
   final AuthStatus status;
   final Session? session;
-  final String? errorMessage;
+  final AppException? error;
 
   factory AuthState.loading() => const AuthState(status: AuthStatus.loading);
 
@@ -34,10 +34,10 @@ class AuthState {
     return AuthState(status: AuthStatus.authenticated, session: session);
   }
 
-  factory AuthState.unauthenticated([String? errorMessage]) {
+  factory AuthState.unauthenticated([AppException? error]) {
     return AuthState(
       status: AuthStatus.unauthenticated,
-      errorMessage: errorMessage,
+      error: error,
     );
   }
 }
@@ -81,16 +81,26 @@ class AuthController extends StateNotifier<AuthState> {
         password: password,
       );
       state = AuthState.authenticated(session);
-    } on AppFailureException catch (error) {
-      state = AuthState.unauthenticated(error.failure.message);
+    } on AppException catch (error) {
+      state = AuthState.unauthenticated(error);
     } catch (_) {
-      state = AuthState.unauthenticated('signin_error');
+      state = AuthState.unauthenticated(
+        const AppException(
+          code: 'UNKNOWN_ERROR',
+          message: '',
+        ),
+      );
     }
   }
 
   Future<void> signOut() async {
     await _authRepository.logout();
     state = AuthState.unauthenticated();
+  }
+
+  Future<void> handleUnauthorized(AppException exception) async {
+    await _authRepository.logout();
+    state = AuthState.unauthenticated(exception);
   }
 
   @override

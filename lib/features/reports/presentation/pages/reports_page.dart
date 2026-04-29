@@ -6,6 +6,7 @@ import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_shadows.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/errors/error_message_mapper.dart';
 import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_dropdown_field.dart';
@@ -1172,14 +1173,7 @@ class _ReportFieldRow extends StatelessWidget {
 }
 
 String _errorMessage(Object error, AppLocalizations l10n) {
-  if (error is Exception) {
-    final message = error.toString().replaceFirst('Exception: ', '').trim();
-    if (message.isNotEmpty) {
-      return message;
-    }
-  }
-
-  return l10n.unableToLoadReports;
+  return ErrorMessageMapper.getMessage(error);
 }
 
 String _reportTypeLabel(AppLocalizations l10n, ReportType reportType) {

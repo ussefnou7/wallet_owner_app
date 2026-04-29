@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../../../auth/domain/entities/session.dart';
 import '../../domain/entities/app_user.dart';
 
@@ -14,7 +16,9 @@ class AppUserModel extends AppUser {
   });
 
   factory AppUserModel.fromJson(Map<String, dynamic> json) {
-    final active = json['active'] as bool? ?? json['status'] == 'ACTIVE';
+    // If 'active' is not provided by the backend, default to true
+    // as per AppUser entity's default value.
+    final active = json['active'] as bool? ?? true;
     return AppUserModel(
       id: (json['id'] as String?) ?? (json['userId'] as String?) ?? '',
       username: (json['username'] as String?) ?? '',
@@ -28,6 +32,7 @@ class AppUserModel extends AppUser {
   }
 }
 
+@immutable
 class CreateUserRequestModel {
   const CreateUserRequestModel({
     required this.username,
@@ -43,6 +48,7 @@ class CreateUserRequestModel {
   };
 }
 
+@immutable
 class UpdateUserRequestModel {
   const UpdateUserRequestModel({
     required this.username,
@@ -61,6 +67,7 @@ class UpdateUserRequestModel {
   };
 }
 
+@immutable
 class AssignUserBranchRequestModel {
   const AssignUserBranchRequestModel({required this.branchId});
 

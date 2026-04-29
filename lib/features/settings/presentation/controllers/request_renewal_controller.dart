@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/errors/app_exception.dart';
 import '../../domain/entities/renewal_request.dart';
 import '../../domain/entities/renewal_request_result.dart';
 import '../../domain/repositories/renewal_requests_repository.dart';
@@ -19,12 +20,12 @@ class RequestRenewalState {
 
   final bool isSubmitting;
   final RenewalRequestResult? lastResult;
-  final String? errorMessage;
+  final AppException? errorMessage;
 
   RequestRenewalState copyWith({
     bool? isSubmitting,
     RenewalRequestResult? lastResult,
-    String? errorMessage,
+    AppException? errorMessage,
     bool clearLastResult = false,
     bool clearErrorMessage = false,
   }) {
@@ -55,11 +56,10 @@ class RequestRenewalController extends StateNotifier<RequestRenewalState> {
       final result = await _repository.submitRequest(request);
       state = state.copyWith(isSubmitting: false, lastResult: result);
       return true;
-    } catch (_) {
+    } on AppException catch (error) {
       state = state.copyWith(
         isSubmitting: false,
-        errorMessage:
-            'Unable to submit the renewal request right now. Please try again.',
+        errorMessage: error,
       );
       return false;
     }

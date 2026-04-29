@@ -1,4 +1,3 @@
-import '../../../../core/errors/app_failure.dart';
 import '../../../../core/network/api_result.dart';
 import '../../domain/entities/app_user.dart';
 import '../../domain/repositories/users_repository.dart';
@@ -67,7 +66,7 @@ class AppUsersRepository implements UsersRepository {
   T _unwrap<T>(ApiResult<T> result) {
     return result.when(
       success: (data) => data,
-      failure: (failure) => throw AppFailureException(failure),
+      failure: (failure) => throw failure,
     );
   }
 }

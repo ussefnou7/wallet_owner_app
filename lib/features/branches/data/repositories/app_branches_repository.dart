@@ -1,4 +1,3 @@
-import '../../../../core/errors/app_failure.dart';
 import '../../../../core/network/api_result.dart';
 import '../../domain/entities/branch.dart';
 import '../../domain/repositories/branches_repository.dart';
@@ -39,7 +38,7 @@ class AppBranchesRepository implements BranchesRepository {
   T _unwrap<T>(ApiResult<T> result) {
     return result.when(
       success: (data) => data,
-      failure: (failure) => throw AppFailureException(failure),
+      failure: (failure) => throw failure,
     );
   }
 }

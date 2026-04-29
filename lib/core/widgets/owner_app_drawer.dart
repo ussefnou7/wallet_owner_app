@@ -4,6 +4,12 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/router/app_routes.dart';
 import '../../features/auth/presentation/controllers/auth_controller.dart';
+import '../../features/branches/presentation/controllers/branches_controller.dart';
+import '../../features/dashboard/presentation/providers/dashboard_provider.dart';
+import '../../features/reports/presentation/controllers/reports_controller.dart';
+import '../../features/transactions/presentation/controllers/transactions_controller.dart';
+import '../../features/users/presentation/controllers/users_controller.dart';
+import '../../features/wallets/presentation/controllers/wallets_controller.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_dimensions.dart';
 import '../constants/app_radii.dart';
@@ -14,6 +20,19 @@ class OwnerAppDrawer extends ConsumerWidget {
   const OwnerAppDrawer({required this.currentRoute, super.key});
 
   final String currentRoute;
+
+  void _invalidateCachedProviders(WidgetRef ref) {
+    ref.invalidate(walletsControllerProvider);
+    ref.invalidate(transactionsControllerProvider);
+    ref.invalidate(branchesControllerProvider);
+    ref.invalidate(usersControllerProvider);
+    ref.invalidate(dashboardOverviewProvider);
+    ref.invalidate(dashboardTransactionSummaryProvider);
+    ref.invalidate(dashboardRecentTransactionsProvider);
+    ref.invalidate(reportsControllerProvider);
+    ref.invalidate(reportsSelectedTypeProvider);
+    ref.invalidate(reportsAppliedFiltersProvider);
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -39,14 +58,15 @@ class OwnerAppDrawer extends ConsumerWidget {
         icon: Icons.people_outline_rounded,
       ),
       _DrawerItemData(
-        label: l10n.plans,
-        route: AppRoutes.plans,
-        icon: Icons.workspace_premium_outlined,
+        label: l10n.support,
+        route: AppRoutes.ownerSupport,
+        icon: Icons.support_agent_rounded,
       ),
       _DrawerItemData(
         label: l10n.settings,
         route: AppRoutes.settings,
         icon: Icons.settings_outlined,
+        key: const Key('settings_nav_item'),
       ),
     ];
 
@@ -127,6 +147,7 @@ class OwnerAppDrawer extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
               child: ListTile(
+                key: const Key('logout_button'),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.sm,
                 ),
@@ -147,6 +168,7 @@ class OwnerAppDrawer extends ConsumerWidget {
                 onTap: () async {
                   Navigator.of(context).pop();
                   await ref.read(authControllerProvider.notifier).signOut();
+                  _invalidateCachedProviders(ref);
                   if (context.mounted) {
                     context.go(AppRoutes.login);
                   }
@@ -171,6 +193,7 @@ class _OwnerDrawerTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.xs),
       child: ListTile(
+        key: data.key,
         selected: selected,
         selectedTileColor: AppColors.primarySoft,
         shape: RoundedRectangleBorder(
@@ -201,9 +224,11 @@ class _DrawerItemData {
     required this.label,
     required this.route,
     required this.icon,
+    this.key,
   });
 
   final String label;
   final String route;
   final IconData icon;
+  final Key? key;
 }

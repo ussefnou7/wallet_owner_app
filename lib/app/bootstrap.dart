@@ -20,13 +20,18 @@ import '../features/branches/domain/repositories/branches_repository.dart';
 import '../features/dashboard/data/repositories/app_dashboard_repository.dart';
 import '../features/dashboard/data/services/dashboard_remote_data_source.dart';
 import '../features/dashboard/domain/repositories/dashboard_repository.dart';
-import '../features/plans/data/repositories/mock_plans_repository.dart';
+import '../features/plans/data/repositories/app_plans_repository.dart';
+import '../features/plans/data/services/plans_remote_data_source.dart';
 import '../features/plans/domain/repositories/plans_repository.dart';
 import '../features/reports/data/repositories/app_reports_repository.dart';
 import '../features/reports/data/services/reports_remote_data_source.dart';
 import '../features/reports/domain/repositories/reports_repository.dart';
-import '../features/settings/data/repositories/mock_renewal_requests_repository.dart';
+import '../features/settings/data/repositories/app_renewal_requests_repository.dart';
+import '../features/settings/data/repositories/app_support_repository.dart';
+import '../features/settings/data/services/renewal_remote_data_source.dart';
+import '../features/settings/data/services/support_remote_data_source.dart';
 import '../features/settings/domain/repositories/renewal_requests_repository.dart';
+import '../features/settings/domain/repositories/support_repository.dart';
 import '../features/transactions/data/repositories/app_transactions_repository.dart';
 import '../features/transactions/data/services/transactions_remote_data_source.dart';
 import '../features/transactions/domain/repositories/transactions_repository.dart';
@@ -63,9 +68,19 @@ Future<ProviderContainer> bootstrap() async {
     sessionLocalDataSource: localDataSource,
     remoteDataSource: authRemoteDataSource,
   );
-
+  Session? initialSession;
+  try {
+    initialSession = await authRepository.getCurrentSession();
+  } catch (_) {
+    initialSession = null;
+  }
+  final authController = AuthController(
+    authRepository: authRepository,
+    initialSession: initialSession,
+  );
   final sessionErrorInterceptor = SessionErrorInterceptor(
-    logout: authRepository.logout,
+    exceptionMapper: apiExceptionMapper,
+    onUnauthorized: authController.handleUnauthorized,
   );
   final dioWithErrorHandler = createDio(
     config: config,
@@ -115,14 +130,29 @@ Future<ProviderContainer> bootstrap() async {
   final reportsRepository = AppReportsRepository(
     remoteDataSource: reportsRemoteDataSource,
   );
-  final plansRepository = MockPlansRepository();
-  final renewalRequestsRepository = MockRenewalRequestsRepository();
-  Session? initialSession;
-  try {
-    initialSession = await authRepository.getCurrentSession();
-  } catch (_) {
-    initialSession = null;
-  }
+  final plansRemoteDataSource = DioPlansRemoteDataSource(
+    apiClient: apiClientWithErrorHandler,
+    exceptionMapper: apiExceptionMapper,
+  );
+  final plansRepository = AppPlansRepository(
+    remoteDataSource: plansRemoteDataSource,
+  );
+  
+  final supportRemoteDataSource = DioSupportRemoteDataSource(
+    apiClient: apiClientWithErrorHandler,
+    exceptionMapper: apiExceptionMapper,
+  );
+  final supportRepository = AppSupportRepository(
+    remoteDataSource: supportRemoteDataSource,
+  );
+  
+  final renewalRemoteDataSource = DioRenewalRemoteDataSource(
+    apiClient: apiClientWithErrorHandler,
+    exceptionMapper: apiExceptionMapper,
+  );
+  final renewalRequestsRepository = AppRenewalRequestsRepository(
+    remoteDataSource: renewalRemoteDataSource,
+  );
 
   return ProviderContainer(
     overrides: [
@@ -159,15 +189,11 @@ Future<ProviderContainer> bootstrap() async {
       ),
       reportsRepositoryProvider.overrideWithValue(reportsRepository),
       plansRepositoryProvider.overrideWithValue(plansRepository),
+      supportRepositoryProvider.overrideWithValue(supportRepository),
       renewalRequestsRepositoryProvider.overrideWithValue(
         renewalRequestsRepository,
       ),
-      authControllerProvider.overrideWith(
-        (ref) => AuthController(
-          authRepository: authRepository,
-          initialSession: initialSession,
-        ),
-      ),
+      authControllerProvider.overrideWith((ref) => authController),
       initialSessionProvider.overrideWithValue(initialSession),
     ],
   );

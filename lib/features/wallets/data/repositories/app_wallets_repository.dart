@@ -1,4 +1,3 @@
-import '../../../../core/errors/app_failure.dart';
 import '../../../../core/network/api_result.dart';
 import '../../domain/entities/wallet.dart';
 import '../../domain/repositories/wallets_repository.dart';
@@ -66,7 +65,7 @@ class AppWalletsRepository implements WalletsRepository {
   T _unwrap<T>(ApiResult<T> result) {
     return result.when(
       success: (data) => data,
-      failure: (failure) => throw AppFailureException(failure),
+      failure: (failure) => throw failure,
     );
   }
 }

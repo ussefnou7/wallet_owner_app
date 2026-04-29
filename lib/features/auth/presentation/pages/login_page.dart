@@ -6,12 +6,19 @@ import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_shadows.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/errors/error_message_mapper.dart';
 import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_buttons.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/language_switcher.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../../../branches/presentation/controllers/branches_controller.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
+import '../../../reports/presentation/controllers/reports_controller.dart';
+import '../../../transactions/presentation/controllers/transactions_controller.dart';
+import '../../../users/presentation/controllers/users_controller.dart';
+import '../../../wallets/presentation/controllers/wallets_controller.dart';
 import '../controllers/auth_controller.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -42,6 +49,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       Directionality.of(context),
     );
     final l10n = appL10n(context);
+
+    ref.listen(authControllerProvider, (previous, current) {
+      if (current.status == AuthStatus.authenticated) {
+        _invalidateCachedProviders();
+      }
+    });
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -124,13 +137,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                     validator: (value) =>
                                         _validatePassword(value, l10n),
                                   ),
-                                  if (authState.errorMessage != null) ...[
+                                  if (authState.error != null) ...[
                                     const SizedBox(height: AppSpacing.md),
                                     AppErrorState(
-                                      message: _getErrorMessage(
-                                        authState.errorMessage!,
-                                        l10n,
-                                      ),
+                                      key: const Key('login_inline_error'),
+                                      message:
+                                          ErrorMessageMapper.getLocalizedMessage(
+                                            context,
+                                            authState.error,
+                                          ),
                                       compact: true,
                                     ),
                                   ],
@@ -187,13 +202,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     return null;
   }
 
-  String _getErrorMessage(String error, AppLocalizations l10n) {
-    if (error == 'signin_error') {
-      return l10n.unableToSignIn;
-    }
-    return error;
-  }
-
   Future<void> _submit() async {
     FocusScope.of(context).unfocus();
 
@@ -207,6 +215,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           username: _usernameController.text.trim(),
           password: _passwordController.text,
         );
+  }
+
+  void _invalidateCachedProviders() {
+    ref.invalidate(walletsControllerProvider);
+    ref.invalidate(transactionsControllerProvider);
+    ref.invalidate(branchesControllerProvider);
+    ref.invalidate(usersControllerProvider);
+    ref.invalidate(dashboardOverviewProvider);
+    ref.invalidate(dashboardTransactionSummaryProvider);
+    ref.invalidate(dashboardRecentTransactionsProvider);
+    ref.invalidate(reportsControllerProvider);
+    ref.invalidate(reportsSelectedTypeProvider);
+    ref.invalidate(reportsAppliedFiltersProvider);
   }
 }
 

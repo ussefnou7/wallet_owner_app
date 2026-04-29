@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/errors/app_exception.dart';
+import '../../../../core/errors/error_message_mapper.dart';
 import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading_view.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
-import '../../../../l10n/generated/app_localizations.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../branches/presentation/controllers/branches_controller.dart';
 import '../../domain/entities/wallet.dart';
-import '../../domain/repositories/wallets_repository.dart';
 import '../controllers/wallets_controller.dart';
 import '../widgets/wallet_card.dart';
 
@@ -64,7 +66,7 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
         const SizedBox(height: AppSpacing.md),
         if (walletState.error != null) ...[
           AppErrorState(
-            message: _getErrorMessage(walletState.error!, l10n),
+            message: _getErrorMessage(walletState.error!),
             onRetry: () =>
                 ref.read(walletsControllerProvider.notifier).reload(),
           ),
@@ -150,9 +152,10 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
     // For edit mode only
     if (wallet != null) {
       final controller = TextEditingController(text: wallet.name);
-      var active = wallet.active ?? true;
+      var active = wallet.active;
       final formKey = GlobalKey<FormState>();
       final l10n = appL10n(context);
+      final messenger = ScaffoldMessenger.of(context);
 
       final submitted = await showDialog<bool>(
         context: context,
@@ -234,256 +237,37 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
 
       final state = ref.read(walletsControllerProvider);
       if (state.error != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
             content: Text(
-              _getErrorMessage(state.error!, l10n),
+              _getErrorMessage(state.error!),
             ),
           ),
         );
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(content: Text(l10n.walletUpdated)),
       );
       return;
     }
 
     // Create mode: show comprehensive form
-    final nameController = TextEditingController();
-    final numberController = TextEditingController();
-    final balanceController = TextEditingController();
-    final formKey = GlobalKey<FormState>();
     final l10n = appL10n(context);
-
-    String? selectedBranchId;
-    String? selectedType;
+    final messenger = ScaffoldMessenger.of(context);
 
     final submitted = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            final branchesAsync = ref.watch(branchesControllerProvider);
-
-            return AlertDialog(
-              title: Text(l10n.createWallet),
-              content: SingleChildScrollView(
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextFormField(
-                        controller: nameController,
-                        decoration: InputDecoration(
-                          labelText: l10n.walletName,
-                          prefixIcon: const Icon(
-                            Icons.account_balance_wallet_outlined,
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return l10n.walletNameRequired;
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      TextFormField(
-                        controller: numberController,
-                        decoration: InputDecoration(
-                          labelText: l10n.number,
-                          prefixIcon: const Icon(Icons.phone_rounded),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Wallet number is required';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      TextFormField(
-                        controller: balanceController,
-                        decoration: InputDecoration(
-                          labelText: l10n.balance,
-                          prefixIcon: const Icon(Icons.attach_money_rounded),
-                        ),
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Balance is required';
-                          }
-                          if (double.tryParse(value) == null) {
-                            return 'Enter a valid amount';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      branchesAsync.when(
-                        data: (branches) => DropdownButtonFormField<String>(
-                          value: selectedBranchId,
-                          hint: const Text('Select branch'),
-                          items: branches
-                              .map((branch) => DropdownMenuItem(
-                                    value: branch.id,
-                                    child: Text(branch.name),
-                                  ))
-                              .toList(),
-                          onChanged: (value) {
-                            setDialogState(
-                                () => selectedBranchId = value);
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Branch is required';
-                            }
-                            return null;
-                          },
-                        ),
-                        loading: () => const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                            ),
-                          ),
-                        ),
-                        error: (_, __) => const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text('Failed to load branches'),
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      ref.watch(walletTypesProvider).when(
-                        data: (types) {
-                          if (types.isEmpty) {
-                            return const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Text('No wallet types available'),
-                            );
-                          }
-
-                          return DropdownButtonFormField<String>(
-                            initialValue: selectedType,
-                            hint: const Text('Select wallet type'),
-                            items: types
-                                .map((type) => DropdownMenuItem(
-                                      value: type,
-                                      child: Text(type),
-                                    ))
-                                .toList(),
-                            onChanged: (value) {
-                              setDialogState(() => selectedType = value);
-                            },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Wallet type is required';
-                              }
-                              return null;
-                            },
-                          );
-                        },
-                        loading: () => const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                            ),
-                          ),
-                        ),
-                        error: (_, __) => const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text('Failed to load wallet types'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: Text(l10n.cancel),
-                ),
-                FilledButton(
-                  onPressed: () {
-                    if (formKey.currentState?.validate() == true) {
-                      Navigator.of(context).pop(true);
-                    }
-                  },
-                  child: Text(l10n.create),
-                ),
-              ],
-            );
-          },
-        );
-      },
+      builder: (dialogContext) => const _CreateWalletDialog(),
     );
 
     if (submitted != true || !mounted) {
-      nameController.dispose();
-      numberController.dispose();
-      balanceController.dispose();
       return;
     }
 
-    final authState = ref.read(authControllerProvider);
-    final tenantId = authState.session?.tenantId;
-
-    if (tenantId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Session expired. Please log in again.'),
-        ),
-      );
-      nameController.dispose();
-      numberController.dispose();
-      balanceController.dispose();
-      return;
-    }
-
-    final notifier = ref.read(walletsControllerProvider.notifier);
-    await notifier.createWallet(
-      name: nameController.text.trim(),
-      number: numberController.text.trim(),
-      branchId: selectedBranchId!,
-      balance: double.parse(balanceController.text.trim()),
-      type: selectedType!,
-      tenantId: tenantId,
-    );
-
-    nameController.dispose();
-    numberController.dispose();
-    balanceController.dispose();
-
-    if (!mounted) {
-      return;
-    }
-
-    final state = ref.read(walletsControllerProvider);
-    if (state.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            _getErrorMessage(state.error!, l10n),
-          ),
-        ),
-      );
-      return;
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
+    messenger.showSnackBar(
       SnackBar(content: Text(l10n.walletCreated)),
     );
   }
@@ -525,7 +309,7 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
     final state = ref.read(walletsControllerProvider);
     if (state.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_getErrorMessage(state.error!, l10n))),
+        SnackBar(content: Text(_getErrorMessage(state.error!))),
       );
       return;
     }
@@ -535,13 +319,287 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
     );
   }
 
-  String _getErrorMessage(String error, AppLocalizations l10n) {
-    return switch (error) {
-      'wallet_load_error' => l10n.walletLoadError,
-      'wallet_create_error' => l10n.walletCreateError,
-      'wallet_update_error' => l10n.walletUpdateError,
-      'wallet_delete_error' => l10n.walletDeleteError,
-      _ => error,
-    };
+  String _getErrorMessage(AppException error) {
+    return ErrorMessageMapper.getMessage(error);
+  }
+}
+
+class _CreateWalletDialog extends ConsumerStatefulWidget {
+  const _CreateWalletDialog();
+
+  @override
+  ConsumerState<_CreateWalletDialog> createState() => _CreateWalletDialogState();
+}
+
+class _CreateWalletDialogState extends ConsumerState<_CreateWalletDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _numberController = TextEditingController();
+  final _balanceController = TextEditingController();
+
+  String? _selectedBranchId;
+  String? _selectedType;
+  bool _isSubmitting = false;
+  AppException? _submitError;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _numberController.dispose();
+    _balanceController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = appL10n(context);
+    final branchesAsync = ref.watch(branchesControllerProvider);
+    final walletTypesAsync = ref.watch(walletTypesProvider);
+
+    return PopScope(
+      canPop: !_isSubmitting,
+      child: AlertDialog(
+        title: Text(l10n.createWallet),
+        content: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    labelText: l10n.walletName,
+                    prefixIcon: const Icon(
+                      Icons.account_balance_wallet_outlined,
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return l10n.walletNameRequired;
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: AppSpacing.md),
+                TextFormField(
+                  controller: _numberController,
+                  decoration: InputDecoration(
+                    labelText: l10n.number,
+                    prefixIcon: const Icon(Icons.phone_rounded),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Wallet number is required';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: AppSpacing.md),
+                TextFormField(
+                  controller: _balanceController,
+                  decoration: InputDecoration(
+                    labelText: l10n.balance,
+                    prefixIcon: const Icon(Icons.attach_money_rounded),
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Balance is required';
+                    }
+                    if (double.tryParse(value) == null) {
+                      return 'Enter a valid amount';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: AppSpacing.md),
+                branchesAsync.when(
+                  data: (branches) => DropdownButtonFormField<String>(
+                    initialValue: _selectedBranchId,
+                    hint: const Text('Select branch'),
+                    items: branches
+                        .map(
+                          (branch) => DropdownMenuItem(
+                            value: branch.id,
+                            child: Text(branch.name),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() => _selectedBranchId = value);
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Branch is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  loading: () => const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                  error: (error, stackTrace) => const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('Failed to load branches'),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                walletTypesAsync.when(
+                  data: (types) {
+                    if (types.isEmpty) {
+                      return const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('No wallet types available'),
+                      );
+                    }
+
+                    return DropdownButtonFormField<String>(
+                      initialValue: _selectedType,
+                      hint: const Text('Select wallet type'),
+                      items: types
+                          .map(
+                            (type) => DropdownMenuItem(
+                              value: type,
+                              child: Text(type),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() => _selectedType = value);
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Wallet type is required';
+                        }
+                        return null;
+                      },
+                    );
+                  },
+                  loading: () => const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                  error: (error, stackTrace) => const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('Failed to load wallet types'),
+                  ),
+                ),
+                if (_submitError != null) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  AppErrorState(
+                    key: const Key('wallet_inline_error'),
+                    message: ErrorMessageMapper.getLocalizedMessage(
+                      context,
+                      _submitError,
+                    ),
+                    compact: true,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: _isSubmitting ? null : () => _close(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: _isSubmitting ? null : _submit,
+            child: _isSubmitting
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(l10n.create),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _close([bool? result]) {
+    FocusScope.of(context).unfocus();
+    final goRouter = GoRouter.maybeOf(context);
+    if (goRouter != null && context.canPop()) {
+      context.pop(result);
+      return;
+    }
+
+    final navigator = Navigator.of(context, rootNavigator: true);
+    if (navigator.canPop()) {
+      navigator.pop(result);
+      return;
+    }
+
+    if (goRouter != null) {
+      context.go(AppRoutes.ownerWallets);
+    }
+  }
+
+  Future<void> _submit() async {
+    FocusScope.of(context).unfocus();
+    if (_formKey.currentState?.validate() != true) {
+      return;
+    }
+
+    final authState = ref.read(authControllerProvider);
+    final tenantId = authState.session?.tenantId;
+
+    if (tenantId == null) {
+      if (!context.mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Session expired. Please log in again.')),
+      );
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _isSubmitting = true;
+      _submitError = null;
+    });
+
+    final notifier = ref.read(walletsControllerProvider.notifier);
+    await notifier.createWallet(
+      name: _nameController.text.trim(),
+      number: _numberController.text.trim(),
+      branchId: _selectedBranchId!,
+      balance: double.parse(_balanceController.text.trim()),
+      type: _selectedType!,
+      tenantId: tenantId,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    final state = ref.read(walletsControllerProvider);
+    if (state.error != null) {
+      setState(() {
+        _isSubmitting = false;
+        _submitError = state.error;
+      });
+      return;
+    }
+
+    _close(true);
   }
 }

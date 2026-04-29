@@ -13,8 +13,11 @@ import '../../features/dashboard/presentation/pages/owner_dashboard_page.dart';
 import '../../features/dashboard/presentation/pages/user_dashboard_page.dart';
 import '../../features/plans/presentation/pages/plans_page.dart';
 import '../../features/reports/presentation/pages/reports_page.dart';
+import '../../features/settings/presentation/pages/create_renewal_request_page.dart';
+import '../../features/settings/presentation/pages/create_support_ticket_page.dart';
 import '../../features/settings/presentation/pages/request_renewal_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
+import '../../features/settings/presentation/pages/support_page.dart';
 import '../../features/transactions/presentation/pages/create_transaction_page.dart';
 import '../../features/transactions/presentation/pages/transactions_page.dart';
 import '../../features/users/presentation/pages/users_page.dart';
@@ -137,6 +140,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: AppRoutes.ownerRequestRenewal,
             name: 'owner-request-renewal',
             builder: (context, state) => const RequestRenewalPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.ownerCreateRenewalRequest,
+            name: 'owner-create-renewal-request',
+            builder: (context, state) => const CreateRenewalRequestPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.ownerSupport,
+            name: 'owner-support',
+            builder: (context, state) => const SupportPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.ownerCreateSupport,
+            name: 'owner-create-support',
+            builder: (context, state) => const CreateSupportTicketPage(),
           ),
           GoRoute(
             path: AppRoutes.ownerSettings,

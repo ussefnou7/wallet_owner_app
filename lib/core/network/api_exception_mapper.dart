@@ -1,7 +1,10 @@
+import 'dart:developer' as developer;
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../errors/app_failure.dart';
+import '../errors/app_exception.dart';
+import 'models/api_error_response.dart';
 
 final apiExceptionMapperProvider = Provider<ApiExceptionMapper>(
   (ref) => const ApiExceptionMapper(),
@@ -10,92 +13,176 @@ final apiExceptionMapperProvider = Provider<ApiExceptionMapper>(
 class ApiExceptionMapper {
   const ApiExceptionMapper();
 
-  AppFailure map(Object error) {
-    if (error is AppFailureException) {
-      return error.failure;
+  AppException map(Object error) {
+    if (error is AppException) {
+      _logException(error);
+      return error;
     }
 
     if (error is DioException) {
       return _mapDioException(error);
     }
 
-    return const UnknownFailure('Something went wrong. Please try again.');
+    final appException = AppException(
+      code: 'UNKNOWN_ERROR',
+      message: '$error',
+    );
+    _logException(appException);
+    return appException;
   }
 
-  AppFailure _mapDioException(DioException error) {
+  AppException _mapDioException(DioException error) {
     final statusCode = error.response?.statusCode;
-    final responseMessage = _responseMessage(error.response?.data);
+    final backendError = _parseBackendError(error.response?.data);
 
-    return switch (error.type) {
+    if (backendError != null) {
+      return _mapStructuredError(backendError, fallbackStatus: statusCode);
+    }
+
+    final appException = switch (error.type) {
       DioExceptionType.connectionTimeout ||
       DioExceptionType.receiveTimeout ||
-      DioExceptionType.sendTimeout => TimeoutFailure(
-        responseMessage ?? 'The request timed out. Please try again.',
-        statusCode: statusCode,
+      DioExceptionType.sendTimeout => AppException(
+        code: 'NETWORK_TIMEOUT',
+        message: 'The request timed out. Please try again.',
+        status: statusCode,
       ),
       DioExceptionType.badResponse => _mapBadResponse(
         statusCode: statusCode,
-        message: responseMessage,
+        responseMessage: _responseMessage(error.response?.data),
       ),
-      DioExceptionType.cancel => const NetworkFailure(
-        'The request was cancelled.',
+      DioExceptionType.cancel => const AppException(
+        code: 'NETWORK_ERROR',
+        message: 'The request was cancelled.',
       ),
       DioExceptionType.connectionError ||
-      DioExceptionType.badCertificate => NetworkFailure(
-        responseMessage ??
+      DioExceptionType.badCertificate => AppException(
+        code: 'NETWORK_ERROR',
+        message:
             'Unable to connect right now. Check your network and try again.',
-        statusCode: statusCode,
+        status: statusCode,
       ),
-      DioExceptionType.unknown => UnknownFailure(
-        responseMessage ?? 'Unexpected network error. Please try again.',
-        statusCode: statusCode,
+      DioExceptionType.unknown => AppException(
+        code: 'UNKNOWN_ERROR',
+        message:
+            _responseMessage(error.response?.data) ??
+            'Unexpected network error. Please try again.',
+        status: statusCode,
       ),
     };
+    _logException(appException);
+    return appException;
   }
 
-  AppFailure _mapBadResponse({required int? statusCode, String? message}) {
-    if (statusCode == 401 || statusCode == 403) {
-      return UnauthorizedFailure(
-        message ?? 'Your session is not authorized. Please sign in again.',
-        statusCode: statusCode,
-      );
-    }
-
-    if (statusCode == 400 || statusCode == 422) {
-      return ValidationFailure(
-        message ?? 'The request could not be processed.',
-        statusCode: statusCode,
-      );
-    }
-
-    if (statusCode != null && statusCode >= 500) {
-      return ServerFailure(
-        message ?? 'The server is unavailable right now. Please try again.',
-        statusCode: statusCode,
-      );
-    }
-
-    return NetworkFailure(
-      message ?? 'Request failed. Please try again.',
-      statusCode: statusCode,
+  AppException _mapStructuredError(
+    ApiErrorResponse error, {
+    required int? fallbackStatus,
+  }) {
+    final status = error.status ?? fallbackStatus;
+    final appException = AppException(
+      code: error.code ?? _fallbackCode(status),
+      message: error.message ?? _fallbackMessage(status),
+      status: status,
+      details: error.details,
+      traceId: error.traceId,
     );
+    _logException(appException);
+    return appException;
+  }
+
+  AppException _mapBadResponse({
+    required int? statusCode,
+    String? responseMessage,
+  }) {
+    final appException = AppException(
+      code: _fallbackCode(statusCode),
+      message: responseMessage ?? _fallbackMessage(statusCode),
+      status: statusCode,
+    );
+    _logException(appException);
+    return appException;
+  }
+
+  ApiErrorResponse? _parseBackendError(Object? data) {
+    final map = _asJsonMap(data);
+    if (map == null) {
+      return null;
+    }
+
+    final hasBackendContract = [
+      'timestamp',
+      'status',
+      'code',
+      'message',
+      'path',
+      'details',
+      'traceId',
+    ].any(map.containsKey);
+
+    if (!hasBackendContract) {
+      return null;
+    }
+
+    return ApiErrorResponse.fromJson(map);
   }
 
   String? _responseMessage(Object? data) {
-    if (data is Map<String, dynamic>) {
-      // Try to get message first (most specific)
-      var message = data['message'];
+    final map = _asJsonMap(data);
+    if (map != null) {
+      final message = map['message'];
       if (message is String && message.trim().isNotEmpty) {
         return message.trim();
       }
 
-      // Fall back to error field (more general)
-      final error = data['error'];
+      final error = map['error'];
       if (error is String && error.trim().isNotEmpty) {
         return error.trim();
       }
     }
 
     return null;
+  }
+
+  Map<String, dynamic>? _asJsonMap(Object? data) {
+    if (data is Map) {
+      try {
+        return Map<String, dynamic>.from(data);
+      } catch (_) {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  String _fallbackCode(int? statusCode) {
+    return switch (statusCode) {
+      400 || 422 => 'BAD_REQUEST',
+      401 => 'UNAUTHORIZED',
+      403 => 'FORBIDDEN',
+      404 => 'ENTITY_NOT_FOUND',
+      final int code when code >= 500 => 'INTERNAL_SERVER_ERROR',
+      _ => 'UNKNOWN_ERROR',
+    };
+  }
+
+  String _fallbackMessage(int? statusCode) {
+    return switch (statusCode) {
+      400 || 422 => 'The request could not be processed.',
+      401 => 'Your session has expired. Please sign in again.',
+      403 => 'You do not have permission to perform this action.',
+      404 => 'The requested item could not be found.',
+      final int code when code >= 500 =>
+        'The server is unavailable right now. Please try again.',
+      _ => 'Something went wrong. Please try again.',
+    };
+  }
+
+  void _logException(AppException exception) {
+    developer.log(
+      'API error code=${exception.code} status=${exception.status} '
+      'message="${exception.message}" traceId=${exception.traceId ?? '-'}',
+      name: 'api_exception_mapper',
+      level: 800,
+    );
   }
 }

@@ -6,6 +6,7 @@ class AppPrimaryButton extends StatelessWidget {
     this.onPressed,
     this.icon,
     this.isLoading = false,
+    this.buttonKey,
     super.key,
   });
 
@@ -13,6 +14,7 @@ class AppPrimaryButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final Widget? icon;
   final bool isLoading;
+  final Key? buttonKey;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +35,7 @@ class AppPrimaryButton extends StatelessWidget {
           );
 
     return ElevatedButton(
+      key: buttonKey,
       onPressed: isLoading ? null : onPressed,
       child: child,
     );

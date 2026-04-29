@@ -1,18 +1,28 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/presentation/controllers/auth_controller.dart';
+import '../errors/app_exception.dart';
+import 'api_exception_mapper.dart';
 
 final sessionErrorInterceptorProvider = Provider<SessionErrorInterceptor>((ref) {
-  final authRepository = ref.watch(authRepositoryProvider);
-  return SessionErrorInterceptor(logout: authRepository.logout);
+  final exceptionMapper = ref.watch(apiExceptionMapperProvider);
+  final authController = ref.watch(authControllerProvider.notifier);
+  return SessionErrorInterceptor(
+    exceptionMapper: exceptionMapper,
+    onUnauthorized: authController.handleUnauthorized,
+  );
 });
 
 class SessionErrorInterceptor extends Interceptor {
-  SessionErrorInterceptor({required Future<void> Function() logout})
-    : _logout = logout;
+  SessionErrorInterceptor({
+    required ApiExceptionMapper exceptionMapper,
+    required Future<void> Function(AppException exception) onUnauthorized,
+  }) : _exceptionMapper = exceptionMapper,
+       _onUnauthorized = onUnauthorized;
 
-  final Future<void> Function() _logout;
+  final ApiExceptionMapper _exceptionMapper;
+  final Future<void> Function(AppException exception) _onUnauthorized;
   bool _isLoggingOut = false;
 
   @override
@@ -20,14 +30,14 @@ class SessionErrorInterceptor extends Interceptor {
     DioException err,
     ErrorInterceptorHandler handler,
   ) async {
-    final statusCode = err.response?.statusCode;
+    final exception = _exceptionMapper.map(err);
 
-    if (statusCode == 401 && !_isLoggingOut) {
+    if (exception.isUnauthorized && !_isLoggingOut) {
       _isLoggingOut = true;
       try {
-        await _logout();
+        await _onUnauthorized(exception);
       } catch (_) {
-        // Logout failed, but we still want to pass the error to the app
+        // Session cleanup failed, but we still want to pass the error to the app.
       } finally {
         _isLoggingOut = false;
       }

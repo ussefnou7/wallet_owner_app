@@ -7,8 +7,6 @@ import 'package:wallet_owner_app/core/localization/locale_controller.dart';
 import 'package:wallet_owner_app/features/auth/domain/entities/session.dart';
 import 'package:wallet_owner_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:wallet_owner_app/features/auth/presentation/controllers/auth_controller.dart';
-import 'package:wallet_owner_app/features/plans/data/repositories/mock_plans_repository.dart';
-import 'package:wallet_owner_app/features/plans/domain/repositories/plans_repository.dart';
 
 void main() {
   testWidgets('logout from settings returns to login flow', (tester) async {
@@ -35,7 +33,6 @@ void main() {
               ),
             ),
           ),
-          plansRepositoryProvider.overrideWithValue(MockPlansRepository()),
         ],
         child: const App(),
       ),
@@ -45,15 +42,34 @@ void main() {
 
     await tester.tap(find.byIcon(Icons.menu_rounded).first);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Settings'));
+    final settingsNavItem = find.byKey(const Key('settings_nav_item'));
+    final drawerScrollable = find.descendant(
+      of: find.byType(Drawer).last,
+      matching: find.byType(Scrollable),
+    );
+    await tester.scrollUntilVisible(
+      settingsNavItem,
+      200,
+      scrollable: drawerScrollable,
+    );
+    await tester.tap(settingsNavItem.first);
     await tester.pumpAndSettle();
 
     expect(find.text('Owner Settings'), findsOneWidget);
     expect(find.text('Owner User'), findsWidgets);
     expect(find.text('owner@example.com'), findsWidgets);
 
-    await tester.scrollUntilVisible(find.text('Logout'), 200);
-    await tester.tap(find.text('Logout'));
+    final pageScrollable = find.descendant(
+      of: find.byType(SingleChildScrollView),
+      matching: find.byType(Scrollable),
+    );
+    final logoutButton = find.byKey(const Key('logout_button'));
+    await tester.ensureVisible(logoutButton.first);
+    await tester.drag(pageScrollable, const Offset(0, -200));
+    await tester.pumpAndSettle();
+    final logoutTapPoint =
+        tester.getTopLeft(logoutButton.first) + const Offset(24, 24);
+    await tester.tapAt(logoutTapPoint);
     await tester.pumpAndSettle();
 
     expect(find.text('Sign in'), findsOneWidget);

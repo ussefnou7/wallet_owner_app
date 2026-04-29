@@ -5,8 +5,6 @@ import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_shadows.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_l10n.dart';
-import '../../../../core/widgets/app_buttons.dart';
-import '../../../../core/widgets/app_status_badge.dart';
 import '../../domain/entities/plan.dart';
 
 class PlanCard extends StatelessWidget {
@@ -18,63 +16,37 @@ class PlanCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = appL10n(context);
-    final badgeLabel = switch (plan.badge) {
-      PlanBadge.current => l10n.current,
-      PlanBadge.recommended => l10n.recommended,
-      PlanBadge.available => l10n.available,
-    };
-
-    final actionLabel = switch (plan.badge) {
-      PlanBadge.current => l10n.currentPlanAction,
-      PlanBadge.recommended => l10n.upgrade,
-      PlanBadge.available => l10n.choosePlan,
-    };
-
-    final button = plan.isCurrent
-        ? AppSecondaryButton(label: actionLabel, onPressed: null)
-        : AppPrimaryButton(label: actionLabel, onPressed: onPressed);
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: plan.isCurrent ? AppColors.primarySoft : AppColors.surface,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadii.lg),
-        border: Border.all(
-          color: plan.isCurrent ? AppColors.primary : AppColors.border,
-        ),
+        border: Border.all(color: AppColors.border),
         boxShadow: AppShadows.card,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      plan.name,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      plan.description,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ),
-              AppStatusBadge(
-                label: badgeLabel,
-                foregroundColor: _badgeForeground(plan.badge),
-                backgroundColor: _badgeBackground(plan.badge),
-              ),
-            ],
+          Text(
+            plan.name,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            plan.description,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            l10n.planPrice(plan.price),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: AppColors.primary,
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
           Row(
@@ -101,24 +73,10 @@ class PlanCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
-          SizedBox(width: double.infinity, child: button),
         ],
       ),
     );
   }
-
-  Color _badgeForeground(PlanBadge badge) => switch (badge) {
-    PlanBadge.current => AppColors.primary,
-    PlanBadge.recommended => AppColors.success,
-    PlanBadge.available => AppColors.textSecondary,
-  };
-
-  Color _badgeBackground(PlanBadge badge) => switch (badge) {
-    PlanBadge.current => AppColors.primarySoft,
-    PlanBadge.recommended => AppColors.successSoft,
-    PlanBadge.available => AppColors.surfaceVariant,
-  };
 }
 
 class _PlanLimitBlock extends StatelessWidget {

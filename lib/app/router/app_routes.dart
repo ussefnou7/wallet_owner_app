@@ -12,6 +12,9 @@ abstract final class AppRoutes {
   static const ownerBranches = '/owner/branches';
   static const ownerPlans = '/owner/plans';
   static const ownerRequestRenewal = '/owner/request-renewal';
+  static const ownerCreateRenewalRequest = '/owner/request-renewal/new';
+  static const ownerSupport = '/owner/support';
+  static const ownerCreateSupport = '/owner/support/new';
   static const ownerSettings = '/owner/settings';
 
   static const userDashboard = '/user/dashboard';
@@ -28,5 +31,8 @@ abstract final class AppRoutes {
   static const branches = ownerBranches;
   static const plans = ownerPlans;
   static const requestRenewal = ownerRequestRenewal;
+  static const createRenewalRequest = ownerCreateRenewalRequest;
+  static const support = ownerSupport;
+  static const createSupport = ownerCreateSupport;
   static const settings = ownerSettings;
 }

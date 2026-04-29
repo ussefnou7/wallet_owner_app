@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:wallet_owner_app/core/errors/app_failure.dart';
+import 'package:wallet_owner_app/core/errors/app_exception.dart';
 import 'package:wallet_owner_app/core/network/api_result.dart';
 import 'package:wallet_owner_app/core/storage/app_secure_storage.dart';
 import 'package:wallet_owner_app/features/auth/data/models/login_request_model.dart';
@@ -92,7 +92,7 @@ void main() {
   );
 
   test(
-    'repository maps unauthorized login failures to a user-friendly message',
+    'repository preserves unauthorized backend login message',
     () async {
       SharedPreferences.setMockInitialValues({});
       final sharedPreferences = await SharedPreferences.getInstance();
@@ -102,17 +102,21 @@ void main() {
           sharedPreferences: sharedPreferences,
         ),
         remoteDataSource: _FakeAuthRemoteDataSource.failure(
-          const UnauthorizedFailure('Unauthorized', statusCode: 401),
+          const AppException(
+            code: 'UNAUTHORIZED',
+            message: 'Unauthorized',
+            status: 401,
+          ),
         ),
       );
 
       await expectLater(
         repository.login(username: 'owner1', password: 'bad-password'),
         throwsA(
-          isA<AppFailureException>().having(
-            (error) => error.failure.message,
+          isA<AppException>().having(
+            (error) => error.message,
             'message',
-            'Invalid username or password.',
+            'Unauthorized',
           ),
         ),
       );
@@ -124,7 +128,7 @@ class _FakeAuthRemoteDataSource implements AuthRemoteDataSource {
   _FakeAuthRemoteDataSource.success(LoginResponseModel response)
     : _result = ApiSuccess(response);
 
-  _FakeAuthRemoteDataSource.failure(AppFailure failure)
+  _FakeAuthRemoteDataSource.failure(AppException failure)
     : _result = ApiError(failure);
 
   final ApiResult<LoginResponseModel> _result;

@@ -1,4 +1,3 @@
-import '../../../../core/errors/app_failure.dart';
 import '../../../../core/network/api_result.dart';
 import '../../domain/entities/dashboard_overview.dart';
 import '../../domain/entities/dashboard_transaction_summary.dart';
@@ -30,7 +29,7 @@ class AppDashboardRepository implements DashboardRepository {
   T _unwrap<T>(ApiResult<T> result) {
     return result.when(
       success: (data) => data,
-      failure: (failure) => throw AppFailureException(failure),
+      failure: (failure) => throw failure,
     );
   }
 }

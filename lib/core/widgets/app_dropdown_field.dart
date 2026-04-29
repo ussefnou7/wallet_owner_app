@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class AppDropdownField<T> extends StatelessWidget {
   const AppDropdownField({
     required this.items,
+    this.fieldKey,
     this.value,
     this.label,
     this.hintText,
@@ -12,6 +13,7 @@ class AppDropdownField<T> extends StatelessWidget {
     super.key,
   });
 
+  final Key? fieldKey;
   final List<DropdownMenuItem<T>> items;
   final T? value;
   final String? label;
@@ -23,6 +25,7 @@ class AppDropdownField<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<T>(
+      key: fieldKey,
       initialValue: value,
       items: items,
       onChanged: onChanged,

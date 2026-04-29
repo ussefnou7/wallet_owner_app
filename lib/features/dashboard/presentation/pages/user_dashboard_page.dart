@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/utils/formatters.dart';
@@ -38,9 +39,12 @@ class _UserDashboardPageState extends ConsumerState<UserDashboardPage> {
   @override
   Widget build(BuildContext context) {
     final transactionsState = ref.watch(transactionsControllerProvider);
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      padding: EdgeInsets.only(
+        bottom: bottomInset + AppDimensions.floatingBottomNavContentPadding,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

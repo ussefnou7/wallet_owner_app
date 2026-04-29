@@ -538,7 +538,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Only filters supported by the selected report are shown.';
 
   @override
-  String get loadingReports => 'Loading reports...';
+  String get loadingReports => 'Loading reports....';
 
   @override
   String get unableToLoadReports => 'Unable to load reports right now.';
@@ -953,6 +953,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maxBranches => 'Max Branches';
 
   @override
+  String planPrice(num price) {
+    return '$price EGP';
+  }
+
+  @override
   String get enterpriseUpgradeComingSoon =>
       'Enterprise upgrade review will be connected in a later phase.';
 
@@ -983,4 +988,156 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get walletDeleteError => 'Unable to delete wallet. Please try again.';
+
+  @override
+  String get support => 'Support';
+
+  @override
+  String get supportTickets => 'Support Tickets';
+
+  @override
+  String get supportSubtitle =>
+      'Need help? Send a support request to our team.';
+
+  @override
+  String get newTicket => 'New Ticket';
+
+  @override
+  String get noSupportTicketsYet => 'There are no support tickets yet.';
+
+  @override
+  String get invalidUsernameOrPassword => 'Invalid username or password';
+
+  @override
+  String get fileTooLarge => 'File is too large';
+
+  @override
+  String get unsupportedFileType => 'Unsupported file type';
+
+  @override
+  String get validationError => 'Please check the entered data';
+
+  @override
+  String get forbiddenError =>
+      'You do not have permission to perform this action';
+
+  @override
+  String get somethingWentWrong => 'Something went wrong';
+
+  @override
+  String get branchLimitReachedForCurrentPlan =>
+      'Branch limit reached for current plan';
+
+  @override
+  String get userLimitReachedForCurrentPlan =>
+      'User limit reached for current plan';
+
+  @override
+  String get walletLimitReachedForCurrentPlan =>
+      'Wallet limit reached for current plan';
+
+  @override
+  String get dataConflict => 'This action conflicts with existing data';
+
+  @override
+  String get unableToSubmitSupportRequest => 'Unable to submit support request';
+
+  @override
+  String get tryAgain => 'Try again';
+
+  @override
+  String get subject => 'Subject';
+
+  @override
+  String get subjectRequired => 'Subject is required';
+
+  @override
+  String get createdAt => 'Created at';
+
+  @override
+  String get descriptionRequired => 'Description is required';
+
+  @override
+  String get priority => 'Priority';
+
+  @override
+  String get priorityRequired => 'Priority is required';
+
+  @override
+  String get resolvedAt => 'Resolved at';
+
+  @override
+  String get sendSupportRequest => 'Send Support Request';
+
+  @override
+  String get supportRequestSent => 'Support request sent successfully.';
+
+  @override
+  String get unableToSendSupportRequest =>
+      'Unable to send support request. Please try again.';
+
+  @override
+  String get unableToLoadSupportTickets =>
+      'Unable to load support tickets. Please try again.';
+
+  @override
+  String get low => 'Low';
+
+  @override
+  String get medium => 'Medium';
+
+  @override
+  String get high => 'High';
+
+  @override
+  String get renewalRequest => 'Renewal Request';
+
+  @override
+  String get renewalRequests => 'Renewal Requests';
+
+  @override
+  String get renewalRequestSubtitle =>
+      'Request a subscription renewal for your workspace.';
+
+  @override
+  String get newRequest => 'New Request';
+
+  @override
+  String get noRenewalRequestsYet => 'There are no renewal requests yet.';
+
+  @override
+  String get submitRenewalRequest => 'Submit Renewal Request';
+
+  @override
+  String get renewalRequestSubmitted =>
+      'Renewal request submitted successfully.';
+
+  @override
+  String get unableToSubmitRenewalRequest => 'Unable to submit renewal request';
+
+  @override
+  String get unableToLoadRenewalRequests =>
+      'Unable to load renewal requests. Please try again.';
+
+  @override
+  String get requestedAt => 'Requested at';
+
+  @override
+  String get reviewedAt => 'Reviewed at';
+
+  @override
+  String get adminNote => 'Admin Note';
+
+  @override
+  String get periodMonths => 'Period (Months)';
+
+  @override
+  String get periodMonthsRequired => 'Period is required';
+
+  @override
+  String get positivePeriodRequired => 'Enter a positive number of months';
+
+  @override
+  String get password_optional_hint =>
+      'Leave empty if you don\'t want to change it';
 }

@@ -1,4 +1,3 @@
-import '../../../../core/errors/app_failure.dart';
 import '../../domain/entities/session.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../models/login_request_model.dart';
@@ -34,13 +33,7 @@ class AppAuthRepository implements AuthRepository {
         await _sessionLocalDataSource.saveSession(session);
         return session;
       },
-      failure: (failure) => throw AppFailureException(switch (failure) {
-        UnauthorizedFailure() => UnauthorizedFailure(
-          'Invalid username or password.',
-          statusCode: failure.statusCode,
-        ),
-        _ => failure,
-      }),
+      failure: (failure) => throw failure,
     );
   }
 

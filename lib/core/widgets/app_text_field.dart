@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 class AppTextField extends StatelessWidget {
   const AppTextField({
+    this.fieldKey,
     this.controller,
     this.label,
     this.hintText,
@@ -18,9 +19,11 @@ class AppTextField extends StatelessWidget {
     this.enabled = true,
     this.inputFormatters,
     this.onChanged,
+    this.focusNode,
     super.key,
   });
 
+  final Key? fieldKey;
   final TextEditingController? controller;
   final String? label;
   final String? hintText;
@@ -36,10 +39,12 @@ class AppTextField extends StatelessWidget {
   final bool enabled;
   final List<TextInputFormatter>? inputFormatters;
   final ValueChanged<String>? onChanged;
+  final FocusNode? focusNode;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      key: fieldKey,
       controller: controller,
       keyboardType: keyboardType,
       textInputAction: textInputAction,
@@ -51,6 +56,7 @@ class AppTextField extends StatelessWidget {
       enabled: enabled,
       inputFormatters: inputFormatters,
       onChanged: onChanged,
+      focusNode: focusNode,
       decoration: InputDecoration(
         labelText: label,
         hintText: hintText,

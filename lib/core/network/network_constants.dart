@@ -11,6 +11,8 @@ abstract final class NetworkConstants {
       '/api/v1/reports/dashboard/overview';
   static const reportsTransactionsSummaryPath =
       '/api/v1/reports/transactions/summary';
+  static const supportTicketsPath = '/api/v1/support/tickets';
+  static const renewalRequestsPath = '/api/v1/renewal-requests';
 
   static String branchPath(String branchId) => '$branchesPath/$branchId';
 

@@ -455,7 +455,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get openPlansSubtitle => 'راجع مستويات الباقات والحدود المتاحة.';
 
   @override
-  String get requestRenewalSubtitle => 'أرسل طلب تجديد أو ترقية تجريبي.';
+  String get requestRenewalSubtitle => 'أرسل طلب تجديد أو ترقية.';
 
   @override
   String get preferences => 'التفضيلات';
@@ -940,6 +940,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get maxBranches => 'الحد الأقصى للفروع';
 
   @override
+  String planPrice(num price) {
+    return '$price جنيه';
+  }
+
+  @override
   String get enterpriseUpgradeComingSoon =>
       'سيتم ربط مراجعة ترقية Enterprise في مرحلة لاحقة.';
 
@@ -968,4 +973,154 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get walletDeleteError => 'تعذر حذف المحفظة. حاول مرة أخرى.';
+
+  @override
+  String get support => 'الدعم الفني';
+
+  @override
+  String get supportTickets => 'تذاكر الدعم الفني';
+
+  @override
+  String get supportSubtitle => 'هل تحتاج مساعدة؟ أرسل طلب دعم إلى فريقنا.';
+
+  @override
+  String get newTicket => 'تذكرة جديدة';
+
+  @override
+  String get noSupportTicketsYet => 'لا توجد تذاكر دعم حتى الآن.';
+
+  @override
+  String get invalidUsernameOrPassword =>
+      'اسم المستخدم أو كلمة المرور غير صحيحة';
+
+  @override
+  String get fileTooLarge => 'حجم الملف كبير جدًا';
+
+  @override
+  String get unsupportedFileType => 'نوع الملف غير مدعوم';
+
+  @override
+  String get validationError => 'يرجى مراجعة البيانات المدخلة';
+
+  @override
+  String get forbiddenError => 'لا تملك صلاحية تنفيذ هذا الإجراء';
+
+  @override
+  String get somethingWentWrong => 'حدث خطأ ما';
+
+  @override
+  String get branchLimitReachedForCurrentPlan =>
+      'تم الوصول للحد الأقصى للفروع في الخطة الحالية';
+
+  @override
+  String get userLimitReachedForCurrentPlan =>
+      'تم الوصول للحد الأقصى للمستخدمين في الخطة الحالية';
+
+  @override
+  String get walletLimitReachedForCurrentPlan =>
+      'تم الوصول للحد الأقصى للمحافظ في الخطة الحالية';
+
+  @override
+  String get dataConflict => 'يوجد تعارض مع بيانات موجودة';
+
+  @override
+  String get unableToSubmitSupportRequest => 'تعذر إرسال طلب الدعم';
+
+  @override
+  String get tryAgain => 'حاول مرة أخرى';
+
+  @override
+  String get subject => 'الموضوع';
+
+  @override
+  String get subjectRequired => 'الموضوع مطلوب';
+
+  @override
+  String get createdAt => 'تاريخ الإنشاء';
+
+  @override
+  String get descriptionRequired => 'الوصف مطلوب';
+
+  @override
+  String get priority => 'الأولوية';
+
+  @override
+  String get priorityRequired => 'الأولوية مطلوبة';
+
+  @override
+  String get resolvedAt => 'تاريخ الحل';
+
+  @override
+  String get sendSupportRequest => 'إرسال طلب الدعم';
+
+  @override
+  String get supportRequestSent => 'تم إرسال طلب الدعم بنجاح.';
+
+  @override
+  String get unableToSendSupportRequest =>
+      'تعذر إرسال طلب الدعم. حاول مرة أخرى.';
+
+  @override
+  String get unableToLoadSupportTickets =>
+      'تعذر تحميل تذاكر الدعم. حاول مرة أخرى.';
+
+  @override
+  String get low => 'منخفضة';
+
+  @override
+  String get medium => 'متوسطة';
+
+  @override
+  String get high => 'عالية';
+
+  @override
+  String get renewalRequest => 'طلب تجديد';
+
+  @override
+  String get renewalRequests => 'طلبات التجديد';
+
+  @override
+  String get renewalRequestSubtitle =>
+      'اطلب تجديد اشتراك مساحة العمل الخاصة بك.';
+
+  @override
+  String get newRequest => 'طلب جديد';
+
+  @override
+  String get noRenewalRequestsYet => 'لا توجد طلبات تجديد حتى الآن.';
+
+  @override
+  String get submitRenewalRequest => 'إرسال طلب التجديد';
+
+  @override
+  String get renewalRequestSubmitted => 'تم إرسال طلب التجديد بنجاح.';
+
+  @override
+  String get unableToSubmitRenewalRequest => 'تعذر إرسال طلب التجديد';
+
+  @override
+  String get unableToLoadRenewalRequests =>
+      'تعذر تحميل طلبات التجديد. حاول مرة أخرى.';
+
+  @override
+  String get requestedAt => 'تاريخ الطلب';
+
+  @override
+  String get reviewedAt => 'تاريخ المراجعة';
+
+  @override
+  String get adminNote => 'ملاحظة الإدارة';
+
+  @override
+  String get periodMonths => 'المدة (بالشهور)';
+
+  @override
+  String get periodMonthsRequired => 'المدة مطلوبة';
+
+  @override
+  String get positivePeriodRequired => 'أدخل عدد شهور صحيح';
+
+  @override
+  String get password_optional_hint =>
+      'Leave empty if you don\'t want to change it';
 }

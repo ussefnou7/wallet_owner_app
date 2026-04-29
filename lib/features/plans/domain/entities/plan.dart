@@ -1,38 +1,41 @@
 import 'package:equatable/equatable.dart';
 
-enum PlanBadge { current, recommended, available }
-
 class Plan extends Equatable {
   const Plan({
     required this.id,
     required this.name,
     required this.description,
+    required this.price,
     required this.maxUsers,
     required this.maxWallets,
     required this.maxBranches,
-    this.badge = PlanBadge.available,
+    required this.active,
+    this.createdAt,
+    this.updatedAt,
   });
 
   final String id;
   final String name;
   final String description;
+  final num price;
   final int maxUsers;
   final int maxWallets;
   final int maxBranches;
-  final PlanBadge badge;
-
-  bool get isCurrent => badge == PlanBadge.current;
-
-  bool get isRecommended => badge == PlanBadge.recommended;
+  final bool active;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   @override
   List<Object?> get props => [
     id,
     name,
     description,
+    price,
     maxUsers,
     maxWallets,
     maxBranches,
-    badge,
+    active,
+    createdAt,
+    updatedAt,
   ];
 }

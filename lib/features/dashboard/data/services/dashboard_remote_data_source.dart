@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/errors/app_failure.dart';
+import '../../../../core/errors/app_exception.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exception_mapper.dart';
 import '../../../../core/network/api_result.dart';
@@ -162,8 +162,9 @@ class DioDashboardRemoteDataSource implements DashboardRemoteDataSource {
       return payload;
     }
 
-    throw const AppFailureException(
-      UnknownFailure('Unexpected dashboard report response structure.'),
+    throw const AppException(
+      code: 'UNKNOWN_ERROR',
+      message: 'Unexpected dashboard report response structure.',
     );
   }
 

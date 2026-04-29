@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/errors/app_exception.dart';
+import '../../../../core/errors/error_message_mapper.dart';
 import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_buttons.dart';
 import '../../../../core/widgets/app_empty_state.dart';
@@ -164,131 +166,26 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     BuildContext context, {
     AppUser? user,
   }) async {
-    final l10n = appL10n(context);
-    final usernameController = TextEditingController(text: user?.username ?? '');
-    final passwordController = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-    var active = user?.active ?? true;
-
-    final submitted = await showDialog<bool>(
+    final action = await showDialog<_UserFormResult>(
       context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              title: Text(user == null ? l10n.createUser : l10n.editUser),
-              content: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextFormField(
-                      controller: usernameController,
-                      decoration: InputDecoration(
-                        labelText: l10n.username,
-                        prefixIcon: const Icon(Icons.person_outline_rounded),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return l10n.usernameRequired;
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    TextFormField(
-                      controller: passwordController,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: l10n.password,
-                        prefixIcon: const Icon(Icons.lock_outline_rounded),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return l10n.passwordRequired;
-                        }
-                        return null;
-                      },
-                    ),
-                    if (user != null) ...[
-                      const SizedBox(height: AppSpacing.md),
-                      SwitchListTile.adaptive(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(l10n.active),
-                        value: active,
-                        onChanged: (value) {
-                          setDialogState(() => active = value);
-                        },
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: Text(l10n.cancel),
-                ),
-                FilledButton(
-                  onPressed: () {
-                    if (formKey.currentState?.validate() == true) {
-                      Navigator.of(context).pop(true);
-                    }
-                  },
-                  child: Text(l10n.save),
-                ),
-              ],
-            );
-          },
-        );
-      },
+      barrierDismissible: false,
+      builder: (dialogContext) => _UserFormDialog(user: user),
     );
 
-    if (submitted != true || !context.mounted) {
-      usernameController.dispose();
-      passwordController.dispose();
+    if (action == null || !context.mounted) {
       return;
     }
 
-    try {
-      if (user == null) {
-        await ref
-            .read(usersControllerProvider.notifier)
-            .createUser(
-              usernameController.text.trim(),
-              passwordController.text,
-            );
-        if (!context.mounted) {
-          return;
-        }
+    final l10n = appL10n(context);
+    switch (action) {
+      case _UserFormResult.created:
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.userCreatedSuccessfully)),
         );
-      } else {
-        await ref
-            .read(usersControllerProvider.notifier)
-            .updateUser(
-              user.id,
-              usernameController.text.trim(),
-              passwordController.text,
-              active,
-            );
-        if (!context.mounted) {
-          return;
-        }
+      case _UserFormResult.updated:
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.userUpdatedSuccessfully)),
         );
-      }
-    } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.unableToLoadUsers)),
-        );
-      }
-    } finally {
-      usernameController.dispose();
-      passwordController.dispose();
     }
   }
 
@@ -326,10 +223,10 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.userDeletedSuccessfully)),
       );
-    } catch (_) {
+    } on AppException catch (error) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.unableToLoadUsers)),
+          SnackBar(content: Text(ErrorMessageMapper.getMessage(error))),
         );
       }
     }
@@ -403,10 +300,10 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.userAssignedToBranchSuccessfully)),
       );
-    } catch (_) {
+    } on AppException catch (error) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.unableToLoadUsers)),
+          SnackBar(content: Text(ErrorMessageMapper.getMessage(error))),
         );
       }
     }
@@ -448,12 +345,223 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.userUnassignedFromBranchSuccessfully)),
       );
-    } catch (_) {
+    } on AppException catch (error) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.unableToLoadUsers)),
+          SnackBar(content: Text(ErrorMessageMapper.getMessage(error))),
         );
       }
+    }
+  }
+}
+
+enum _UserFormResult { created, updated }
+
+class _UserFormDialog extends ConsumerStatefulWidget {
+  const _UserFormDialog({this.user});
+
+  final AppUser? user;
+
+  @override
+  ConsumerState<_UserFormDialog> createState() => _UserFormDialogState();
+}
+
+class _UserFormDialogState extends ConsumerState<_UserFormDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _usernameController;
+  late final TextEditingController _passwordController;
+  late bool _active;
+  bool _isSubmitting = false;
+  AppException? _submitError;
+
+  bool get _isEditMode => widget.user != null;
+
+  @override
+  void initState() {
+    super.initState();
+    _usernameController = TextEditingController(
+      text: widget.user?.username ?? '',
+    );
+    _passwordController = TextEditingController();
+    _active = widget.user?.active ?? true;
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = appL10n(context);
+    final theme = Theme.of(context);
+
+    return PopScope(
+      canPop: !_isSubmitting,
+      child: AlertDialog(
+        title: Text(
+          _isEditMode ? l10n.editUser : l10n.createUser,
+          style: theme.textTheme.titleLarge, // Smaller title font
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm, // Reduced vertical padding
+        ),
+        content: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _usernameController,
+                style: theme.textTheme.bodyMedium, // Smaller input text
+                decoration: InputDecoration(
+                  labelText: l10n.username,
+                  labelStyle: theme.textTheme.bodyMedium, // Smaller label
+                  prefixIcon: const Icon(Icons.person_outline_rounded),
+                  isDense: true, // Dense input
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                    vertical: AppSpacing.xs, // Smaller content padding
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return l10n.usernameRequired;
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: AppSpacing.sm), // Reduced spacing
+              TextFormField(
+                controller: _passwordController,
+                obscureText: true,
+                style: theme.textTheme.bodyMedium, // Smaller input text
+                decoration: InputDecoration(
+                  labelText: l10n.password,
+                  labelStyle: theme.textTheme.bodyMedium, // Smaller label
+                  prefixIcon: const Icon(Icons.lock_outline_rounded),
+                  isDense: true, // Dense input
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                    vertical: AppSpacing.xs, // Smaller content padding
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return l10n.passwordRequired;
+                  }
+                  return null;
+                },
+              ),
+              if (_isEditMode) ...[
+                const SizedBox(height: AppSpacing.sm), // Reduced spacing
+                SwitchListTile.adaptive(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    l10n.active,
+                    style: theme.textTheme.bodyMedium, // Smaller switch label
+                  ),
+                  value: _active,
+                  onChanged: (value) {
+                    if (!mounted) {
+                      return;
+                    }
+                    setState(() => _active = value);
+                  },
+                ),
+              ],
+              if (!_isEditMode && _submitError != null) ...[
+                const SizedBox(height: AppSpacing.sm), // Reduced spacing
+                AppErrorState(
+                  key: const Key('user_inline_error'),
+                  message: ErrorMessageMapper.getLocalizedMessage(
+                    context,
+                    _submitError,
+                  ),
+                  compact: true,
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: _isSubmitting ? null : _cancel,
+            child: Text(
+              l10n.cancel,
+              style: theme.textTheme.labelMedium, // Smaller button text
+            ),
+          ),
+          FilledButton(
+            onPressed: _isSubmitting ? null : _submit,
+            child: _isSubmitting
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(
+                    l10n.save,
+                    style: theme.textTheme.labelMedium, // Smaller button text
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _cancel() {
+    FocusScope.of(context).unfocus();
+    Navigator.of(context).pop();
+  }
+
+  Future<void> _submit() async {
+    FocusScope.of(context).unfocus();
+    if (_formKey.currentState?.validate() != true) {
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _isSubmitting = true;
+      _submitError = null;
+    });
+
+    try {
+      final notifier = ref.read(usersControllerProvider.notifier);
+      if (_isEditMode) {
+        await notifier.updateUser(
+          widget.user!.id,
+          _usernameController.text.trim(),
+          _passwordController.text,
+          _active,
+        );
+      } else {
+        await notifier.createUser(
+          _usernameController.text.trim(),
+          _passwordController.text,
+        );
+      }
+
+      if (!mounted) {
+        return;
+      }
+      Navigator.of(context).pop(
+        _isEditMode ? _UserFormResult.updated : _UserFormResult.created,
+      );
+    } on AppException catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isSubmitting = false;
+        _submitError = error;
+      });
     }
   }
 }

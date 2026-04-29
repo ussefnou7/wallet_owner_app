@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/errors/app_failure.dart';
+import '../../../../core/errors/app_exception.dart';
+import '../../data/services/wallets_remote_data_source.dart';
 import '../../domain/entities/wallet.dart';
 import '../../domain/repositories/wallets_repository.dart';
-import '../../data/services/wallets_remote_data_source.dart';
 
 final walletsSearchQueryProvider = StateProvider<String>((ref) => '');
 
@@ -12,7 +12,7 @@ final walletTypesProvider = FutureProvider<List<String>>((ref) async {
   final result = await remoteDataSource.getWalletTypes();
   return result.when(
     success: (data) => data,
-    failure: (failure) => throw AppFailureException(failure),
+    failure: (failure) => throw failure,
   );
 });
 
@@ -28,7 +28,7 @@ final filteredWalletsProvider = Provider<List<Wallet>>((ref) {
   final state = ref.watch(walletsControllerProvider);
   final query = ref.watch(walletsSearchQueryProvider).trim().toLowerCase();
 
-  final wallets = state.data ?? [];
+  final wallets = state.data;
   if (query.isEmpty) {
     return wallets;
   }
@@ -60,7 +60,7 @@ class WalletListState {
 
   final List<Wallet> data;
   final bool isLoading;
-  final String? error;
+  final AppException? error;
   final bool isCreating;
   final bool isUpdating;
   final bool isDeleting;
@@ -68,7 +68,7 @@ class WalletListState {
   WalletListState copyWith({
     List<Wallet>? data,
     bool? isLoading,
-    String? error,
+    AppException? error,
     bool? isCreating,
     bool? isUpdating,
     bool? isDeleting,
@@ -87,22 +87,22 @@ class WalletListState {
 
 class WalletsController extends StateNotifier<WalletListState> {
   WalletsController(this._repository, this._ref)
-      : super(const WalletListState()) {
+    : super(const WalletListState()) {
     _loadWallets();
   }
 
   final WalletsRepository _repository;
-  final StateNotifierProviderRef _ref;
+  final Ref _ref;
 
   Future<void> _loadWallets() async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final wallets = await _repository.getWallets();
       state = state.copyWith(data: wallets, isLoading: false);
-    } catch (_) {
+    } on AppException catch (error) {
       state = state.copyWith(
         isLoading: false,
-        error: 'wallet_load_error',
+        error: error,
       );
     }
   }
@@ -130,10 +130,10 @@ class WalletsController extends StateNotifier<WalletListState> {
         tenantId: tenantId,
       );
       await _loadWallets();
-    } catch (_) {
+    } on AppException catch (error) {
       state = state.copyWith(
         isCreating: false,
-        error: 'wallet_create_error',
+        error: error,
       );
     }
   }
@@ -151,10 +151,10 @@ class WalletsController extends StateNotifier<WalletListState> {
         active: active,
       );
       await _loadWallets();
-    } catch (_) {
+    } on AppException catch (error) {
       state = state.copyWith(
         isUpdating: false,
-        error: 'wallet_update_error',
+        error: error,
       );
     }
   }
@@ -164,10 +164,10 @@ class WalletsController extends StateNotifier<WalletListState> {
     try {
       await _repository.deleteWallet(walletId);
       await _loadWallets();
-    } catch (_) {
+    } on AppException catch (error) {
       state = state.copyWith(
         isDeleting: false,
-        error: 'wallet_delete_error',
+        error: error,
       );
     }
   }

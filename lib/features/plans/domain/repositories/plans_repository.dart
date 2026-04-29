@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../entities/subscription_catalog.dart';
+import '../entities/plan.dart';
 
 final plansRepositoryProvider = Provider<PlansRepository>((ref) {
   throw UnimplementedError(
@@ -9,5 +9,5 @@ final plansRepositoryProvider = Provider<PlansRepository>((ref) {
 });
 
 abstract interface class PlansRepository {
-  Future<SubscriptionCatalog> getSubscriptionCatalog();
+  Future<List<Plan>> getPlans();
 }

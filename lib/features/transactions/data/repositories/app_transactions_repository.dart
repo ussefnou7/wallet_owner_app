@@ -1,4 +1,3 @@
-import '../../../../core/errors/app_failure.dart';
 import '../../../../core/network/api_result.dart';
 import '../../domain/entities/transaction_draft.dart';
 import '../../domain/entities/transaction_record.dart';
@@ -64,7 +63,7 @@ class AppTransactionsRepository implements TransactionsRepository {
   T _unwrap<T>(ApiResult<T> result) {
     return result.when(
       success: (data) => data,
-      failure: (failure) => throw AppFailureException(failure),
+      failure: (failure) => throw failure,
     );
   }
 }

@@ -1,216 +1,281 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
 import '../../../../app/router/app_routes.dart';
+import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
+import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_l10n.dart';
+import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_buttons.dart';
-import '../../../../core/widgets/app_dropdown_field.dart';
+import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
-import '../../../../core/widgets/app_form_section.dart';
 import '../../../../core/widgets/app_loading_view.dart';
 import '../../../../core/widgets/app_page_scaffold.dart';
 import '../../../../core/widgets/app_section_header.dart';
-import '../../../../core/widgets/app_text_field.dart';
-import '../../../../core/widgets/owner_app_drawer.dart';
-import '../../../../core/widgets/subscription_summary_card.dart';
-import '../../../plans/presentation/controllers/plans_controller.dart';
-import '../../data/models/renewal_request_model.dart';
-import '../controllers/request_renewal_controller.dart';
-import '../widgets/renewal_success_banner.dart';
+import '../../../../core/widgets/app_status_badge.dart';
+import '../../domain/entities/renewal_request_item.dart';
+import '../controllers/renewal_requests_controller.dart';
 
-class RequestRenewalPage extends ConsumerStatefulWidget {
+class RequestRenewalPage extends ConsumerWidget {
   const RequestRenewalPage({super.key});
 
   @override
-  ConsumerState<RequestRenewalPage> createState() => _RequestRenewalPageState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = appL10n(context);
+    final requestsState = ref.watch(renewalRequestsControllerProvider);
+
+    return AppPageScaffold(
+      title: l10n.renewalRequests,
+      embedded: true,
+      maxWidth: AppDimensions.contentMaxWidth,
+      child: requestsState.when(
+        loading: () => AppLoadingView(message: '${l10n.loading}...'),
+        error: (error, stackTrace) => _RenewalRequestsErrorState(
+          onRetry: () =>
+              ref.read(renewalRequestsControllerProvider.notifier).reload(),
+        ),
+        data: (requests) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppSectionHeader(
+                  title: l10n.renewalRequests,
+                  subtitle: l10n.renewalRequestSubtitle,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                SizedBox(
+                  width: double.infinity,
+                  child: AppPrimaryButton(
+                    buttonKey: const Key('renewal_new_request_button'),
+                    label: l10n.newRequest,
+                    icon: const Icon(Icons.add_rounded),
+                    onPressed: () =>
+                        context.push(AppRoutes.ownerCreateRenewalRequest),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                if (requests.isEmpty)
+                  _RenewalRequestsEmptyState(
+                    onCreatePressed: () =>
+                        context.push(AppRoutes.ownerCreateRenewalRequest),
+                  )
+                else
+                  Column(
+                    key: const Key('renewal_request_card'),
+                    children: [
+                      for (var index = 0; index < requests.length; index++) ...[
+                        _RenewalRequestCard(request: requests[index]),
+                        if (index != requests.length - 1)
+                          const SizedBox(height: AppSpacing.md),
+                      ],
+                    ],
+                  ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
 }
 
-class _RequestRenewalPageState extends ConsumerState<RequestRenewalPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _noteController = TextEditingController();
-  String? _selectedPlanId;
+class _RenewalRequestsErrorState extends StatelessWidget {
+  const _RenewalRequestsErrorState({required this.onRetry});
 
-  @override
-  void dispose() {
-    _noteController.dispose();
-    super.dispose();
-  }
+  final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
-    final plansState = ref.watch(plansControllerProvider);
-    final renewalState = ref.watch(requestRenewalControllerProvider);
-    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    final l10n = appL10n(context);
 
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: AppPageScaffold(
-        title: 'Request Renewal',
-        actions: [
-          Builder(
-            builder: (context) {
-              return IconButton(
-                onPressed: () => Scaffold.of(context).openEndDrawer(),
-                icon: const Icon(Icons.menu_rounded),
-              );
-            },
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppSectionHeader(
+            title: l10n.renewalRequests,
+            subtitle: l10n.renewalRequestSubtitle,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          AppErrorState(
+            message: l10n.unableToLoadRenewalRequests,
+            onRetry: onRetry,
           ),
         ],
-        endDrawer: const OwnerAppDrawer(currentRoute: AppRoutes.requestRenewal),
-        embedded: true,
-        maxWidth: AppDimensions.compactContentMaxWidth,
-        child: AnimatedPadding(
-          duration: const Duration(milliseconds: 150),
-          curve: Curves.easeOut,
-          padding: EdgeInsets.only(bottom: bottomInset),
-          child: plansState.when(
-            loading: () =>
-                const AppLoadingView(message: 'Loading renewal options...'),
-            error: (error, stackTrace) => AppErrorState(
-              message: 'Unable to load renewal details right now.',
-              onRetry: () =>
-                  ref.read(plansControllerProvider.notifier).reload(),
-            ),
-            data: (catalog) {
-              final availablePlans = catalog.plans;
+      ),
+    );
+  }
+}
 
-              return SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const AppSectionHeader(
-                      title: 'Renewal Request',
-                      subtitle:
-                          'Confirm the current subscription, choose the next plan term, and send a request for follow-up.',
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    SubscriptionSummaryCard(
-                      summary: catalog.currentSubscription,
-                      subtitle:
-                          'Use this summary to decide whether to renew the same tier or request an upgrade.',
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    if (renewalState.lastResult != null) ...[
-                      RenewalSuccessBanner(
-                        requestId: renewalState.lastResult!.requestId,
-                        targetPlanName: renewalState.lastResult!.targetPlanName,
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                    ],
-                    if (renewalState.errorMessage != null) ...[
-                      AppErrorState(
-                        message: renewalState.errorMessage!,
-                        compact: true,
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                    ],
-                    AppFormSection(
-                      title: 'Request Details',
-                      subtitle:
-                          'This sends a mock renewal request only. No billing or payment action is triggered in this phase.',
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            AppDropdownField<String>(
-                              value: _selectedPlanId,
-                              label: 'Target plan',
-                              hintText: 'Select a plan',
-                              prefixIcon: const Icon(
-                                Icons.workspace_premium_outlined,
-                              ),
-                              items: availablePlans
-                                  .map(
-                                    (plan) => DropdownMenuItem<String>(
-                                      value: plan.id,
-                                      child: Text(plan.name),
-                                    ),
-                                  )
-                                  .toList(),
-                              onChanged: (value) {
-                                setState(() => _selectedPlanId = value);
-                              },
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please select a target plan';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: AppSpacing.md),
-                            AppTextField(
-                              controller: _noteController,
-                              label: 'Note',
-                              hintText:
-                                  'Optional context for the renewal request',
-                              maxLines: 4,
-                              textInputAction: TextInputAction.done,
-                              prefixIcon: const Icon(Icons.notes_rounded),
-                            ),
-                            const SizedBox(height: AppSpacing.lg),
-                            SizedBox(
-                              width: double.infinity,
-                              child: AppPrimaryButton(
-                                label: 'Submit Renewal Request',
-                                isLoading: renewalState.isSubmitting,
-                                onPressed: () => _submit(
-                                  currentPlanId:
-                                      catalog.currentSubscription.planId,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+class _RenewalRequestsEmptyState extends StatelessWidget {
+  const _RenewalRequestsEmptyState({required this.onCreatePressed});
+
+  final VoidCallback onCreatePressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = appL10n(context);
+
+    return Column(
+      children: [
+        AppEmptyState(
+          title: l10n.renewalRequests,
+          message: l10n.noRenewalRequestsYet,
+          icon: Icons.autorenew_rounded,
         ),
+        const SizedBox(height: AppSpacing.md),
+        AppSecondaryButton(label: l10n.newRequest, onPressed: onCreatePressed),
+      ],
+    );
+  }
+}
+
+class _RenewalRequestCard extends StatelessWidget {
+  const _RenewalRequestCard({required this.request});
+
+  final RenewalRequestItem request;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = appL10n(context);
+
+    return Container(
+      key: ValueKey('renewal_request_card_${request.requestId}'),
+      width: double.infinity,
+      padding: AppDimensions.sectionPadding,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadii.lg),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  request.phoneNumber,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              AppStatusBadge(
+                label: _statusLabel(request.status),
+                foregroundColor: _statusForegroundColor(request.status),
+                backgroundColor: _statusBackgroundColor(request.status),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          _InfoRow(label: l10n.amount, value: formatCurrency(request.amount)),
+          const SizedBox(height: AppSpacing.sm),
+          _InfoRow(
+            label: l10n.periodMonths,
+            value: request.periodMonths.toString(),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          _InfoRow(
+            label: l10n.requestedAt,
+            value: formatDateTime(request.createdAt),
+          ),
+          if (_shouldShowReviewedAt(request)) ...[
+            const SizedBox(height: AppSpacing.sm),
+            _InfoRow(
+              label: l10n.reviewedAt,
+              value: formatDateTime(request.reviewedAt!),
+            ),
+          ],
+          if ((request.adminNote ?? '').trim().isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.md),
+            Text(l10n.adminNote, style: Theme.of(context).textTheme.labelLarge),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              request.adminNote!.trim(),
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ],
+        ],
       ),
     );
   }
 
-  Future<void> _submit({required String currentPlanId}) async {
-    FocusScope.of(context).unfocus();
-    ref.read(requestRenewalControllerProvider.notifier).clearFeedback();
+  bool _shouldShowReviewedAt(RenewalRequestItem request) {
+    final normalizedStatus = request.status.toUpperCase();
+    return request.reviewedAt != null &&
+        (normalizedStatus == 'APPROVED' || normalizedStatus == 'REJECTED');
+  }
 
-    if (_formKey.currentState?.validate() != true) {
-      return;
+  String _statusLabel(String status) {
+    final normalized = status.trim();
+    if (normalized.isEmpty) {
+      return status;
     }
 
-    final request = RenewalRequestModel(
-      currentPlanId: currentPlanId,
-      targetPlanId: _selectedPlanId!,
-      note: _noteController.text.trim(),
-    );
+    return normalized
+        .toLowerCase()
+        .split('_')
+        .map((part) {
+          if (part.isEmpty) {
+            return part;
+          }
+          return '${part[0].toUpperCase()}${part.substring(1)}';
+        })
+        .join(' ');
+  }
 
-    final success = await ref
-        .read(requestRenewalControllerProvider.notifier)
-        .submit(request);
+  Color _statusForegroundColor(String status) {
+    return switch (status.toUpperCase()) {
+      'APPROVED' => AppColors.success,
+      'REJECTED' => AppColors.danger,
+      _ => AppColors.warning,
+    };
+  }
 
-    if (!success || !mounted) {
-      return;
-    }
+  Color _statusBackgroundColor(String status) {
+    return switch (status.toUpperCase()) {
+      'APPROVED' => AppColors.successSoft,
+      'REJECTED' => AppColors.dangerSoft,
+      _ => AppColors.warningSoft,
+    };
+  }
+}
 
-    final result = ref.read(requestRenewalControllerProvider).lastResult;
-    if (result == null) {
-      return;
-    }
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({required this.label, required this.value});
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Renewal request submitted for ${result.targetPlanName}.',
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+          ),
         ),
-      ),
+        const SizedBox(width: AppSpacing.md),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ),
+      ],
     );
-
-    _formKey.currentState?.reset();
-    _noteController.clear();
-    setState(() => _selectedPlanId = null);
   }
 }

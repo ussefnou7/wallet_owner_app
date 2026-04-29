@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../constants/app_dimensions.dart';
+import '../constants/app_colors.dart';
 import '../constants/app_spacing.dart';
 import '../localization/app_l10n.dart';
 import 'app_bottom_nav_bar.dart';
@@ -14,7 +14,7 @@ class AppShellScaffold extends StatelessWidget {
     required this.endDrawer,
     required this.onDestinationSelected,
     required this.child,
-    this.maxWidth = AppDimensions.contentMaxWidth,
+    this.maxWidth = 640.0,
     super.key,
   });
 
@@ -33,6 +33,8 @@ class AppShellScaffold extends StatelessWidget {
 
     return Scaffold(
       extendBody: true,
+      resizeToAvoidBottomInset: true,
+      backgroundColor: AppColors.background,
       endDrawer: endDrawer,
       body: Stack(
         children: [
@@ -42,7 +44,10 @@ class AppShellScaffold extends StatelessWidget {
                 SafeArea(
                   bottom: false,
                   child: Padding(
-                    padding: AppDimensions.screenPadding,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.md,
+                    ),
                     child: Builder(
                       builder: (context) {
                         return OwnerTopBar(
@@ -79,9 +84,9 @@ class AppShellScaffold extends StatelessWidget {
             ),
           ),
           Positioned(
-            left: 24,
-            right: 24,
-            bottom: bottomInset + 12,
+            left: 16,
+            right: 16,
+            bottom: bottomInset + 10,
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 440),

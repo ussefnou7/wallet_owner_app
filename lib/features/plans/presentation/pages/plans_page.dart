@@ -10,8 +10,6 @@ import '../../../../core/widgets/app_loading_view.dart';
 import '../../../../core/widgets/app_page_scaffold.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/owner_app_drawer.dart';
-import '../../../../core/widgets/subscription_summary_card.dart';
-import '../../domain/entities/plan.dart';
 import '../controllers/plans_controller.dart';
 import '../widgets/plan_card.dart';
 
@@ -44,8 +42,8 @@ class PlansPage extends ConsumerWidget {
           message: l10n.unableToLoadSubscriptionDetails,
           onRetry: () => ref.read(plansControllerProvider.notifier).reload(),
         ),
-        data: (catalog) {
-          if (catalog.plans.isEmpty) {
+        data: (plans) {
+          if (plans.isEmpty) {
             return AppEmptyState(
               title: l10n.noPlansAvailable,
               message: l10n.plansEmptyMessage,
@@ -62,33 +60,9 @@ class PlansPage extends ConsumerWidget {
                   subtitle: l10n.subscriptionPlansSubtitle,
                 ),
                 const SizedBox(height: AppSpacing.md),
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: IconButton.outlined(
-                    onPressed: () =>
-                        ref.read(plansControllerProvider.notifier).reload(),
-                    icon: const Icon(Icons.refresh_rounded),
-                    tooltip: l10n.refresh,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                SubscriptionSummaryCard(
-                  summary: catalog.currentSubscription,
-                  subtitle: l10n.subscriptionSummarySubtitle,
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                AppSectionHeader(
-                  title: l10n.availablePlans,
-                  subtitle: l10n.availablePlansSubtitle,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                for (var index = 0; index < catalog.plans.length; index++) ...[
-                  PlanCard(
-                    plan: catalog.plans[index],
-                    onPressed: () =>
-                        _showPlanActionFeedback(context, catalog.plans[index]),
-                  ),
-                  if (index != catalog.plans.length - 1)
+                for (var index = 0; index < plans.length; index++) ...[
+                  PlanCard(plan: plans[index]),
+                  if (index != plans.length - 1)
                     const SizedBox(height: AppSpacing.md),
                 ],
               ],
@@ -97,16 +71,5 @@ class PlansPage extends ConsumerWidget {
         },
       ),
     );
-  }
-
-  void _showPlanActionFeedback(BuildContext context, Plan plan) {
-    final l10n = appL10n(context);
-    final message = plan.isRecommended
-        ? l10n.enterpriseUpgradeComingSoon
-        : l10n.planSelectionComingSoon(plan.name);
-
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }

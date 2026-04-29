@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/errors/app_exception.dart';
 import '../../domain/entities/transaction_draft.dart';
 import '../../domain/entities/transaction_submission_result.dart';
 import '../../domain/repositories/transactions_repository.dart';
@@ -20,12 +21,12 @@ class CreateTransactionState {
   });
 
   final bool isSubmitting;
-  final String? errorMessage;
+  final AppException? errorMessage;
   final TransactionSubmissionResult? lastResult;
 
   CreateTransactionState copyWith({
     bool? isSubmitting,
-    String? errorMessage,
+    AppException? errorMessage,
     TransactionSubmissionResult? lastResult,
     bool clearError = false,
     bool clearResult = false,
@@ -56,10 +57,10 @@ class CreateTransactionController
       final result = await _repository.submitTransaction(draft);
       state = state.copyWith(isSubmitting: false, lastResult: result);
       return true;
-    } catch (_) {
+    } on AppException catch (error) {
       state = state.copyWith(
         isSubmitting: false,
-        errorMessage: 'transaction_save_error',
+        errorMessage: error,
       );
       return false;
     }

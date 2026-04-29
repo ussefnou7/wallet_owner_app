@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/errors/app_exception.dart';
+import '../../../../core/errors/error_message_mapper.dart';
 import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_buttons.dart';
 import '../../../../core/widgets/app_empty_state.dart';
@@ -176,9 +178,26 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
     BuildContext context, {
     Branch? branch,
   }) async {
+    if (branch == null) {
+      final submitted = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => const _CreateBranchDialog(),
+      );
+
+      if (submitted != true || !context.mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(appL10n(context).branchCreatedSuccessfully)),
+      );
+      return;
+    }
+
     final l10n = appL10n(context);
-    final controller = TextEditingController(text: branch?.name ?? '');
-    var active = branch?.status == BranchStatus.active;
+    final controller = TextEditingController(text: branch.name);
+    var active = branch.status == BranchStatus.active;
     final formKey = GlobalKey<FormState>();
 
     final submitted = await showDialog<bool>(
@@ -187,7 +206,7 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              title: Text(branch == null ? l10n.createBranch : l10n.editBranch),
+              title: Text(l10n.editBranch),
               content: Form(
                 key: formKey,
                 child: Column(
@@ -206,17 +225,15 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
                         return null;
                       },
                     ),
-                    if (branch != null) ...[
-                      const SizedBox(height: AppSpacing.md),
-                      SwitchListTile.adaptive(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(l10n.active),
-                        value: active,
-                        onChanged: (value) {
-                          setDialogState(() => active = value);
-                        },
-                      ),
-                    ],
+                    const SizedBox(height: AppSpacing.md),
+                    SwitchListTile.adaptive(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(l10n.active),
+                      value: active,
+                      onChanged: (value) {
+                        setDialogState(() => active = value);
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -246,31 +263,19 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
     }
 
     try {
-      if (branch == null) {
-        await ref
-            .read(branchesControllerProvider.notifier)
-            .createBranch(controller.text.trim());
-        if (!context.mounted) {
-          return;
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.branchCreatedSuccessfully)),
-        );
-      } else {
-        await ref
-            .read(branchesControllerProvider.notifier)
-            .updateBranch(branch.id, controller.text.trim(), active);
-        if (!context.mounted) {
-          return;
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.branchUpdatedSuccessfully)),
-        );
+      await ref
+          .read(branchesControllerProvider.notifier)
+          .updateBranch(branch.id, controller.text.trim(), active);
+      if (!context.mounted) {
+        return;
       }
-    } catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.branchUpdatedSuccessfully)),
+      );
+    } on AppException catch (error) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.unableToLoadBranches)),
+          SnackBar(content: Text(ErrorMessageMapper.getMessage(error))),
         );
       }
     } finally {
@@ -312,12 +317,130 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.branchDeletedSuccessfully)),
       );
-    } catch (_) {
+    } on AppException catch (error) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.unableToLoadBranches)),
+          SnackBar(content: Text(ErrorMessageMapper.getMessage(error))),
         );
       }
+    }
+  }
+}
+
+class _CreateBranchDialog extends ConsumerStatefulWidget {
+  const _CreateBranchDialog();
+
+  @override
+  ConsumerState<_CreateBranchDialog> createState() => _CreateBranchDialogState();
+}
+
+class _CreateBranchDialogState extends ConsumerState<_CreateBranchDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final _controller = TextEditingController();
+  bool _isSubmitting = false;
+  AppException? _submitError;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = appL10n(context);
+
+    return PopScope(
+      canPop: !_isSubmitting,
+      child: AlertDialog(
+        title: Text(l10n.createBranch),
+        content: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _controller,
+                decoration: InputDecoration(
+                  labelText: l10n.branchName,
+                  prefixIcon: const Icon(Icons.storefront_outlined),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return l10n.branchNameRequired;
+                  }
+                  return null;
+                },
+              ),
+              if (_submitError != null) ...[
+                const SizedBox(height: AppSpacing.md),
+                AppErrorState(
+                  key: const Key('branch_inline_error'),
+                  message: ErrorMessageMapper.getLocalizedMessage(
+                    context,
+                    _submitError,
+                  ),
+                  compact: true,
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: _isSubmitting ? null : _cancel,
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: _isSubmitting ? null : _submit,
+            child: _isSubmitting
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(l10n.save),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _cancel() {
+    FocusScope.of(context).unfocus();
+    Navigator.of(context).pop(false);
+  }
+
+  Future<void> _submit() async {
+    FocusScope.of(context).unfocus();
+    if (_formKey.currentState?.validate() != true) {
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _isSubmitting = true;
+      _submitError = null;
+    });
+
+    try {
+      await ref
+          .read(branchesControllerProvider.notifier)
+          .createBranch(_controller.text.trim());
+      if (!mounted) {
+        return;
+      }
+      Navigator.of(context).pop(true);
+    } on AppException catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isSubmitting = false;
+        _submitError = error;
+      });
     }
   }
 }

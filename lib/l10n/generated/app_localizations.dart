@@ -1097,7 +1097,7 @@ abstract class AppLocalizations {
   /// No description provided for @loadingReports.
   ///
   /// In en, this message translates to:
-  /// **'Loading reports...'**
+  /// **'Loading reports....'**
   String get loadingReports;
 
   /// No description provided for @unableToLoadReports.
@@ -1868,6 +1868,12 @@ abstract class AppLocalizations {
   /// **'Max Branches'**
   String get maxBranches;
 
+  /// No description provided for @planPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} EGP'**
+  String planPrice(num price);
+
   /// No description provided for @enterpriseUpgradeComingSoon.
   ///
   /// In en, this message translates to:
@@ -1921,6 +1927,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unable to delete wallet. Please try again.'**
   String get walletDeleteError;
+
+  /// No description provided for @support.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get support;
+
+  /// No description provided for @supportTickets.
+  ///
+  /// In en, this message translates to:
+  /// **'Support Tickets'**
+  String get supportTickets;
+
+  /// No description provided for @supportSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Need help? Send a support request to our team.'**
+  String get supportSubtitle;
+
+  /// No description provided for @newTicket.
+  ///
+  /// In en, this message translates to:
+  /// **'New Ticket'**
+  String get newTicket;
+
+  /// No description provided for @noSupportTicketsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no support tickets yet.'**
+  String get noSupportTicketsYet;
+
+  /// No description provided for @invalidUsernameOrPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid username or password'**
+  String get invalidUsernameOrPassword;
+
+  /// No description provided for @fileTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'File is too large'**
+  String get fileTooLarge;
+
+  /// No description provided for @unsupportedFileType.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsupported file type'**
+  String get unsupportedFileType;
+
+  /// No description provided for @validationError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check the entered data'**
+  String get validationError;
+
+  /// No description provided for @forbiddenError.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to perform this action'**
+  String get forbiddenError;
+
+  /// No description provided for @somethingWentWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get somethingWentWrong;
+
+  /// No description provided for @branchLimitReachedForCurrentPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch limit reached for current plan'**
+  String get branchLimitReachedForCurrentPlan;
+
+  /// No description provided for @userLimitReachedForCurrentPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'User limit reached for current plan'**
+  String get userLimitReachedForCurrentPlan;
+
+  /// No description provided for @walletLimitReachedForCurrentPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet limit reached for current plan'**
+  String get walletLimitReachedForCurrentPlan;
+
+  /// No description provided for @dataConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'This action conflicts with existing data'**
+  String get dataConflict;
+
+  /// No description provided for @unableToSubmitSupportRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to submit support request'**
+  String get unableToSubmitSupportRequest;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get tryAgain;
+
+  /// No description provided for @subject.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject'**
+  String get subject;
+
+  /// No description provided for @subjectRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject is required'**
+  String get subjectRequired;
+
+  /// No description provided for @createdAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created at'**
+  String get createdAt;
+
+  /// No description provided for @descriptionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Description is required'**
+  String get descriptionRequired;
+
+  /// No description provided for @priority.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority'**
+  String get priority;
+
+  /// No description provided for @priorityRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority is required'**
+  String get priorityRequired;
+
+  /// No description provided for @resolvedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved at'**
+  String get resolvedAt;
+
+  /// No description provided for @sendSupportRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Support Request'**
+  String get sendSupportRequest;
+
+  /// No description provided for @supportRequestSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Support request sent successfully.'**
+  String get supportRequestSent;
+
+  /// No description provided for @unableToSendSupportRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to send support request. Please try again.'**
+  String get unableToSendSupportRequest;
+
+  /// No description provided for @unableToLoadSupportTickets.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load support tickets. Please try again.'**
+  String get unableToLoadSupportTickets;
+
+  /// No description provided for @low.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get low;
+
+  /// No description provided for @medium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get medium;
+
+  /// No description provided for @high.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get high;
+
+  /// No description provided for @renewalRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Renewal Request'**
+  String get renewalRequest;
+
+  /// No description provided for @renewalRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Renewal Requests'**
+  String get renewalRequests;
+
+  /// No description provided for @renewalRequestSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Request a subscription renewal for your workspace.'**
+  String get renewalRequestSubtitle;
+
+  /// No description provided for @newRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'New Request'**
+  String get newRequest;
+
+  /// No description provided for @noRenewalRequestsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no renewal requests yet.'**
+  String get noRenewalRequestsYet;
+
+  /// No description provided for @submitRenewalRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Renewal Request'**
+  String get submitRenewalRequest;
+
+  /// No description provided for @renewalRequestSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Renewal request submitted successfully.'**
+  String get renewalRequestSubmitted;
+
+  /// No description provided for @unableToSubmitRenewalRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to submit renewal request'**
+  String get unableToSubmitRenewalRequest;
+
+  /// No description provided for @unableToLoadRenewalRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load renewal requests. Please try again.'**
+  String get unableToLoadRenewalRequests;
+
+  /// No description provided for @requestedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested at'**
+  String get requestedAt;
+
+  /// No description provided for @reviewedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewed at'**
+  String get reviewedAt;
+
+  /// No description provided for @adminNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Note'**
+  String get adminNote;
+
+  /// No description provided for @periodMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Period (Months)'**
+  String get periodMonths;
+
+  /// No description provided for @periodMonthsRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Period is required'**
+  String get periodMonthsRequired;
+
+  /// No description provided for @positivePeriodRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a positive number of months'**
+  String get positivePeriodRequired;
+
+  /// No description provided for @password_optional_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty if you don\'t want to change it'**
+  String get password_optional_hint;
 }
 
 class _AppLocalizationsDelegate

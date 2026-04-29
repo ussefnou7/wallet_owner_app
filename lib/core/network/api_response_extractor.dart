@@ -1,6 +1,6 @@
 import 'dart:developer' as developer;
 
-import '../errors/app_failure.dart';
+import '../errors/app_exception.dart';
 
 /// Utility for extracting and validating API response data.
 /// Ensures consistent handling across all remote data sources.
@@ -20,8 +20,9 @@ abstract final class ApiResponseExtractor {
     }
 
     _logError('Expected Map object, got ${payload.runtimeType}');
-    throw const AppFailureException(
-      UnknownFailure('Unexpected API response structure.'),
+    throw const AppException(
+      code: 'UNKNOWN_ERROR',
+      message: 'Unexpected API response structure.',
     );
   }
 
@@ -36,10 +37,9 @@ abstract final class ApiResponseExtractor {
 
     if (listPayload == null) {
       _logError('Response does not contain list: got ${payload.runtimeType}');
-      throw const AppFailureException(
-        UnknownFailure(
-          'Unexpected API response format. Expected list or wrapped list.',
-        ),
+      throw const AppException(
+        code: 'UNKNOWN_ERROR',
+        message: 'Unexpected API response format. Expected list or wrapped list.',
       );
     }
 
@@ -57,8 +57,9 @@ abstract final class ApiResponseExtractor {
 
     if (statusCode < 200 || statusCode >= 300) {
       _logError('Invalid status code: $statusCode');
-      throw const AppFailureException(
-        UnknownFailure('Invalid response status code.'),
+      throw const AppException(
+        code: 'UNKNOWN_ERROR',
+        message: 'Invalid response status code.',
       );
     }
   }
@@ -67,8 +68,9 @@ abstract final class ApiResponseExtractor {
   static void validateNotEmpty(Object? data) {
     if (data == null) {
       _logError('Response body is empty (null)');
-      throw const AppFailureException(
-        UnknownFailure('Server returned empty response.'),
+      throw const AppException(
+        code: 'UNKNOWN_ERROR',
+        message: 'Server returned empty response.',
       );
     }
   }
