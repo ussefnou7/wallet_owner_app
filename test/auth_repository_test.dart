@@ -138,6 +138,15 @@ class _FakeAuthRemoteDataSource implements AuthRemoteDataSource {
     expect(request.toJson()['username'], 'owner1');
     return _result;
   }
+
+  @override
+  Future<ApiResult<void>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    return const ApiSuccess(null);
+  }
 }
 
 class _FakeSecureStorage extends AppSecureStorage {

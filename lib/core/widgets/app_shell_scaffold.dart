@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../features/notifications/presentation/widgets/notification_badge_icon.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_spacing.dart';
-import '../localization/app_l10n.dart';
 import 'app_bottom_nav_bar.dart';
 import 'owner_top_bar.dart';
 
@@ -15,6 +15,7 @@ class AppShellScaffold extends StatelessWidget {
     required this.onDestinationSelected,
     required this.child,
     this.maxWidth = 640.0,
+    this.showNotifications = false,
     super.key,
   });
 
@@ -25,10 +26,10 @@ class AppShellScaffold extends StatelessWidget {
   final ValueChanged<String> onDestinationSelected;
   final Widget child;
   final double maxWidth;
+  final bool showNotifications;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = appL10n(context);
     final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return Scaffold(
@@ -52,13 +53,9 @@ class AppShellScaffold extends StatelessWidget {
                       builder: (context) {
                         return OwnerTopBar(
                           title: title,
-                          onNotificationsPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(l10n.notificationsComingSoon),
-                              ),
-                            );
-                          },
+                          notifications: showNotifications
+                              ? const NotificationBadgeIcon()
+                              : const SizedBox(width: 44, height: 44),
                           onMenuPressed: () =>
                               Scaffold.of(context).openEndDrawer(),
                         );

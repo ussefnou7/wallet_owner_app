@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_radii.dart';
@@ -74,7 +76,10 @@ class _OwnerDashboardPageState extends ConsumerState<OwnerDashboardPage> {
               onRetry: () =>
                   ref.invalidate(dashboardRecentTransactionsProvider),
             ),
-            data: (items) => DashboardRecentTransactions(items: items),
+            data: (items) => DashboardRecentTransactions(
+              items: items,
+              onSeeAll: () => context.go(AppRoutes.ownerTransactions),
+            ),
           ),
         ],
       ),

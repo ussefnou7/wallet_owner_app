@@ -30,10 +30,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get transactions => 'Transactions';
 
   @override
-  String get createTransaction => 'Create Transaction';
+  String get createTransaction => 'Create transaction';
 
   @override
   String get newTransaction => 'New transaction';
+
+  @override
+  String get userDashboardTitle => 'Dashboard';
+
+  @override
+  String get dashboardToday => 'Today';
+
+  @override
+  String get userDashboardSubtitle =>
+      'Your transaction activity and quick actions.';
+
+  @override
+  String get dashboardCredits => 'Total Credits';
+
+  @override
+  String get dashboardDebits => 'Total Debits';
+
+  @override
+  String get recentTransactions => 'Recent Transactions';
+
+  @override
+  String get noRecentTransactions => 'No recent transactions';
+
+  @override
+  String get recentTransactionsEmptyMessage =>
+      'Your recent activity will appear here.';
+
+  @override
+  String get transactionCredit => 'Credit';
+
+  @override
+  String get transactionDebit => 'Debit';
+
+  @override
+  String get userDashboardUnableToLoadSummary =>
+      'Unable to load today\'s activity right now.';
 
   @override
   String get reports => 'Reports';
@@ -196,10 +232,19 @@ class AppLocalizationsEn extends AppLocalizations {
       'Track balance movement and wallet activity across your owner account.';
 
   @override
+  String get latestTransactions => 'Latest Transactions';
+
+  @override
+  String get latestTransactionsSubtitle => 'Latest recorded wallet activity';
+
+  @override
   String get totalCredits => 'Total Credits';
 
   @override
   String get totalDebits => 'Total Debits';
+
+  @override
+  String get viewAll => 'View all';
 
   @override
   String activeWalletsCount(int count) {
@@ -251,6 +296,79 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get walletName => 'Wallet name';
+
+  @override
+  String get walletCurrentBalance => 'Current Balance';
+
+  @override
+  String get walletTypeLabel => 'Wallet type';
+
+  @override
+  String get walletStatusLabel => 'Wallet status';
+
+  @override
+  String get dailyLimitLabel => 'Daily limit';
+
+  @override
+  String get monthlyLimitLabel => 'Monthly limit';
+
+  @override
+  String get selectBranch => 'Select branch';
+
+  @override
+  String get selectWalletType => 'Select wallet type';
+
+  @override
+  String get walletNumberRequired => 'Wallet number is required';
+
+  @override
+  String get balanceRequired => 'Balance is required';
+
+  @override
+  String get validAmountRequired => 'Enter a valid amount';
+
+  @override
+  String get dailyLimitRequired => 'Daily limit is required';
+
+  @override
+  String get monthlyLimitRequired => 'Monthly limit is required';
+
+  @override
+  String get validLimitRequired => 'Enter a valid limit';
+
+  @override
+  String get branchRequired => 'Branch is required';
+
+  @override
+  String get walletTypeRequired => 'Wallet type is required';
+
+  @override
+  String get noWalletTypesAvailable => 'No wallet types available';
+
+  @override
+  String get failedToLoadBranches => 'Failed to load branches';
+
+  @override
+  String get failedToLoadWalletTypes => 'Failed to load wallet types';
+
+  @override
+  String get sessionExpiredLoginAgain =>
+      'Session expired. Please log in again.';
+
+  @override
+  String get walletDailyConsumption => 'Daily consumption';
+
+  @override
+  String get walletMonthlyConsumption => 'Monthly consumption';
+
+  @override
+  String get walletProfitLabel => 'Wallet profit';
+
+  @override
+  String get walletCashProfit => 'Cash profit';
+
+  @override
+  String get walletTotalLabel => 'Total';
 
   @override
   String get walletNameRequired => 'Wallet name is required';
@@ -413,7 +531,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ownerSettingsSubtitle =>
-      'Review account identity, workspace status, app preferences, and session actions from one place.';
+      'Manage your owner profile, subscription details, preferences, and account security from one place.';
 
   @override
   String get account => 'Account';
@@ -433,6 +551,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get workspace => 'Workspace';
+
+  @override
+  String get ownerWorkspaceFallback => 'Owner workspace';
 
   @override
   String get workspaceSubscription => 'Workspace & Subscription';
@@ -456,6 +577,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get renewalDate => 'Renewal date';
 
   @override
+  String get subscriptionAndPlans => 'Subscription & Plans';
+
+  @override
+  String get subscriptionAndPlansSubtitle =>
+      'Manage your current plan, usage limits, and renewal requests.';
+
+  @override
+  String get browsePlans => 'Browse plans';
+
+  @override
+  String get browsePlansSubtitle =>
+      'Review available plan options, limits, and pricing.';
+
+  @override
   String get openPlans => 'Open Plans';
 
   @override
@@ -470,7 +605,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get preferencesSubtitle =>
-      'Lightweight app preferences for this frontend phase.';
+      'Adjust language, notifications, theme, and app details.';
 
   @override
   String get notificationsEnabledSubtitle => 'Enabled for mock owner alerts';
@@ -492,6 +627,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appVersion => 'App version';
 
   @override
+  String get security => 'Security';
+
+  @override
+  String get securitySubtitle =>
+      'Update your password and manage access to this account.';
+
+  @override
   String get securitySession => 'Security & Session';
 
   @override
@@ -502,8 +644,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get changePassword => 'Change password';
 
   @override
-  String get changePasswordSubtitle =>
-      'Available later with backend integration.';
+  String get changePasswordSubtitle => 'Update your account password securely.';
+
+  @override
+  String get changePasswordSheetSubtitle =>
+      'Use your current password and choose a new one with at least 8 characters.';
+
+  @override
+  String get currentPassword => 'Current password';
+
+  @override
+  String get currentPasswordRequired => 'Current password is required';
+
+  @override
+  String get newPassword => 'New password';
+
+  @override
+  String get newPasswordRequired => 'New password is required';
+
+  @override
+  String get newPasswordMinLength =>
+      'New password must be at least 8 characters';
+
+  @override
+  String get confirmPassword => 'Confirm password';
+
+  @override
+  String get confirmPasswordRequired => 'Please confirm the new password';
+
+  @override
+  String get confirmPasswordMismatch => 'Passwords do not match';
+
+  @override
+  String get passwordChangedSuccessfully => 'Password changed successfully.';
 
   @override
   String get changePasswordComingSoon =>
@@ -522,6 +695,75 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationsComingSoon => 'Notifications will be available soon.';
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsImportantSection => 'Important';
+
+  @override
+  String get notificationsLowPrioritySection => 'Low Priority';
+
+  @override
+  String get notificationsReadAllLow => 'Read all low';
+
+  @override
+  String get notificationsReadAll => 'Read all';
+
+  @override
+  String get notificationsEmptyTitle => 'All caught up';
+
+  @override
+  String get notificationsEmptyMessage =>
+      'Unread notifications will appear here when action is needed.';
+
+  @override
+  String get notificationsWalletDailyLimitNearTitle =>
+      'Daily wallet limit is near';
+
+  @override
+  String get notificationsWalletDailyLimitNearMessage =>
+      'One of your wallets is approaching its daily limit.';
+
+  @override
+  String get notificationsWalletDailyLimitExceededTitle =>
+      'Daily wallet limit exceeded';
+
+  @override
+  String get notificationsWalletDailyLimitExceededMessage =>
+      'A wallet has exceeded its daily spending limit.';
+
+  @override
+  String get notificationsWalletMonthlyLimitNearTitle =>
+      'Monthly wallet limit is near';
+
+  @override
+  String get notificationsWalletMonthlyLimitNearMessage =>
+      'One of your wallets is approaching its monthly limit.';
+
+  @override
+  String get notificationsWalletMonthlyLimitExceededTitle =>
+      'Monthly wallet limit exceeded';
+
+  @override
+  String get notificationsWalletMonthlyLimitExceededMessage =>
+      'A wallet has exceeded its monthly spending limit.';
+
+  @override
+  String get notificationsTransactionCreatedTitle => 'New transaction created';
+
+  @override
+  String get notificationsTransactionCreatedMessage =>
+      'A new wallet transaction was recorded.';
+
+  @override
+  String get notificationsUnableToLoad =>
+      'Unable to load notifications right now.';
+
+  @override
+  String get notificationsUnableToUpdate =>
+      'Unable to update notifications right now.';
 
   @override
   String get genericReportsSubtitle =>
@@ -729,7 +971,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String createdBy(String name) {
-    return 'Created by $name';
+    return 'Created by: $name';
   }
 
   @override
@@ -858,9 +1100,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unassignBranch => 'Unassign Branch';
-
-  @override
-  String get selectBranch => 'Select Branch';
 
   @override
   String get confirmDelete => 'Confirm delete';

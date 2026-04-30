@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../core/widgets/app_card_action_button.dart';
+import '../../../../core/widgets/app_status_indicator.dart';
 import '../../domain/entities/wallet.dart';
 
 class WalletCard extends StatelessWidget {
@@ -21,9 +24,20 @@ class WalletCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isActive = wallet.status == WalletStatus.active;
+    final l10n = appL10n(context);
+    final totalProfit = wallet.walletProfit + wallet.cashProfit;
+    final subtitleParts = <String>[
+      if (wallet.branchName?.trim().isNotEmpty == true) wallet.branchName!.trim(),
+      if (wallet.rawType?.trim().isNotEmpty == true) wallet.rawType!.trim(),
+    ];
 
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.fromLTRB(
+        8,
+        AppSpacing.sm,
+        AppSpacing.md,
+        AppSpacing.sm,
+      ),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadii.lg),
@@ -32,121 +46,147 @@ class WalletCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      wallet.name,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
+                    Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: AppStatusIndicator(
+                        label: isActive ? l10n.active : l10n.inactive,
+                        isActive: isActive,
+                        inactiveColor: AppColors.textMuted,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      wallet.branchName ?? 'No branch assigned',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: AppColors.textSecondary,
+                    if (onEdit != null || onDelete != null)
+                      const SizedBox(height: AppSpacing.sm),
+                    if (onEdit != null)
+                      AppCardActionButton(
+                        label: l10n.edit,
+                        tooltip: l10n.editWallet,
+                        icon: Icons.edit_outlined,
+                        foregroundColor: AppColors.primary,
+                        backgroundColor: AppColors.primarySoft,
+                        onPressed: onEdit,
                       ),
-                    ),
+                    if (onEdit != null && onDelete != null)
+                      const SizedBox(height: 6),
+                    if (onDelete != null)
+                      AppCardActionButton(
+                        label: l10n.delete,
+                        tooltip: l10n.deleteWallet,
+                        icon: Icons.delete_outline_rounded,
+                        foregroundColor: AppColors.danger,
+                        backgroundColor: AppColors.dangerSoft,
+                        onPressed: onDelete,
+                      ),
                   ],
                 ),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
-                      vertical: AppSpacing.xs,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isActive
-                          ? AppColors.successSoft
-                          : AppColors.surfaceVariant,
-                      borderRadius: BorderRadius.circular(AppRadii.xl),
-                    ),
-                    child: Text(
-                      isActive ? 'Active' : 'Inactive',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: isActive
-                            ? AppColors.success
-                            : AppColors.textSecondary,
-                        fontWeight: FontWeight.w600,
-                      ),
+                const Spacer(),
+                Expanded(
+                  flex: 4,
+                  child: Directionality(
+                    textDirection: Directionality.of(context),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          wallet.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        if (subtitleParts.isNotEmpty) ...[
+                          const SizedBox(height: AppSpacing.xs),
+                          Text(
+                            subtitleParts.join(' • '),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.labelMedium
+                                ?.copyWith(color: AppColors.textSecondary),
+                          ),
+                        ],
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(
+                          l10n.walletCurrentBalance,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          formatCurrency(wallet.balance),
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                      ],
                     ),
                   ),
-                  if (onEdit != null || onDelete != null) ...[
-                    const SizedBox(width: AppSpacing.sm),
-                    PopupMenuButton<_WalletAction>(
-                      tooltip: 'Wallet actions',
-                      padding: const EdgeInsets.all(AppSpacing.sm),
-                      onSelected: (action) {
-                        switch (action) {
-                          case _WalletAction.edit:
-                            onEdit?.call();
-                            break;
-                          case _WalletAction.delete:
-                            onDelete?.call();
-                            break;
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        if (onEdit != null)
-                          const PopupMenuItem(
-                            value: _WalletAction.edit,
-                            child: ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              leading: Icon(Icons.edit_outlined),
-                              title: Text('Edit'),
-                            ),
-                          ),
-                        if (onDelete != null)
-                          const PopupMenuItem(
-                            value: _WalletAction.delete,
-                            child: ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              leading: Icon(
-                                Icons.delete_outline_rounded,
-                                color: AppColors.danger,
-                              ),
-                              title: Text('Delete'),
-                            ),
-                          ),
-                      ],
-                      icon: const Icon(Icons.more_vert_rounded),
-                      iconSize: 24,
-                    ),
-                  ],
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Text('Current Balance', style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: AppColors.textSecondary,
-          )),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            formatCurrency(wallet.balance),
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w700,
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: AppSpacing.lg),
-          Wrap(
-            spacing: AppSpacing.md,
-            runSpacing: AppSpacing.sm,
-            children: [
-              _MetaChip(label: 'Code', value: wallet.code),
-              _MetaChip(
-                label: 'Transactions',
-                value: wallet.transactionCount.toString(),
-              ),
-            ],
+          const SizedBox(height: AppSpacing.md),
+          const Divider(height: 1),
+          const SizedBox(height: AppSpacing.sm),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final dailyCard = _ConsumptionCard(
+                title: l10n.walletDailyConsumption,
+                percent: wallet.dailyPercent,
+                spent: wallet.dailySpent,
+                limit: wallet.dailyLimit,
+              );
+              final monthlyCard = _ConsumptionCard(
+                title: l10n.walletMonthlyConsumption,
+                percent: wallet.monthlyPercent,
+                spent: wallet.monthlySpent,
+                limit: wallet.monthlyLimit,
+              );
+
+              if (constraints.maxWidth >= 340) {
+                return Row(
+                  children: [
+                    Expanded(child: dailyCard),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(child: monthlyCard),
+                  ],
+                );
+              }
+
+              return Column(
+                children: [
+                  dailyCard,
+                  const SizedBox(height: AppSpacing.sm),
+                  monthlyCard,
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          const Divider(height: 1),
+          const SizedBox(height: AppSpacing.sm),
+          _ProfitRow(
+            label: l10n.walletProfitLabel,
+            value: wallet.walletProfit,
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          _ProfitRow(
+            label: l10n.walletCashProfit,
+            value: wallet.cashProfit,
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          _ProfitRow(
+            label: l10n.walletTotalLabel,
+            value: totalProfit,
+            emphasized: true,
           ),
         ],
       ),
@@ -154,29 +194,115 @@ class WalletCard extends StatelessWidget {
   }
 }
 
-enum _WalletAction { edit, delete }
+class _ConsumptionCard extends StatelessWidget {
+  const _ConsumptionCard({
+    required this.title,
+    required this.percent,
+    required this.spent,
+    required this.limit,
+  });
 
-class _MetaChip extends StatelessWidget {
-  const _MetaChip({required this.label, required this.value});
-
-  final String label;
-  final String value;
+  final String title;
+  final double percent;
+  final double spent;
+  final double limit;
 
   @override
   Widget build(BuildContext context) {
+    final progress = (percent / 100).clamp(0.0, 1.0);
+
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xs,
-      ),
+      width: double.infinity,
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: AppColors.surfaceVariant,
         borderRadius: BorderRadius.circular(AppRadii.md),
       ),
-      child: Text(
-        '$label: $value',
-        style: Theme.of(context).textTheme.labelMedium,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            '${percent.toStringAsFixed(percent.truncateToDouble() == percent ? 0 : 1)}%',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadii.sm),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 6,
+              backgroundColor: AppColors.border,
+              color: progress >= 1 ? AppColors.danger : AppColors.primary,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            '${formatCompactNumber(spent)} / ${formatCompactNumber(limit)}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
       ),
+    );
+  }
+}
+
+class _ProfitRow extends StatelessWidget {
+  const _ProfitRow({
+    required this.label,
+    required this.value,
+    this.emphasized = false,
+  });
+
+  final String label;
+  final double value;
+  final bool emphasized;
+
+  @override
+  Widget build(BuildContext context) {
+    final valueStyle = emphasized
+        ? Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: AppColors.textPrimary,
+          )
+        : Theme.of(context).textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w700,
+          );
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: emphasized ? AppColors.textPrimary : AppColors.textSecondary,
+              fontWeight: emphasized ? FontWeight.w700 : FontWeight.w500,
+            ),
+          ),
+        ),
+        const SizedBox(width: AppSpacing.md),
+        Flexible(
+          child: Text(
+            formatCurrency(value),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.end,
+            style: valueStyle,
+          ),
+        ),
+      ],
     );
   }
 }

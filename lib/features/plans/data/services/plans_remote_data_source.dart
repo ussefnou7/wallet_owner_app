@@ -33,9 +33,9 @@ class DioPlansRemoteDataSource implements PlansRemoteDataSource {
   Future<ApiResult<List<PlanModel>>> getPlans() async {
     try {
       final response = await _apiClient.get<Object?>('/api/v1/plans');
-      final plans = ApiResponseExtractor.extractList(response.data)
-          .map((plan) => PlanModel.fromJson(plan as Map<String, dynamic>))
-          .toList();
+      final plans = ApiResponseExtractor.extractList(
+        response.data,
+      ).map(PlanModel.fromJson).toList();
       return ApiSuccess(plans);
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));

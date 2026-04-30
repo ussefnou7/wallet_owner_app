@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/utils/formatters.dart';
+import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../transactions/domain/entities/recent_transaction.dart';
+import '../../../transactions/presentation/widgets/compact_transaction_list_item.dart';
 
 class DashboardRecentTransactions extends StatelessWidget {
   const DashboardRecentTransactions({
@@ -20,6 +20,8 @@ class DashboardRecentTransactions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = appL10n(context);
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
@@ -31,22 +33,23 @@ class DashboardRecentTransactions extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppSectionHeader(
-            title: 'Recent Transactions',
-            subtitle: 'Latest recorded activity',
-            actionLabel: onSeeAll == null ? null : 'See All',
+            title: l10n.latestTransactions,
+            subtitle: l10n.latestTransactionsSubtitle,
+            actionLabel: onSeeAll == null ? null : l10n.viewAll,
             onActionPressed: onSeeAll,
           ),
           const SizedBox(height: AppSpacing.md),
           if (items.isEmpty)
-            const AppEmptyState(
-              title: 'No transactions yet',
-              message: 'Recent transaction activity will appear here.',
+            AppEmptyState(
+              title: l10n.noTransactionsAvailable,
+              message: l10n.transactionsEmptyMessage,
               icon: Icons.receipt_long_outlined,
             )
           else
             for (var index = 0; index < items.length; index++) ...[
               _TransactionTile(item: items[index]),
-              if (index != items.length - 1) const Divider(),
+              if (index != items.length - 1)
+                const Divider(height: AppSpacing.lg, thickness: 0.6),
             ],
         ],
       ),
@@ -61,38 +64,15 @@ class _TransactionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = appL10n(context);
     final isCredit = item.type == TransactionType.credit;
-
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: CircleAvatar(
-        backgroundColor: isCredit
-            ? AppColors.primarySoft
-            : AppColors.dangerSoft,
-        child: Icon(
-          isCredit ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
-          color: isCredit ? AppColors.success : AppColors.danger,
-        ),
-      ),
-      title: Text(item.walletName),
-      subtitle: Text(item.id, style: Theme.of(context).textTheme.bodySmall),
-      trailing: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Text(
-            formatCurrency(item.amount),
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              color: isCredit ? AppColors.success : AppColors.danger,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            isCredit ? 'Credit' : 'Debit',
-            style: Theme.of(context).textTheme.labelMedium,
-          ),
-        ],
-      ),
+    final typeLabel = isCredit ? l10n.credit : l10n.debit;
+    return CompactTransactionListItem(
+      walletName: item.walletName,
+      amount: item.amount,
+      isCredit: isCredit,
+      typeLabel: typeLabel,
+      recordedAt: item.recordedAt,
     );
   }
 }

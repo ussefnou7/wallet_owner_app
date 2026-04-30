@@ -23,6 +23,7 @@ class AuthMockDataSource {
         role: UserRole.owner,
         backendRole: 'OWNER',
         tenantId: 'tenant-demo',
+        tenantName: 'BTC Workspace',
         userId: request.username,
         displayName: 'Owner User',
       ),

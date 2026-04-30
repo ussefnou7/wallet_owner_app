@@ -7,24 +7,20 @@ import '../constants/app_spacing.dart';
 class OwnerTopBar extends StatelessWidget {
   const OwnerTopBar({
     required this.title,
-    required this.onNotificationsPressed,
+    required this.notifications,
     required this.onMenuPressed,
     super.key,
   });
 
   final String title;
-  final VoidCallback onNotificationsPressed;
+  final Widget notifications;
   final VoidCallback onMenuPressed;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        _TopBarButton(
-          tooltip: 'Notifications',
-          icon: Icons.notifications_none_rounded,
-          onPressed: onNotificationsPressed,
-        ),
+        notifications,
         const SizedBox(width: AppSpacing.md),
         Expanded(
           child: Text(

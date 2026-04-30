@@ -31,6 +31,7 @@ class UserAppShell extends StatelessWidget {
       endDrawer: const UserAppDrawer(),
       onDestinationSelected: context.go,
       maxWidth: contentMaxWidth,
+      showNotifications: false,
       child: child,
     );
   }

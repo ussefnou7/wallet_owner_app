@@ -11,6 +11,7 @@ import '../../features/auth/presentation/pages/unauthorized_role_page.dart';
 import '../../features/branches/presentation/pages/branches_page.dart';
 import '../../features/dashboard/presentation/pages/owner_dashboard_page.dart';
 import '../../features/dashboard/presentation/pages/user_dashboard_page.dart';
+import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/plans/presentation/pages/plans_page.dart';
 import '../../features/reports/presentation/pages/reports_page.dart';
 import '../../features/settings/presentation/pages/create_renewal_request_page.dart';
@@ -160,6 +161,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: AppRoutes.ownerSettings,
             name: 'owner-settings',
             builder: (context, state) => const SettingsPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.ownerNotifications,
+            name: 'owner-notifications',
+            builder: (context, state) => const NotificationsScreen(),
           ),
         ],
       ),

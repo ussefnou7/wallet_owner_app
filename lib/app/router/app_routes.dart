@@ -16,6 +16,7 @@ abstract final class AppRoutes {
   static const ownerSupport = '/owner/support';
   static const ownerCreateSupport = '/owner/support/new';
   static const ownerSettings = '/owner/settings';
+  static const ownerNotifications = '/owner/notifications';
 
   static const userDashboard = '/user/dashboard';
   static const userWallets = '/user/wallets';
@@ -35,4 +36,5 @@ abstract final class AppRoutes {
   static const support = ownerSupport;
   static const createSupport = ownerCreateSupport;
   static const settings = ownerSettings;
+  static const notificationsCenter = ownerNotifications;
 }

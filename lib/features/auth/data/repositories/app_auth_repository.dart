@@ -38,6 +38,24 @@ class AppAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    final result = await _remoteDataSource.changePassword(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+      confirmPassword: confirmPassword,
+    );
+
+    return result.when(
+      success: (_) async {},
+      failure: (failure) => throw failure,
+    );
+  }
+
+  @override
   Future<void> logout() {
     return _sessionLocalDataSource.clearSession();
   }

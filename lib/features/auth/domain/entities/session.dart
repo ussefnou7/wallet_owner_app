@@ -12,6 +12,7 @@ class Session extends Equatable {
     required this.tenantId,
     required this.userId,
     required this.displayName,
+    this.tenantName,
     this.tokenExpiresAt,
   });
 
@@ -23,6 +24,7 @@ class Session extends Equatable {
   final String tenantId;
   final String userId;
   final String displayName;
+  final String? tenantName;
   final DateTime? tokenExpiresAt;
 
   bool get isOwner => role == UserRole.owner;
@@ -36,7 +38,19 @@ class Session extends Equatable {
 
   String? get email => username.contains('@') ? username : null;
 
-  String get tenantName => _toDisplayLabel(tenantId);
+  String get tenantDisplayName {
+    final explicitName = tenantName?.trim() ?? '';
+    if (explicitName.isNotEmpty) {
+      return explicitName;
+    }
+
+    final normalizedTenantId = tenantId.trim();
+    if (normalizedTenantId.isEmpty || _looksLikeUuid(normalizedTenantId)) {
+      return '';
+    }
+
+    return _toDisplayLabel(normalizedTenantId);
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -44,6 +58,7 @@ class Session extends Equatable {
       'role': role.name,
       'backendRole': backendRole,
       'tenantId': tenantId,
+      'tenantName': tenantName,
       'userId': userId,
       'displayName': displayName,
       'tokenExpiresAt': tokenExpiresAt?.toIso8601String(),
@@ -71,6 +86,7 @@ class Session extends Equatable {
       role: _parseRole(roleName, backendRole),
       backendRole: backendRole,
       tenantId: (json['tenantId'] as String?) ?? '',
+      tenantName: json['tenantName'] as String?,
       userId: (json['userId'] as String?) ?? '',
       displayName:
           (json['displayName'] as String?) ??
@@ -88,6 +104,7 @@ class Session extends Equatable {
     role,
     backendRole,
     tenantId,
+    tenantName,
     userId,
     displayName,
     tokenExpiresAt,
@@ -136,5 +153,11 @@ class Session extends Equatable {
               '${segment[0].toUpperCase()}${segment.substring(1).toLowerCase()}',
         )
         .join(' ');
+  }
+
+  static bool _looksLikeUuid(String value) {
+    return RegExp(
+      r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$',
+    ).hasMatch(value);
   }
 }

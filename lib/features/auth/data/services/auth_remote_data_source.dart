@@ -19,6 +19,12 @@ final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
 
 abstract interface class AuthRemoteDataSource {
   Future<ApiResult<LoginResponseModel>> login(LoginRequestModel request);
+
+  Future<ApiResult<void>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  });
 }
 
 class DioAuthRemoteDataSource implements AuthRemoteDataSource {
@@ -41,6 +47,27 @@ class DioAuthRemoteDataSource implements AuthRemoteDataSource {
 
       ApiResponseExtractor.validateNotEmpty(response.data);
       return ApiSuccess(LoginResponseModel.fromJson(response.data!));
+    } catch (error) {
+      return ApiError(_exceptionMapper.map(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<void>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    try {
+      await _apiClient.patch<void>(
+        NetworkConstants.mePasswordPath,
+        data: {
+          'currentPassword': currentPassword,
+          'newPassword': newPassword,
+          'confirmPassword': confirmPassword,
+        },
+      );
+      return const ApiSuccess(null);
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));
     }

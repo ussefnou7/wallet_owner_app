@@ -14,6 +14,11 @@ final dashboardOverviewProvider = FutureProvider<DashboardOverview>((ref) {
   return repository.getOverview();
 });
 
+final userDashboardOverviewProvider = FutureProvider<DashboardOverview>((ref) {
+  final repository = ref.watch(dashboardRepositoryProvider);
+  return repository.getOverview();
+});
+
 final dashboardTransactionSummaryProvider =
     FutureProvider<DashboardTransactionSummary>((ref) async {
       final repository = ref.watch(dashboardRepositoryProvider);
@@ -92,6 +97,7 @@ RecentTransaction _mapRecentTransaction(Map<String, dynamic> row) {
         'Unknown wallet',
     amount: _asDouble(row['amount']),
     type: typeValue == 'DEBIT' ? TransactionType.debit : TransactionType.credit,
+    recordedAt: _parseDate(row['occurredAt'] ?? row['createdAt']),
   );
 }
 

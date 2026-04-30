@@ -13,6 +13,7 @@ class LoginResponseModel {
     required this.tenantId,
     required this.userId,
     required this.displayName,
+    this.tenantName,
     this.tokenExpiresAt,
   });
 
@@ -24,6 +25,7 @@ class LoginResponseModel {
   final String tenantId;
   final String userId;
   final String displayName;
+  final String? tenantName;
   final DateTime? tokenExpiresAt;
 
   factory LoginResponseModel.fromJson(Map<String, dynamic> json) {
@@ -61,6 +63,9 @@ class LoginResponseModel {
         _readString(claims, const ['tenantId', 'tenant_id', 'tenant']) ?? '';
     final resolvedUserId =
         _readString(claims, const ['userId', 'user_id']) ?? '';
+    final resolvedTenantName =
+        _readString(payload, const ['tenantName', 'workspaceName']) ??
+        _readString(claims, const ['tenantName', 'workspaceName']);
     final resolvedDisplayName =
         _readString(payload, const ['displayName', 'name', 'fullName']) ??
         _readString(claims, const ['name']) ??
@@ -75,6 +80,7 @@ class LoginResponseModel {
       role: resolvedRole,
       backendRole: resolvedBackendRole,
       tenantId: resolvedTenantId,
+      tenantName: resolvedTenantName,
       userId: resolvedUserId,
       displayName: resolvedDisplayName,
       tokenExpiresAt: resolvedExpiry,
@@ -89,6 +95,7 @@ class LoginResponseModel {
       role: role,
       backendRole: backendRole,
       tenantId: tenantId,
+      tenantName: tenantName,
       userId: userId,
       displayName: displayName,
       tokenExpiresAt: tokenExpiresAt,

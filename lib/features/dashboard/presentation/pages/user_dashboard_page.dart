@@ -7,6 +7,8 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/errors/error_message_mapper.dart';
+import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
@@ -15,7 +17,8 @@ import '../../../../core/widgets/app_section_header.dart';
 import '../../../transactions/domain/entities/transaction_draft.dart';
 import '../../../transactions/domain/entities/transaction_record.dart';
 import '../../../transactions/presentation/controllers/transactions_controller.dart';
-import '../../../transactions/presentation/widgets/transaction_record_tile.dart';
+import '../../domain/entities/dashboard_overview.dart';
+import '../providers/dashboard_provider.dart';
 
 class UserDashboardPage extends ConsumerStatefulWidget {
   const UserDashboardPage({super.key});
@@ -32,231 +35,251 @@ class _UserDashboardPageState extends ConsumerState<UserDashboardPage> {
       if (!mounted) {
         return;
       }
+      ref.invalidate(userDashboardOverviewProvider);
       ref.invalidate(transactionsControllerProvider);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final transactionsState = ref.watch(transactionsControllerProvider);
+    final overviewAsync = ref.watch(userDashboardOverviewProvider);
+    final transactionsAsync = ref.watch(transactionsControllerProvider);
+    final l10n = appL10n(context);
     final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return SingleChildScrollView(
       padding: EdgeInsets.only(
+        top: AppSpacing.md,
         bottom: bottomInset + AppDimensions.floatingBottomNavContentPadding,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const AppSectionHeader(
-            title: 'Today',
-            subtitle: 'Your transaction activity and quick actions.',
+          AppSectionHeader(
+            title: l10n.userDashboardTitle,
+            subtitle: l10n.userDashboardSubtitle,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          _PeriodChip(label: l10n.dashboardToday),
+          const SizedBox(height: AppSpacing.lg),
+          overviewAsync.when(
+            loading: () => const _MetricsLoadingState(),
+            error: (error, stackTrace) => AppErrorState(
+              message: ErrorMessageMapper.getLocalizedMessage(
+                context,
+                error,
+                fallbackMessage: l10n.userDashboardUnableToLoadSummary,
+              ),
+              compact: true,
+              onRetry: () => ref.invalidate(userDashboardOverviewProvider),
+            ),
+            data: (overview) => _MetricsContent(overview: overview),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          _CreateTransactionCard(
+            label: l10n.createTransaction,
+            onTap: () => context.go(AppRoutes.userCreateTransaction),
           ),
           const SizedBox(height: AppSpacing.lg),
-          transactionsState.when(
-            loading: () =>
-                const AppLoadingView(message: 'Loading today activity...'),
-            error: (error, stackTrace) => AppErrorState(
-              message: 'Unable to load activity right now.',
-              compact: true,
-              onRetry: () =>
-                  ref.read(transactionsControllerProvider.notifier).reload(),
-            ),
-            data: (transactions) {
-              final todayTransactions = _todayTransactions(transactions);
-              return Column(
-                children: [
-                  _UserSummaryCards(
-                    creditAmount: _totalFor(
-                      todayTransactions,
-                      TransactionEntryType.credit,
-                    ),
-                    debitAmount: _totalFor(
-                      todayTransactions,
-                      TransactionEntryType.debit,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  _QuickActionCard(
-                    onTap: () => context.go(AppRoutes.userCreateTransaction),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  _RecentTransactionsSection(transactions: transactions),
-                ],
-              );
-            },
-          ),
+          _RecentTransactionsCard(transactionsAsync: transactionsAsync),
         ],
       ),
     );
   }
-
-  List<TransactionRecord> _todayTransactions(
-    List<TransactionRecord> transactions,
-  ) {
-    final now = DateTime.now();
-    return transactions.where((transaction) {
-      final date = transaction.date;
-      return date.year == now.year &&
-          date.month == now.month &&
-          date.day == now.day;
-    }).toList();
-  }
-
-  double _totalFor(
-    List<TransactionRecord> transactions,
-    TransactionEntryType type,
-  ) {
-    return transactions
-        .where((transaction) => transaction.type == type)
-        .fold<double>(0, (total, transaction) => total + transaction.amount);
-  }
 }
 
-class _UserSummaryCards extends StatelessWidget {
-  const _UserSummaryCards({
-    required this.creditAmount,
-    required this.debitAmount,
-  });
-
-  final double creditAmount;
-  final double debitAmount;
-
-  @override
-  Widget build(BuildContext context) {
-    final textScale = MediaQuery.textScalerOf(context).scale(1);
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final shouldStack = constraints.maxWidth < 360 || textScale > 1.15;
-
-        if (shouldStack) {
-          return Column(
-            children: [
-              AspectRatio(
-                aspectRatio: 3.1,
-                child: _SummaryCard(
-                  label: 'Credits',
-                  amount: creditAmount,
-                  icon: Icons.south_west_rounded,
-                  toneColor: AppColors.success,
-                  background: AppColors.successSoft,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              AspectRatio(
-                aspectRatio: 3.1,
-                child: _SummaryCard(
-                  label: 'Debits',
-                  amount: debitAmount,
-                  icon: Icons.north_east_rounded,
-                  toneColor: AppColors.danger,
-                  background: AppColors.dangerSoft,
-                ),
-              ),
-            ],
-          );
-        }
-
-        return Row(
-          children: [
-            Expanded(
-              child: AspectRatio(
-                aspectRatio: 1.28,
-                child: _SummaryCard(
-                  label: 'Credits',
-                  amount: creditAmount,
-                  icon: Icons.south_west_rounded,
-                  toneColor: AppColors.success,
-                  background: AppColors.successSoft,
-                ),
-              ),
-            ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: AspectRatio(
-                aspectRatio: 1.28,
-                child: _SummaryCard(
-                  label: 'Debits',
-                  amount: debitAmount,
-                  icon: Icons.north_east_rounded,
-                  toneColor: AppColors.danger,
-                  background: AppColors.dangerSoft,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({
-    required this.label,
-    required this.amount,
-    required this.icon,
-    required this.toneColor,
-    required this.background,
-  });
+class _PeriodChip extends StatelessWidget {
+  const _PeriodChip({required this.label});
 
   final String label;
-  final double amount;
-  final IconData icon;
-  final Color toneColor;
-  final Color background;
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.primarySoft,
+        borderRadius: BorderRadius.circular(AppRadii.xl),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+          color: AppColors.primary,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+class _MetricsContent extends StatelessWidget {
+  const _MetricsContent({required this.overview});
+
+  final DashboardOverview overview;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = appL10n(context);
+
+    return Column(
+      children: [
+        _MetricRow.amount(
+          label: l10n.dashboardCredits,
+          value: overview.totalCredits,
+          icon: Icons.south_west_rounded,
+          foregroundColor: AppColors.success,
+          backgroundColor: AppColors.successSoft,
+        ),
+        const SizedBox(height: AppSpacing.md),
+        _MetricRow.amount(
+          label: l10n.dashboardDebits,
+          value: overview.totalDebits,
+          icon: Icons.north_east_rounded,
+          foregroundColor: AppColors.danger,
+          backgroundColor: AppColors.dangerSoft,
+        ),
+        if (overview.transactionCount > 0) ...[
+          const SizedBox(height: AppSpacing.md),
+          _MetricRow.count(
+            label: l10n.transactionCount,
+            value: overview.transactionCount,
+            icon: Icons.receipt_long_outlined,
+            foregroundColor: AppColors.textPrimary,
+            backgroundColor: AppColors.surfaceVariant,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _MetricsLoadingState extends StatelessWidget {
+  const _MetricsLoadingState();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = appL10n(context);
+
+    return Column(
+      children: [
+        _MetricRow.loading(label: l10n.dashboardCredits),
+        const SizedBox(height: AppSpacing.md),
+        _MetricRow.loading(label: l10n.dashboardDebits),
+        const SizedBox(height: AppSpacing.md),
+        _MetricRow.loading(label: l10n.transactionCount),
+      ],
+    );
+  }
+}
+
+class _MetricRow extends StatelessWidget {
+  const _MetricRow._({
+    required this.label,
+    required this.valueText,
+    required this.icon,
+    required this.foregroundColor,
+    required this.backgroundColor,
+    this.isLoading = false,
+  });
+
+  factory _MetricRow.amount({
+    required String label,
+    required double value,
+    required IconData icon,
+    required Color foregroundColor,
+    required Color backgroundColor,
+  }) {
+    return _MetricRow._(
+      label: label,
+      valueText: formatCurrency(value),
+      icon: icon,
+      foregroundColor: foregroundColor,
+      backgroundColor: backgroundColor,
+    );
+  }
+
+  factory _MetricRow.count({
+    required String label,
+    required int value,
+    required IconData icon,
+    required Color foregroundColor,
+    required Color backgroundColor,
+  }) {
+    return _MetricRow._(
+      label: label,
+      valueText: '$value',
+      icon: icon,
+      foregroundColor: foregroundColor,
+      backgroundColor: backgroundColor,
+    );
+  }
+
+  factory _MetricRow.loading({required String label}) {
+    return _MetricRow._(
+      label: label,
+      valueText: '...',
+      icon: Icons.more_horiz_rounded,
+      foregroundColor: AppColors.textMuted,
+      backgroundColor: AppColors.surfaceVariant,
+      isLoading: true,
+    );
+  }
+
+  final String label;
+  final String valueText;
+  final IconData icon;
+  final Color foregroundColor;
+  final Color backgroundColor;
+  final bool isLoading;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadii.lg),
         border: Border.all(color: AppColors.border),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: background,
-                  borderRadius: BorderRadius.circular(AppRadii.md),
-                ),
-                child: Icon(icon, color: toneColor, size: 20),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Text(
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(AppRadii.md),
+            ),
+            child: Icon(icon, color: foregroundColor, size: 20),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const Spacer(),
-          Align(
-            alignment: AlignmentDirectional.bottomStart,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: AlignmentDirectional.bottomStart,
-              child: Text(
-                formatCurrency(amount),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: toneColor,
-                  fontWeight: FontWeight.w700,
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  isLoading ? '...' : valueText,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: foregroundColor,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ],
@@ -265,9 +288,10 @@ class _SummaryCard extends StatelessWidget {
   }
 }
 
-class _QuickActionCard extends StatelessWidget {
-  const _QuickActionCard({required this.onTap});
+class _CreateTransactionCard extends StatelessWidget {
+  const _CreateTransactionCard({required this.label, required this.onTap});
 
+  final String label;
   final VoidCallback onTap;
 
   @override
@@ -279,26 +303,29 @@ class _QuickActionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadii.lg),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.md,
+          ),
           child: Row(
             children: [
               Container(
-                width: 44,
-                height: 44,
+                width: 42,
+                height: 42,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.14),
+                  color: Colors.white.withValues(alpha: 0.16),
                   borderRadius: BorderRadius.circular(AppRadii.md),
                 ),
                 child: const Icon(
                   Icons.add_rounded,
                   color: Colors.white,
-                  size: 26,
+                  size: 24,
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Text(
-                  'Create transaction',
+                  label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -316,37 +343,166 @@ class _QuickActionCard extends StatelessWidget {
   }
 }
 
-class _RecentTransactionsSection extends StatelessWidget {
-  const _RecentTransactionsSection({required this.transactions});
+class _RecentTransactionsCard extends StatelessWidget {
+  const _RecentTransactionsCard({required this.transactionsAsync});
 
-  final List<TransactionRecord> transactions;
+  final AsyncValue<List<TransactionRecord>> transactionsAsync;
 
   @override
   Widget build(BuildContext context) {
-    final recent = [...transactions]..sort((a, b) => b.date.compareTo(a.date));
-    final visible = recent.take(3).toList();
+    final l10n = appL10n(context);
 
-    if (visible.isEmpty) {
-      return const AppEmptyState(
-        title: 'No recent transactions',
-        message: 'Your recent activity will appear here.',
-        icon: Icons.receipt_long_outlined,
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Recent Transactions',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: AppSpacing.md),
-        for (final transaction in visible) ...[
-          TransactionRecordTile(transaction: transaction),
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadii.lg),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppSectionHeader(
+            title: l10n.recentTransactions,
+            actionLabel: l10n.viewAll,
+            onActionPressed: () => context.go(AppRoutes.userTransactions),
+          ),
           const SizedBox(height: AppSpacing.md),
+          transactionsAsync.when(
+            loading: () => AppLoadingView(message: l10n.loadingTransactions),
+            error: (error, stackTrace) => AppErrorState(
+              message: ErrorMessageMapper.getLocalizedMessage(
+                context,
+                error,
+                fallbackMessage: l10n.unableToLoadTransactions,
+              ),
+              compact: true,
+            ),
+            data: (transactions) {
+              final visible = [...transactions]
+                ..sort((a, b) => _displayDate(b).compareTo(_displayDate(a)));
+
+              if (visible.isEmpty) {
+                return AppEmptyState(
+                  title: l10n.noRecentTransactions,
+                  message: l10n.recentTransactionsEmptyMessage,
+                  icon: Icons.receipt_long_outlined,
+                );
+              }
+
+              final recent = visible.take(4).toList(growable: false);
+              return Column(
+                children: [
+                  for (var index = 0; index < recent.length; index++) ...[
+                    _UserRecentTransactionTile(transaction: recent[index]),
+                    if (index != recent.length - 1)
+                      const Divider(height: AppSpacing.lg, thickness: 0.6),
+                  ],
+                ],
+              );
+            },
+          ),
         ],
-      ],
+      ),
     );
+  }
+
+  DateTime _displayDate(TransactionRecord transaction) {
+    return transaction.occurredAt ?? transaction.createdAt ?? transaction.date;
+  }
+}
+
+class _UserRecentTransactionTile extends StatelessWidget {
+  const _UserRecentTransactionTile({required this.transaction});
+
+  final TransactionRecord transaction;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = appL10n(context);
+    final isCredit = transaction.type == TransactionEntryType.credit;
+    final typeLabel = switch (transaction.type) {
+      TransactionEntryType.credit => l10n.transactionCredit,
+      TransactionEntryType.debit => l10n.transactionDebit,
+      TransactionEntryType.unknown => l10n.unknown,
+    };
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppRadii.md),
+        onTap: () => context.go(AppRoutes.userTransactions),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: isCredit
+                    ? AppColors.primarySoft
+                    : AppColors.dangerSoft,
+                child: Icon(
+                  isCredit
+                      ? Icons.arrow_downward_rounded
+                      : Icons.arrow_upward_rounded,
+                  color: isCredit ? AppColors.success : AppColors.danger,
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      transaction.walletName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      formatNumericDateTime(_displayDate),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    formatCurrency(transaction.amount),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: isCredit ? AppColors.success : AppColors.danger,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    typeLabel,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: isCredit ? AppColors.success : AppColors.danger,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  DateTime get _displayDate {
+    return transaction.occurredAt ?? transaction.createdAt ?? transaction.date;
   }
 }

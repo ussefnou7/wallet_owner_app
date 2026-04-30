@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -149,9 +150,18 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
     BuildContext context, {
     Wallet? wallet,
   }) async {
-    // For edit mode only
     if (wallet != null) {
       final controller = TextEditingController(text: wallet.name);
+      final dailyLimitController = TextEditingController(
+        text: wallet.dailyLimit.toStringAsFixed(
+          wallet.dailyLimit.truncateToDouble() == wallet.dailyLimit ? 0 : 2,
+        ),
+      );
+      final monthlyLimitController = TextEditingController(
+        text: wallet.monthlyLimit.toStringAsFixed(
+          wallet.monthlyLimit.truncateToDouble() == wallet.monthlyLimit ? 0 : 2,
+        ),
+      );
       var active = wallet.active;
       final formKey = GlobalKey<FormState>();
       final l10n = appL10n(context);
@@ -164,36 +174,97 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
             builder: (context, setDialogState) {
               return AlertDialog(
                 title: Text(l10n.editWallet),
-                content: Form(
-                  key: formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextFormField(
-                        controller: controller,
-                        decoration: InputDecoration(
-                          labelText: l10n.walletName,
-                          prefixIcon: const Icon(
-                            Icons.account_balance_wallet_outlined,
+                content: SizedBox(
+                  width: 420,
+                  child: SingleChildScrollView(
+                    child: Form(
+                      key: formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AppTextField(
+                            controller: controller,
+                            label: l10n.walletName,
+                            prefixIcon: const Icon(
+                              Icons.account_balance_wallet_outlined,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return l10n.walletNameRequired;
+                              }
+                              return null;
+                            },
                           ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return l10n.walletNameRequired;
-                          }
-                          return null;
-                        },
+                          const SizedBox(height: AppSpacing.md),
+                          Text(
+                            l10n.walletStatusLabel,
+                            style: Theme.of(context).textTheme.labelLarge,
+                          ),
+                          const SizedBox(height: AppSpacing.xs),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerLowest,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: SwitchListTile.adaptive(
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.sm,
+                              ),
+                              title: Text(l10n.active),
+                              value: active,
+                              onChanged: (value) {
+                                setDialogState(() => active = value);
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: AppTextField(
+                                  controller: dailyLimitController,
+                                  label: l10n.dailyLimitLabel,
+                                  prefixIcon: const Icon(Icons.today_outlined),
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                      ),
+                                  inputFormatters: [_decimalInputFormatter],
+                                  validator: (value) => _validateLimitField(
+                                    value,
+                                    l10n.dailyLimitRequired,
+                                    l10n.validLimitRequired,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              Expanded(
+                                child: AppTextField(
+                                  controller: monthlyLimitController,
+                                  label: l10n.monthlyLimitLabel,
+                                  prefixIcon: const Icon(
+                                    Icons.calendar_month_outlined,
+                                  ),
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                      ),
+                                  inputFormatters: [_decimalInputFormatter],
+                                  validator: (value) => _validateLimitField(
+                                    value,
+                                    l10n.monthlyLimitRequired,
+                                    l10n.validLimitRequired,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: AppSpacing.md),
-                      SwitchListTile.adaptive(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(l10n.active),
-                        value: active,
-                        onChanged: (value) {
-                          setDialogState(() => active = value);
-                        },
-                      ),
-                    ],
+                    ),
                   ),
                 ),
                 actions: [
@@ -218,17 +289,25 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
 
       if (submitted != true || !mounted) {
         controller.dispose();
+        dailyLimitController.dispose();
+        monthlyLimitController.dispose();
         return;
       }
 
       final name = controller.text.trim();
+      final dailyLimit = double.parse(dailyLimitController.text.trim());
+      final monthlyLimit = double.parse(monthlyLimitController.text.trim());
       controller.dispose();
+      dailyLimitController.dispose();
+      monthlyLimitController.dispose();
 
       final notifier = ref.read(walletsControllerProvider.notifier);
       await notifier.updateWallet(
         walletId: wallet.id,
         name: name,
         active: active,
+        dailyLimit: dailyLimit,
+        monthlyLimit: monthlyLimit,
       );
 
       if (!mounted) {
@@ -336,6 +415,8 @@ class _CreateWalletDialogState extends ConsumerState<_CreateWalletDialog> {
   final _nameController = TextEditingController();
   final _numberController = TextEditingController();
   final _balanceController = TextEditingController();
+  final _dailyLimitController = TextEditingController();
+  final _monthlyLimitController = TextEditingController();
 
   String? _selectedBranchId;
   String? _selectedType;
@@ -347,6 +428,8 @@ class _CreateWalletDialogState extends ConsumerState<_CreateWalletDialog> {
     _nameController.dispose();
     _numberController.dispose();
     _balanceController.dispose();
+    _dailyLimitController.dispose();
+    _monthlyLimitController.dispose();
     super.dispose();
   }
 
@@ -360,19 +443,19 @@ class _CreateWalletDialogState extends ConsumerState<_CreateWalletDialog> {
       canPop: !_isSubmitting,
       child: AlertDialog(
         title: Text(l10n.createWallet),
-        content: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
+        content: SizedBox(
+          width: 420,
+          child: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                AppTextField(
                   controller: _nameController,
-                  decoration: InputDecoration(
-                    labelText: l10n.walletName,
-                    prefixIcon: const Icon(
-                      Icons.account_balance_wallet_outlined,
-                    ),
+                  label: l10n.walletName,
+                  prefixIcon: const Icon(
+                    Icons.account_balance_wallet_outlined,
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -382,44 +465,83 @@ class _CreateWalletDialogState extends ConsumerState<_CreateWalletDialog> {
                   },
                 ),
                 const SizedBox(height: AppSpacing.md),
-                TextFormField(
+                AppTextField(
                   controller: _numberController,
-                  decoration: InputDecoration(
-                    labelText: l10n.number,
-                    prefixIcon: const Icon(Icons.phone_rounded),
-                  ),
+                  label: l10n.number,
+                  prefixIcon: const Icon(Icons.phone_rounded),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Wallet number is required';
+                      return l10n.walletNumberRequired;
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: AppSpacing.md),
-                TextFormField(
+                AppTextField(
                   controller: _balanceController,
-                  decoration: InputDecoration(
-                    labelText: l10n.balance,
-                    prefixIcon: const Icon(Icons.attach_money_rounded),
-                  ),
+                  label: l10n.balance,
+                  prefixIcon: const Icon(Icons.attach_money_rounded),
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
+                  inputFormatters: [_decimalInputFormatter],
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Balance is required';
+                      return l10n.balanceRequired;
                     }
                     if (double.tryParse(value) == null) {
-                      return 'Enter a valid amount';
+                      return l10n.validAmountRequired;
                     }
                     return null;
                   },
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Row(
+                  children: [
+                    Expanded(
+                      child: AppTextField(
+                        controller: _dailyLimitController,
+                        label: l10n.dailyLimitLabel,
+                        prefixIcon: const Icon(Icons.today_outlined),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        inputFormatters: [_decimalInputFormatter],
+                        validator: (value) => _validateLimitField(
+                          value,
+                          l10n.dailyLimitRequired,
+                          l10n.validLimitRequired,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: AppTextField(
+                        controller: _monthlyLimitController,
+                        label: l10n.monthlyLimitLabel,
+                        prefixIcon: const Icon(Icons.calendar_month_outlined),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        inputFormatters: [_decimalInputFormatter],
+                        validator: (value) => _validateLimitField(
+                          value,
+                          l10n.monthlyLimitRequired,
+                          l10n.validLimitRequired,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: AppSpacing.md),
                 branchesAsync.when(
                   data: (branches) => DropdownButtonFormField<String>(
+                    decoration: InputDecoration(
+                      labelText: l10n.branchName,
+                      prefixIcon: const Icon(Icons.account_tree_outlined),
+                    ),
                     initialValue: _selectedBranchId,
-                    hint: const Text('Select branch'),
+                    hint: Text(l10n.selectBranch),
                     items: branches
                         .map(
                           (branch) => DropdownMenuItem(
@@ -433,7 +555,7 @@ class _CreateWalletDialogState extends ConsumerState<_CreateWalletDialog> {
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Branch is required';
+                        return l10n.branchRequired;
                       }
                       return null;
                     },
@@ -448,22 +570,36 @@ class _CreateWalletDialogState extends ConsumerState<_CreateWalletDialog> {
                   ),
                   error: (error, stackTrace) => const Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Text('Failed to load branches'),
+                    child: SizedBox.shrink(),
                   ),
                 ),
+                if (branchesAsync.hasError)
+                  Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.xs),
+                    child: Text(
+                      l10n.failedToLoadBranches,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: AppSpacing.md),
                 walletTypesAsync.when(
                   data: (types) {
                     if (types.isEmpty) {
-                      return const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text('No wallet types available'),
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(l10n.noWalletTypesAvailable),
                       );
                     }
 
                     return DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                        labelText: l10n.walletTypeLabel,
+                        prefixIcon: const Icon(Icons.category_outlined),
+                      ),
                       initialValue: _selectedType,
-                      hint: const Text('Select wallet type'),
+                      hint: Text(l10n.selectWalletType),
                       items: types
                           .map(
                             (type) => DropdownMenuItem(
@@ -477,7 +613,7 @@ class _CreateWalletDialogState extends ConsumerState<_CreateWalletDialog> {
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Wallet type is required';
+                          return l10n.walletTypeRequired;
                         }
                         return null;
                       },
@@ -493,21 +629,32 @@ class _CreateWalletDialogState extends ConsumerState<_CreateWalletDialog> {
                   ),
                   error: (error, stackTrace) => const Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Text('Failed to load wallet types'),
+                    child: SizedBox.shrink(),
                   ),
                 ),
-                if (_submitError != null) ...[
-                  const SizedBox(height: AppSpacing.md),
-                  AppErrorState(
-                    key: const Key('wallet_inline_error'),
-                    message: ErrorMessageMapper.getLocalizedMessage(
-                      context,
-                      _submitError,
+                if (walletTypesAsync.hasError)
+                  Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.xs),
+                    child: Text(
+                      l10n.failedToLoadWalletTypes,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
-                    compact: true,
                   ),
+                  if (_submitError != null) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    AppErrorState(
+                      key: const Key('wallet_inline_error'),
+                      message: ErrorMessageMapper.getLocalizedMessage(
+                        context,
+                        _submitError,
+                      ),
+                      compact: true,
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),
@@ -564,7 +711,7 @@ class _CreateWalletDialogState extends ConsumerState<_CreateWalletDialog> {
         return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Session expired. Please log in again.')),
+        SnackBar(content: Text(appL10n(context).sessionExpiredLoginAgain)),
       );
       return;
     }
@@ -583,6 +730,8 @@ class _CreateWalletDialogState extends ConsumerState<_CreateWalletDialog> {
       number: _numberController.text.trim(),
       branchId: _selectedBranchId!,
       balance: double.parse(_balanceController.text.trim()),
+      dailyLimit: double.parse(_dailyLimitController.text.trim()),
+      monthlyLimit: double.parse(_monthlyLimitController.text.trim()),
       type: _selectedType!,
       tenantId: tenantId,
     );
@@ -602,4 +751,22 @@ class _CreateWalletDialogState extends ConsumerState<_CreateWalletDialog> {
 
     _close(true);
   }
+}
+
+final _decimalInputFormatter = FilteringTextInputFormatter.allow(
+  RegExp(r'^\d*\.?\d{0,2}$'),
+);
+
+String? _validateLimitField(
+  String? value,
+  String requiredMessage,
+  String invalidMessage,
+) {
+  if (value == null || value.trim().isEmpty) {
+    return requiredMessage;
+  }
+  if (double.tryParse(value.trim()) == null) {
+    return invalidMessage;
+  }
+  return null;
 }

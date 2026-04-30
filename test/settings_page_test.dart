@@ -56,8 +56,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Owner Settings'), findsOneWidget);
-    expect(find.text('Owner User'), findsWidgets);
-    expect(find.text('owner@example.com'), findsWidgets);
+    expect(find.text('Owner User'), findsOneWidget);
+    expect(find.text('Workspace: BTC Workspace'), findsNothing);
+    expect(find.text('Account'), findsNothing);
 
     final pageScrollable = find.descendant(
       of: find.byType(SingleChildScrollView),
@@ -85,6 +86,13 @@ class _FakeAuthRepository implements AuthRepository {
   Future<Session> login({required String username, required String password}) {
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {}
 
   @override
   Future<void> logout() async {}

@@ -21,6 +21,7 @@ class TransactionRecord extends Equatable {
     this.createdAt,
     this.updatedAt,
     required this.createdBy,
+    this.createdByUsername,
     required this.status,
     this.note,
   });
@@ -40,6 +41,7 @@ class TransactionRecord extends Equatable {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final String createdBy;
+  final String? createdByUsername;
   final TransactionRecordStatus status;
   final String? note;
 
@@ -60,6 +62,7 @@ class TransactionRecord extends Equatable {
     createdAt,
     updatedAt,
     createdBy,
+    createdByUsername,
     status,
     note,
   ];

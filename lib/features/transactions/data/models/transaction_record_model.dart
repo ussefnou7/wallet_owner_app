@@ -18,6 +18,7 @@ class TransactionRecordModel extends TransactionRecord {
     super.createdAt,
     super.updatedAt,
     required super.createdBy,
+    super.createdByUsername,
     required super.status,
     super.note,
   });
@@ -47,8 +48,8 @@ class TransactionRecordModel extends TransactionRecord {
       updatedAt: updatedAt,
       createdBy:
           json['createdBy'] as String? ??
-          json['phoneNumber'] as String? ??
           'Backend',
+      createdByUsername: _stringOrNull(json['createdByUsername']),
       status: json['status'] is String
           ? _statusFromJson(json['status'] as String)
           : TransactionRecordStatus.recorded,
@@ -71,6 +72,15 @@ DateTime? _dateTimeFromJson(Object? value) {
   }
 
   return null;
+}
+
+String? _stringOrNull(Object? value) {
+  if (value is! String) {
+    return null;
+  }
+
+  final trimmed = value.trim();
+  return trimmed.isEmpty ? null : trimmed;
 }
 
 TransactionEntryType _transactionTypeFromJson(String? value) {

@@ -143,7 +143,7 @@ abstract class AppLocalizations {
   /// No description provided for @createTransaction.
   ///
   /// In en, this message translates to:
-  /// **'Create Transaction'**
+  /// **'Create transaction'**
   String get createTransaction;
 
   /// No description provided for @newTransaction.
@@ -151,6 +151,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'New transaction'**
   String get newTransaction;
+
+  /// No description provided for @userDashboardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get userDashboardTitle;
+
+  /// No description provided for @dashboardToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get dashboardToday;
+
+  /// No description provided for @userDashboardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your transaction activity and quick actions.'**
+  String get userDashboardSubtitle;
+
+  /// No description provided for @dashboardCredits.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Credits'**
+  String get dashboardCredits;
+
+  /// No description provided for @dashboardDebits.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Debits'**
+  String get dashboardDebits;
+
+  /// No description provided for @recentTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Transactions'**
+  String get recentTransactions;
+
+  /// No description provided for @noRecentTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'No recent transactions'**
+  String get noRecentTransactions;
+
+  /// No description provided for @recentTransactionsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your recent activity will appear here.'**
+  String get recentTransactionsEmptyMessage;
+
+  /// No description provided for @transactionCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit'**
+  String get transactionCredit;
+
+  /// No description provided for @transactionDebit.
+  ///
+  /// In en, this message translates to:
+  /// **'Debit'**
+  String get transactionDebit;
+
+  /// No description provided for @userDashboardUnableToLoadSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load today\'s activity right now.'**
+  String get userDashboardUnableToLoadSummary;
 
   /// No description provided for @reports.
   ///
@@ -470,6 +536,18 @@ abstract class AppLocalizations {
   /// **'Track balance movement and wallet activity across your owner account.'**
   String get portfolioOverviewSubtitle;
 
+  /// No description provided for @latestTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest Transactions'**
+  String get latestTransactions;
+
+  /// No description provided for @latestTransactionsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest recorded wallet activity'**
+  String get latestTransactionsSubtitle;
+
   /// No description provided for @totalCredits.
   ///
   /// In en, this message translates to:
@@ -481,6 +559,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Total Debits'**
   String get totalDebits;
+
+  /// No description provided for @viewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View all'**
+  String get viewAll;
 
   /// No description provided for @activeWalletsCount.
   ///
@@ -571,6 +655,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wallet name'**
   String get walletName;
+
+  /// No description provided for @walletCurrentBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Balance'**
+  String get walletCurrentBalance;
+
+  /// No description provided for @walletTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet type'**
+  String get walletTypeLabel;
+
+  /// No description provided for @walletStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet status'**
+  String get walletStatusLabel;
+
+  /// No description provided for @dailyLimitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily limit'**
+  String get dailyLimitLabel;
+
+  /// No description provided for @monthlyLimitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly limit'**
+  String get monthlyLimitLabel;
+
+  /// No description provided for @selectBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Select branch'**
+  String get selectBranch;
+
+  /// No description provided for @selectWalletType.
+  ///
+  /// In en, this message translates to:
+  /// **'Select wallet type'**
+  String get selectWalletType;
+
+  /// No description provided for @walletNumberRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet number is required'**
+  String get walletNumberRequired;
+
+  /// No description provided for @balanceRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance is required'**
+  String get balanceRequired;
+
+  /// No description provided for @validAmountRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid amount'**
+  String get validAmountRequired;
+
+  /// No description provided for @dailyLimitRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily limit is required'**
+  String get dailyLimitRequired;
+
+  /// No description provided for @monthlyLimitRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly limit is required'**
+  String get monthlyLimitRequired;
+
+  /// No description provided for @validLimitRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid limit'**
+  String get validLimitRequired;
+
+  /// No description provided for @branchRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch is required'**
+  String get branchRequired;
+
+  /// No description provided for @walletTypeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet type is required'**
+  String get walletTypeRequired;
+
+  /// No description provided for @noWalletTypesAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No wallet types available'**
+  String get noWalletTypesAvailable;
+
+  /// No description provided for @failedToLoadBranches.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load branches'**
+  String get failedToLoadBranches;
+
+  /// No description provided for @failedToLoadWalletTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load wallet types'**
+  String get failedToLoadWalletTypes;
+
+  /// No description provided for @sessionExpiredLoginAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Session expired. Please log in again.'**
+  String get sessionExpiredLoginAgain;
+
+  /// No description provided for @walletDailyConsumption.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily consumption'**
+  String get walletDailyConsumption;
+
+  /// No description provided for @walletMonthlyConsumption.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly consumption'**
+  String get walletMonthlyConsumption;
+
+  /// No description provided for @walletProfitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet profit'**
+  String get walletProfitLabel;
+
+  /// No description provided for @walletCashProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash profit'**
+  String get walletCashProfit;
+
+  /// No description provided for @walletTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get walletTotalLabel;
 
   /// No description provided for @walletNameRequired.
   ///
@@ -875,7 +1103,7 @@ abstract class AppLocalizations {
   /// No description provided for @ownerSettingsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Review account identity, workspace status, app preferences, and session actions from one place.'**
+  /// **'Manage your owner profile, subscription details, preferences, and account security from one place.'**
   String get ownerSettingsSubtitle;
 
   /// No description provided for @account.
@@ -914,6 +1142,12 @@ abstract class AppLocalizations {
   /// **'Workspace'**
   String get workspace;
 
+  /// No description provided for @ownerWorkspaceFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner workspace'**
+  String get ownerWorkspaceFallback;
+
   /// No description provided for @workspaceSubscription.
   ///
   /// In en, this message translates to:
@@ -950,6 +1184,30 @@ abstract class AppLocalizations {
   /// **'Renewal date'**
   String get renewalDate;
 
+  /// No description provided for @subscriptionAndPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription & Plans'**
+  String get subscriptionAndPlans;
+
+  /// No description provided for @subscriptionAndPlansSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your current plan, usage limits, and renewal requests.'**
+  String get subscriptionAndPlansSubtitle;
+
+  /// No description provided for @browsePlans.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse plans'**
+  String get browsePlans;
+
+  /// No description provided for @browsePlansSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review available plan options, limits, and pricing.'**
+  String get browsePlansSubtitle;
+
   /// No description provided for @openPlans.
   ///
   /// In en, this message translates to:
@@ -977,7 +1235,7 @@ abstract class AppLocalizations {
   /// No description provided for @preferencesSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Lightweight app preferences for this frontend phase.'**
+  /// **'Adjust language, notifications, theme, and app details.'**
   String get preferencesSubtitle;
 
   /// No description provided for @notificationsEnabledSubtitle.
@@ -1016,6 +1274,18 @@ abstract class AppLocalizations {
   /// **'App version'**
   String get appVersion;
 
+  /// No description provided for @security.
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get security;
+
+  /// No description provided for @securitySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update your password and manage access to this account.'**
+  String get securitySubtitle;
+
   /// No description provided for @securitySession.
   ///
   /// In en, this message translates to:
@@ -1037,8 +1307,68 @@ abstract class AppLocalizations {
   /// No description provided for @changePasswordSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Available later with backend integration.'**
+  /// **'Update your account password securely.'**
   String get changePasswordSubtitle;
+
+  /// No description provided for @changePasswordSheetSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your current password and choose a new one with at least 8 characters.'**
+  String get changePasswordSheetSubtitle;
+
+  /// No description provided for @currentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get currentPassword;
+
+  /// No description provided for @currentPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password is required'**
+  String get currentPasswordRequired;
+
+  /// No description provided for @newPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get newPassword;
+
+  /// No description provided for @newPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'New password is required'**
+  String get newPasswordRequired;
+
+  /// No description provided for @newPasswordMinLength.
+  ///
+  /// In en, this message translates to:
+  /// **'New password must be at least 8 characters'**
+  String get newPasswordMinLength;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get confirmPassword;
+
+  /// No description provided for @confirmPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please confirm the new password'**
+  String get confirmPasswordRequired;
+
+  /// No description provided for @confirmPasswordMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get confirmPasswordMismatch;
+
+  /// No description provided for @passwordChangedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed successfully.'**
+  String get passwordChangedSuccessfully;
 
   /// No description provided for @changePasswordComingSoon.
   ///
@@ -1069,6 +1399,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notifications will be available soon.'**
   String get notificationsComingSoon;
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationsImportantSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Important'**
+  String get notificationsImportantSection;
+
+  /// No description provided for @notificationsLowPrioritySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Low Priority'**
+  String get notificationsLowPrioritySection;
+
+  /// No description provided for @notificationsReadAllLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Read all low'**
+  String get notificationsReadAllLow;
+
+  /// No description provided for @notificationsReadAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Read all'**
+  String get notificationsReadAll;
+
+  /// No description provided for @notificationsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All caught up'**
+  String get notificationsEmptyTitle;
+
+  /// No description provided for @notificationsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread notifications will appear here when action is needed.'**
+  String get notificationsEmptyMessage;
+
+  /// No description provided for @notificationsWalletDailyLimitNearTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily wallet limit is near'**
+  String get notificationsWalletDailyLimitNearTitle;
+
+  /// No description provided for @notificationsWalletDailyLimitNearMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'One of your wallets is approaching its daily limit.'**
+  String get notificationsWalletDailyLimitNearMessage;
+
+  /// No description provided for @notificationsWalletDailyLimitExceededTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily wallet limit exceeded'**
+  String get notificationsWalletDailyLimitExceededTitle;
+
+  /// No description provided for @notificationsWalletDailyLimitExceededMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'A wallet has exceeded its daily spending limit.'**
+  String get notificationsWalletDailyLimitExceededMessage;
+
+  /// No description provided for @notificationsWalletMonthlyLimitNearTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly wallet limit is near'**
+  String get notificationsWalletMonthlyLimitNearTitle;
+
+  /// No description provided for @notificationsWalletMonthlyLimitNearMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'One of your wallets is approaching its monthly limit.'**
+  String get notificationsWalletMonthlyLimitNearMessage;
+
+  /// No description provided for @notificationsWalletMonthlyLimitExceededTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly wallet limit exceeded'**
+  String get notificationsWalletMonthlyLimitExceededTitle;
+
+  /// No description provided for @notificationsWalletMonthlyLimitExceededMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'A wallet has exceeded its monthly spending limit.'**
+  String get notificationsWalletMonthlyLimitExceededMessage;
+
+  /// No description provided for @notificationsTransactionCreatedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New transaction created'**
+  String get notificationsTransactionCreatedTitle;
+
+  /// No description provided for @notificationsTransactionCreatedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'A new wallet transaction was recorded.'**
+  String get notificationsTransactionCreatedMessage;
+
+  /// No description provided for @notificationsUnableToLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load notifications right now.'**
+  String get notificationsUnableToLoad;
+
+  /// No description provided for @notificationsUnableToUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to update notifications right now.'**
+  String get notificationsUnableToUpdate;
 
   /// No description provided for @genericReportsSubtitle.
   ///
@@ -1457,7 +1901,7 @@ abstract class AppLocalizations {
   /// No description provided for @createdBy.
   ///
   /// In en, this message translates to:
-  /// **'Created by {name}'**
+  /// **'Created by: {name}'**
   String createdBy(String name);
 
   /// No description provided for @transactionSavedRef.
@@ -1693,12 +2137,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unassign Branch'**
   String get unassignBranch;
-
-  /// No description provided for @selectBranch.
-  ///
-  /// In en, this message translates to:
-  /// **'Select Branch'**
-  String get selectBranch;
 
   /// No description provided for @confirmDelete.
   ///

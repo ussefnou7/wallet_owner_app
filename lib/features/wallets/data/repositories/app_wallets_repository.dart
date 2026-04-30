@@ -26,6 +26,8 @@ class AppWalletsRepository implements WalletsRepository {
     required String number,
     required String branchId,
     required double balance,
+    required double dailyLimit,
+    required double monthlyLimit,
     required String type,
     required String tenantId,
   }) {
@@ -36,6 +38,8 @@ class AppWalletsRepository implements WalletsRepository {
             number: number,
             branchId: branchId,
             balance: balance,
+            dailyLimit: dailyLimit,
+            monthlyLimit: monthlyLimit,
             type: type,
             tenantId: tenantId,
           ),
@@ -48,11 +52,18 @@ class AppWalletsRepository implements WalletsRepository {
     required String walletId,
     required String name,
     required bool active,
+    required double dailyLimit,
+    required double monthlyLimit,
   }) {
     return _remoteDataSource
         .updateWallet(
           walletId: walletId,
-          request: UpdateWalletRequestModel(name: name, active: active),
+          request: UpdateWalletRequestModel(
+            name: name,
+            active: active,
+            dailyLimit: dailyLimit,
+            monthlyLimit: monthlyLimit,
+          ),
         )
         .then(_unwrap);
   }

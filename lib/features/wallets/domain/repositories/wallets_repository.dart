@@ -18,6 +18,8 @@ abstract interface class WalletsRepository {
     required String number,
     required String branchId,
     required double balance,
+    required double dailyLimit,
+    required double monthlyLimit,
     required String type,
     required String tenantId,
   });
@@ -26,6 +28,8 @@ abstract interface class WalletsRepository {
     required String walletId,
     required String name,
     required bool active,
+    required double dailyLimit,
+    required double monthlyLimit,
   });
 
   Future<void> deleteWallet(String walletId);

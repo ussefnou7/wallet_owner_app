@@ -116,6 +116,8 @@ class WalletsController extends StateNotifier<WalletListState> {
     required String number,
     required String branchId,
     required double balance,
+    required double dailyLimit,
+    required double monthlyLimit,
     required String type,
     required String tenantId,
   }) async {
@@ -126,6 +128,8 @@ class WalletsController extends StateNotifier<WalletListState> {
         number: number,
         branchId: branchId,
         balance: balance,
+        dailyLimit: dailyLimit,
+        monthlyLimit: monthlyLimit,
         type: type,
         tenantId: tenantId,
       );
@@ -142,6 +146,8 @@ class WalletsController extends StateNotifier<WalletListState> {
     required String walletId,
     required String name,
     required bool active,
+    required double dailyLimit,
+    required double monthlyLimit,
   }) async {
     state = state.copyWith(isUpdating: true, clearError: true);
     try {
@@ -149,6 +155,8 @@ class WalletsController extends StateNotifier<WalletListState> {
         walletId: walletId,
         name: name,
         active: active,
+        dailyLimit: dailyLimit,
+        monthlyLimit: monthlyLimit,
       );
       await _loadWallets();
     } on AppException catch (error) {

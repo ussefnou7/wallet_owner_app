@@ -8,13 +8,15 @@ class RecentTransaction extends Equatable {
     required this.walletName,
     required this.amount,
     required this.type,
+    this.recordedAt,
   });
 
   final String id;
   final String walletName;
   final double amount;
   final TransactionType type;
+  final DateTime? recordedAt;
 
   @override
-  List<Object?> get props => [id, walletName, amount, type];
+  List<Object?> get props => [id, walletName, amount, type, recordedAt];
 }

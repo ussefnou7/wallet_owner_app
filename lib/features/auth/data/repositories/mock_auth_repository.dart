@@ -24,12 +24,20 @@ class MockAuthRepository implements AuthRepository {
       role: UserRole.owner,
       backendRole: 'OWNER',
       tenantId: 'tenant-demo',
+      tenantName: 'BTC Workspace',
       userId: username,
       displayName: 'Owner User',
     );
     await _localDataSource.saveSession(session);
     return session;
   }
+
+  @override
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {}
 
   @override
   Future<void> logout() {

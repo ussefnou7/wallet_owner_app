@@ -73,6 +73,8 @@ class CreateWalletRequestModel {
     required this.number,
     required this.branchId,
     required this.balance,
+    required this.dailyLimit,
+    required this.monthlyLimit,
     required this.type,
     required this.tenantId,
   });
@@ -81,6 +83,8 @@ class CreateWalletRequestModel {
   final String number;
   final String branchId;
   final double balance;
+  final double dailyLimit;
+  final double monthlyLimit;
   final String type;
   final String tenantId;
 
@@ -89,18 +93,32 @@ class CreateWalletRequestModel {
         'number': number,
         'branchId': branchId,
         'balance': balance,
+        'dailyLimit': dailyLimit,
+        'monthlyLimit': monthlyLimit,
         'type': type,
         'tenantId': tenantId,
       };
 }
 
 class UpdateWalletRequestModel {
-  const UpdateWalletRequestModel({required this.name, required this.active});
+  const UpdateWalletRequestModel({
+    required this.name,
+    required this.active,
+    required this.dailyLimit,
+    required this.monthlyLimit,
+  });
 
   final String name;
   final bool active;
+  final double dailyLimit;
+  final double monthlyLimit;
 
-  Map<String, dynamic> toJson() => {'name': name, 'active': active};
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'active': active,
+        'dailyLimit': dailyLimit,
+        'monthlyLimit': monthlyLimit,
+      };
 }
 
 double _doubleFromJson(Object? value) {

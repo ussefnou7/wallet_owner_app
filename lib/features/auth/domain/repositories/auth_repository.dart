@@ -13,5 +13,11 @@ abstract interface class AuthRepository {
 
   Future<Session> login({required String username, required String password});
 
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  });
+
   Future<void> logout();
 }

@@ -61,6 +61,8 @@ class MockWalletsRepository implements WalletsRepository {
     required String number,
     required String branchId,
     required double balance,
+    required double dailyLimit,
+    required double monthlyLimit,
     required String type,
     required String tenantId,
   }) async {
@@ -71,6 +73,8 @@ class MockWalletsRepository implements WalletsRepository {
       number: number,
       code: 'NEW',
       balance: balance,
+      dailyLimit: dailyLimit,
+      monthlyLimit: monthlyLimit,
       status: WalletStatus.active,
       transactionCount: 0,
       branchId: branchId,
@@ -83,6 +87,8 @@ class MockWalletsRepository implements WalletsRepository {
     required String walletId,
     required String name,
     required bool active,
+    required double dailyLimit,
+    required double monthlyLimit,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 250));
     final wallet = _wallets.firstWhere((wallet) => wallet.id == walletId);
@@ -91,10 +97,18 @@ class MockWalletsRepository implements WalletsRepository {
       name: name,
       code: wallet.code,
       balance: wallet.balance,
+      dailyLimit: dailyLimit,
+      monthlyLimit: monthlyLimit,
       active: active,
       status: active ? WalletStatus.active : WalletStatus.inactive,
       transactionCount: wallet.transactionCount,
       branchName: wallet.branchName,
+      walletProfit: wallet.walletProfit,
+      cashProfit: wallet.cashProfit,
+      dailySpent: wallet.dailySpent,
+      monthlySpent: wallet.monthlySpent,
+      dailyPercent: wallet.dailyPercent,
+      monthlyPercent: wallet.monthlyPercent,
     );
   }
 

@@ -11,9 +11,13 @@ String formatCurrency(num value) {
 final _compactNumberFormatter = NumberFormat.compact();
 final _dateFormatter = DateFormat('dd MMM yyyy');
 final _dateTimeFormatter = DateFormat('dd MMM yyyy, hh:mm a');
+final _numericDateTimeFormatter = DateFormat('dd/MM/yyyy, hh:mm a');
 
 String formatCompactNumber(num value) => _compactNumberFormatter.format(value);
 
 String formatDate(DateTime value) => _dateFormatter.format(value);
 
 String formatDateTime(DateTime value) => _dateTimeFormatter.format(value);
+
+String formatNumericDateTime(DateTime value) =>
+    _numericDateTimeFormatter.format(value);

@@ -125,7 +125,7 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                 ),
                 itemCount: filteredTransactions.length,
                 separatorBuilder: (context, index) =>
-                    const SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: 6),
                 itemBuilder: (context, index) {
                   return TransactionRecordTile(
                     transaction: filteredTransactions[index],

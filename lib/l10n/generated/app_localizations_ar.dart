@@ -30,10 +30,45 @@ class AppLocalizationsAr extends AppLocalizations {
   String get transactions => 'المعاملات';
 
   @override
-  String get createTransaction => 'إنشاء معاملة';
+  String get createTransaction => 'إنشاء عملية';
 
   @override
   String get newTransaction => 'معاملة جديدة';
+
+  @override
+  String get userDashboardTitle => 'لوحة التحكم';
+
+  @override
+  String get dashboardToday => 'اليوم';
+
+  @override
+  String get userDashboardSubtitle =>
+      'تابع عملياتك اليومية ونفّذ الإجراءات السريعة بسهولة.';
+
+  @override
+  String get dashboardCredits => 'إجمالي الإيداع';
+
+  @override
+  String get dashboardDebits => 'إجمالي السحب';
+
+  @override
+  String get recentTransactions => 'آخر العمليات';
+
+  @override
+  String get noRecentTransactions => 'لا توجد عمليات حديثة';
+
+  @override
+  String get recentTransactionsEmptyMessage =>
+      'ستظهر أحدث عملياتك هنا عند توفرها.';
+
+  @override
+  String get transactionCredit => 'إيداع';
+
+  @override
+  String get transactionDebit => 'سحب';
+
+  @override
+  String get userDashboardUnableToLoadSummary => 'تعذر تحميل نشاط اليوم الآن.';
 
   @override
   String get reports => 'التقارير';
@@ -196,10 +231,19 @@ class AppLocalizationsAr extends AppLocalizations {
       'تابع حركة الرصيد ونشاط المحافظ في حساب المالك.';
 
   @override
+  String get latestTransactions => 'آخر العمليات';
+
+  @override
+  String get latestTransactionsSubtitle => 'أحدث العمليات المسجلة على المحافظ';
+
+  @override
   String get totalCredits => 'إجمالي الإيداع';
 
   @override
   String get totalDebits => 'إجمالي السحب';
+
+  @override
+  String get viewAll => 'عرض الكل';
 
   @override
   String activeWalletsCount(int count) {
@@ -249,6 +293,79 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get walletName => 'اسم المحفظة';
+
+  @override
+  String get walletCurrentBalance => 'الرصيد الحالي';
+
+  @override
+  String get walletTypeLabel => 'نوع المحفظة';
+
+  @override
+  String get walletStatusLabel => 'حالة المحفظة';
+
+  @override
+  String get dailyLimitLabel => 'الحد اليومي';
+
+  @override
+  String get monthlyLimitLabel => 'الحد الشهري';
+
+  @override
+  String get selectBranch => 'اختر الفرع';
+
+  @override
+  String get selectWalletType => 'اختر نوع المحفظة';
+
+  @override
+  String get walletNumberRequired => 'رقم المحفظة مطلوب';
+
+  @override
+  String get balanceRequired => 'الرصيد مطلوب';
+
+  @override
+  String get validAmountRequired => 'أدخل مبلغًا صحيحًا';
+
+  @override
+  String get dailyLimitRequired => 'الحد اليومي مطلوب';
+
+  @override
+  String get monthlyLimitRequired => 'الحد الشهري مطلوب';
+
+  @override
+  String get validLimitRequired => 'أدخل حدًا صحيحًا';
+
+  @override
+  String get branchRequired => 'الفرع مطلوب';
+
+  @override
+  String get walletTypeRequired => 'نوع المحفظة مطلوب';
+
+  @override
+  String get noWalletTypesAvailable => 'لا توجد أنواع محافظ متاحة';
+
+  @override
+  String get failedToLoadBranches => 'تعذر تحميل الفروع';
+
+  @override
+  String get failedToLoadWalletTypes => 'تعذر تحميل أنواع المحافظ';
+
+  @override
+  String get sessionExpiredLoginAgain =>
+      'انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.';
+
+  @override
+  String get walletDailyConsumption => 'الاستهلاك اليومي';
+
+  @override
+  String get walletMonthlyConsumption => 'الاستهلاك الشهري';
+
+  @override
+  String get walletProfitLabel => 'الربح على المحفظة';
+
+  @override
+  String get walletCashProfit => 'الربح النقدي';
+
+  @override
+  String get walletTotalLabel => 'الإجمالي';
 
   @override
   String get walletNameRequired => 'اسم المحفظة مطلوب';
@@ -409,7 +526,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get ownerSettingsSubtitle =>
-      'راجع هوية الحساب وحالة مساحة العمل والتفضيلات وإجراءات الجلسة من مكان واحد.';
+      'أدر ملف المالك، تفاصيل الاشتراك، التفضيلات، وأمان الحساب من مكان واحد.';
 
   @override
   String get account => 'الحساب';
@@ -428,6 +545,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get workspace => 'مساحة العمل';
+
+  @override
+  String get ownerWorkspaceFallback => 'مساحة عمل المالك';
 
   @override
   String get workspaceSubscription => 'مساحة العمل والاشتراك';
@@ -449,6 +569,20 @@ class AppLocalizationsAr extends AppLocalizations {
   String get renewalDate => 'تاريخ التجديد';
 
   @override
+  String get subscriptionAndPlans => 'الاشتراك والباقات';
+
+  @override
+  String get subscriptionAndPlansSubtitle =>
+      'تابع باقتك الحالية، حدود الاستخدام، وطلبات التجديد.';
+
+  @override
+  String get browsePlans => 'استعراض الباقات';
+
+  @override
+  String get browsePlansSubtitle =>
+      'راجع خيارات الباقات والحدود والأسعار المتاحة.';
+
+  @override
   String get openPlans => 'فتح الباقات';
 
   @override
@@ -461,7 +595,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get preferences => 'التفضيلات';
 
   @override
-  String get preferencesSubtitle => 'تفضيلات بسيطة للتطبيق في هذه المرحلة.';
+  String get preferencesSubtitle =>
+      'اضبط اللغة والإشعارات والمظهر ومعلومات التطبيق.';
 
   @override
   String get notificationsEnabledSubtitle => 'مفعلة لتنبيهات المالك التجريبية';
@@ -483,6 +618,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get appVersion => 'إصدار التطبيق';
 
   @override
+  String get security => 'الأمان';
+
+  @override
+  String get securitySubtitle => 'حدّث كلمة المرور وأدر الوصول إلى هذا الحساب.';
+
+  @override
   String get securitySession => 'الأمان والجلسة';
 
   @override
@@ -493,7 +634,39 @@ class AppLocalizationsAr extends AppLocalizations {
   String get changePassword => 'تغيير كلمة المرور';
 
   @override
-  String get changePasswordSubtitle => 'سيتوفر لاحقًا مع تكامل الخادم.';
+  String get changePasswordSubtitle => 'حدّث كلمة مرور حسابك بشكل آمن.';
+
+  @override
+  String get changePasswordSheetSubtitle =>
+      'استخدم كلمة المرور الحالية واختر كلمة جديدة لا تقل عن 8 أحرف.';
+
+  @override
+  String get currentPassword => 'كلمة المرور الحالية';
+
+  @override
+  String get currentPasswordRequired => 'كلمة المرور الحالية مطلوبة';
+
+  @override
+  String get newPassword => 'كلمة المرور الجديدة';
+
+  @override
+  String get newPasswordRequired => 'كلمة المرور الجديدة مطلوبة';
+
+  @override
+  String get newPasswordMinLength =>
+      'يجب أن تتكون كلمة المرور الجديدة من 8 أحرف على الأقل';
+
+  @override
+  String get confirmPassword => 'تأكيد كلمة المرور';
+
+  @override
+  String get confirmPasswordRequired => 'يرجى تأكيد كلمة المرور الجديدة';
+
+  @override
+  String get confirmPasswordMismatch => 'كلمتا المرور غير متطابقتين';
+
+  @override
+  String get passwordChangedSuccessfully => 'تم تغيير كلمة المرور بنجاح.';
 
   @override
   String get changePasswordComingSoon =>
@@ -512,6 +685,73 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get notificationsComingSoon => 'ستتوفر الإشعارات قريبًا.';
+
+  @override
+  String get notificationsTitle => 'الإشعارات';
+
+  @override
+  String get notificationsImportantSection => 'مهم';
+
+  @override
+  String get notificationsLowPrioritySection => 'أولوية منخفضة';
+
+  @override
+  String get notificationsReadAllLow => 'قراءة كل المنخفضة';
+
+  @override
+  String get notificationsReadAll => 'قراءة الكل';
+
+  @override
+  String get notificationsEmptyTitle => 'لا توجد إشعارات غير مقروءة';
+
+  @override
+  String get notificationsEmptyMessage =>
+      'ستظهر الإشعارات غير المقروءة هنا عند الحاجة إلى إجراء.';
+
+  @override
+  String get notificationsWalletDailyLimitNearTitle =>
+      'الحد اليومي للمحفظة يقترب';
+
+  @override
+  String get notificationsWalletDailyLimitNearMessage =>
+      'إحدى المحافظ تقترب من حدها اليومي.';
+
+  @override
+  String get notificationsWalletDailyLimitExceededTitle =>
+      'تم تجاوز الحد اليومي للمحفظة';
+
+  @override
+  String get notificationsWalletDailyLimitExceededMessage =>
+      'إحدى المحافظ تجاوزت حد الإنفاق اليومي.';
+
+  @override
+  String get notificationsWalletMonthlyLimitNearTitle =>
+      'الحد الشهري للمحفظة يقترب';
+
+  @override
+  String get notificationsWalletMonthlyLimitNearMessage =>
+      'إحدى المحافظ تقترب من حدها الشهري.';
+
+  @override
+  String get notificationsWalletMonthlyLimitExceededTitle =>
+      'تم تجاوز الحد الشهري للمحفظة';
+
+  @override
+  String get notificationsWalletMonthlyLimitExceededMessage =>
+      'إحدى المحافظ تجاوزت حد الإنفاق الشهري.';
+
+  @override
+  String get notificationsTransactionCreatedTitle => 'تم إنشاء معاملة جديدة';
+
+  @override
+  String get notificationsTransactionCreatedMessage =>
+      'تم تسجيل معاملة جديدة على إحدى المحافظ.';
+
+  @override
+  String get notificationsUnableToLoad => 'تعذر تحميل الإشعارات الآن.';
+
+  @override
+  String get notificationsUnableToUpdate => 'تعذر تحديث الإشعارات الآن.';
 
   @override
   String get genericReportsSubtitle =>
@@ -718,7 +958,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String createdBy(String name) {
-    return 'تم الإنشاء بواسطة $name';
+    return 'بواسطة: $name';
   }
 
   @override
@@ -845,9 +1085,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get unassignBranch => 'إلغاء تعيين الفرع';
-
-  @override
-  String get selectBranch => 'اختر الفرع';
 
   @override
   String get confirmDelete => 'تأكيد الحذف';
@@ -1121,6 +1358,5 @@ class AppLocalizationsAr extends AppLocalizations {
   String get positivePeriodRequired => 'أدخل عدد شهور صحيح';
 
   @override
-  String get password_optional_hint =>
-      'Leave empty if you don\'t want to change it';
+  String get password_optional_hint => 'اتركه فارغًا إذا كنت لا تريد تغييره';
 }

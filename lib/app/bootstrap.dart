@@ -20,6 +20,9 @@ import '../features/branches/domain/repositories/branches_repository.dart';
 import '../features/dashboard/data/repositories/app_dashboard_repository.dart';
 import '../features/dashboard/data/services/dashboard_remote_data_source.dart';
 import '../features/dashboard/domain/repositories/dashboard_repository.dart';
+import '../features/notifications/data/datasources/notifications_remote_data_source.dart';
+import '../features/notifications/data/repositories/app_notifications_repository.dart';
+import '../features/notifications/domain/repositories/notifications_repository.dart';
 import '../features/plans/data/repositories/app_plans_repository.dart';
 import '../features/plans/data/services/plans_remote_data_source.dart';
 import '../features/plans/domain/repositories/plans_repository.dart';
@@ -130,6 +133,13 @@ Future<ProviderContainer> bootstrap() async {
   final reportsRepository = AppReportsRepository(
     remoteDataSource: reportsRemoteDataSource,
   );
+  final notificationsRemoteDataSource = DioNotificationsRemoteDataSource(
+    apiClient: apiClientWithErrorHandler,
+    exceptionMapper: apiExceptionMapper,
+  );
+  final notificationsRepository = AppNotificationsRepository(
+    remoteDataSource: notificationsRemoteDataSource,
+  );
   final plansRemoteDataSource = DioPlansRemoteDataSource(
     apiClient: apiClientWithErrorHandler,
     exceptionMapper: apiExceptionMapper,
@@ -137,7 +147,7 @@ Future<ProviderContainer> bootstrap() async {
   final plansRepository = AppPlansRepository(
     remoteDataSource: plansRemoteDataSource,
   );
-  
+
   final supportRemoteDataSource = DioSupportRemoteDataSource(
     apiClient: apiClientWithErrorHandler,
     exceptionMapper: apiExceptionMapper,
@@ -145,7 +155,7 @@ Future<ProviderContainer> bootstrap() async {
   final supportRepository = AppSupportRepository(
     remoteDataSource: supportRemoteDataSource,
   );
-  
+
   final renewalRemoteDataSource = DioRenewalRemoteDataSource(
     apiClient: apiClientWithErrorHandler,
     exceptionMapper: apiExceptionMapper,
@@ -188,6 +198,12 @@ Future<ProviderContainer> bootstrap() async {
         reportsRemoteDataSource,
       ),
       reportsRepositoryProvider.overrideWithValue(reportsRepository),
+      notificationsRemoteDataSourceProvider.overrideWithValue(
+        notificationsRemoteDataSource,
+      ),
+      notificationsRepositoryProvider.overrideWithValue(
+        notificationsRepository,
+      ),
       plansRepositoryProvider.overrideWithValue(plansRepository),
       supportRepositoryProvider.overrideWithValue(supportRepository),
       renewalRequestsRepositoryProvider.overrideWithValue(
