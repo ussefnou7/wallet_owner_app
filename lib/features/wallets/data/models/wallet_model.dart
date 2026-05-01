@@ -89,15 +89,15 @@ class CreateWalletRequestModel {
   final String tenantId;
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'number': number,
-        'branchId': branchId,
-        'balance': balance,
-        'dailyLimit': dailyLimit,
-        'monthlyLimit': monthlyLimit,
-        'type': type,
-        'tenantId': tenantId,
-      };
+    'name': name,
+    'number': number,
+    'branchId': branchId,
+    'balance': balance,
+    'dailyLimit': dailyLimit,
+    'monthlyLimit': monthlyLimit,
+    'type': type,
+    'tenantId': tenantId,
+  };
 }
 
 class UpdateWalletRequestModel {
@@ -114,11 +114,29 @@ class UpdateWalletRequestModel {
   final double monthlyLimit;
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'active': active,
-        'dailyLimit': dailyLimit,
-        'monthlyLimit': monthlyLimit,
-      };
+    'name': name,
+    'active': active,
+    'dailyLimit': dailyLimit,
+    'monthlyLimit': monthlyLimit,
+  };
+}
+
+class CollectProfitRequestModel {
+  const CollectProfitRequestModel({
+    required this.walletProfitAmount,
+    required this.cashProfitAmount,
+    this.note,
+  });
+
+  final double walletProfitAmount;
+  final double cashProfitAmount;
+  final String? note;
+
+  Map<String, dynamic> toJson() => {
+    'walletProfitAmount': walletProfitAmount,
+    'cashProfitAmount': cashProfitAmount,
+    'note': note,
+  };
 }
 
 double _doubleFromJson(Object? value) {

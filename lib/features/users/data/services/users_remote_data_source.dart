@@ -49,7 +49,9 @@ class DioUsersRemoteDataSource implements UsersRemoteDataSource {
   @override
   Future<ApiResult<List<AppUserModel>>> getUsers() async {
     try {
-      final response = await _apiClient.get<Object?>(NetworkConstants.usersPath);
+      final response = await _apiClient.get<Object?>(
+        NetworkConstants.usersPath,
+      );
       final users = ApiResponseExtractor.extractList(
         response.data,
       ).map(AppUserModel.fromJson).toList();
@@ -69,7 +71,9 @@ class DioUsersRemoteDataSource implements UsersRemoteDataSource {
         data: request.toJson(),
       );
       return ApiSuccess(
-        AppUserModel.fromJson(ApiResponseExtractor.extractObject(response.data)),
+        AppUserModel.fromJson(
+          ApiResponseExtractor.extractObject(response.data),
+        ),
       );
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));
@@ -87,7 +91,9 @@ class DioUsersRemoteDataSource implements UsersRemoteDataSource {
         data: request.toJson(),
       );
       return ApiSuccess(
-        AppUserModel.fromJson(ApiResponseExtractor.extractObject(response.data)),
+        AppUserModel.fromJson(
+          ApiResponseExtractor.extractObject(response.data),
+        ),
       );
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));
@@ -111,11 +117,13 @@ class DioUsersRemoteDataSource implements UsersRemoteDataSource {
   }) async {
     try {
       final response = await _apiClient.put<Object?>(
-        NetworkConstants.userBranchAssignmentPath(userId),
+        NetworkConstants.userAssignBranchPath(userId),
         data: request.toJson(),
       );
       return ApiSuccess(
-        AppUserModel.fromJson(ApiResponseExtractor.extractObject(response.data)),
+        AppUserModel.fromJson(
+          ApiResponseExtractor.extractObject(response.data),
+        ),
       );
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));

@@ -12,6 +12,48 @@ import 'package:wallet_owner_app/features/wallets/presentation/controllers/walle
 import 'package:wallet_owner_app/features/wallets/presentation/pages/wallets_page.dart';
 
 void main() {
+  testWidgets('owner can open collect profit sheet from wallet card', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => AuthController(
+              authRepository: _FakeAuthRepository(),
+              initialSession: const Session(
+                accessToken: 'token',
+                refreshToken: 'refresh',
+                username: 'owner@example.com',
+                role: UserRole.owner,
+                backendRole: 'OWNER',
+                tenantId: 'tenant-1',
+                userId: 'owner-1',
+                displayName: 'Owner User',
+              ),
+            ),
+          ),
+          walletsRepositoryProvider.overrideWithValue(MockWalletsRepository()),
+          branchesRepositoryProvider.overrideWithValue(
+            MockBranchesRepository(),
+          ),
+          walletTypesProvider.overrideWith((ref) async => ['STANDARD']),
+        ],
+        child: const MaterialApp(home: Scaffold(body: WalletsPage())),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Collect Profit'), findsWidgets);
+
+    await tester.tap(find.text('Collect Profit').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Wallet Profit Amount'), findsOneWidget);
+    expect(find.text('Cash Profit Amount'), findsOneWidget);
+  });
+
   testWidgets('create wallet dialog cancels safely', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
@@ -56,6 +98,44 @@ void main() {
 
     expect(find.byType(AlertDialog), findsNothing);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('read only wallets page does not show collect profit action', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => AuthController(
+              authRepository: _FakeAuthRepository(),
+              initialSession: const Session(
+                accessToken: 'token',
+                refreshToken: 'refresh',
+                username: 'user@example.com',
+                role: UserRole.user,
+                backendRole: 'USER',
+                tenantId: 'tenant-1',
+                userId: 'user-1',
+                displayName: 'User Account',
+              ),
+            ),
+          ),
+          walletsRepositoryProvider.overrideWithValue(MockWalletsRepository()),
+          branchesRepositoryProvider.overrideWithValue(
+            MockBranchesRepository(),
+          ),
+          walletTypesProvider.overrideWith((ref) async => ['STANDARD']),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(body: WalletsPage(readOnly: true)),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Collect Profit'), findsNothing);
   });
 }
 

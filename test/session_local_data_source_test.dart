@@ -9,6 +9,20 @@ void main() {
   const sessionKey = 'auth.session';
   const accessTokenKey = 'auth.access_token';
   const refreshTokenKey = 'auth.refresh_token';
+  const validAccessToken =
+      'header.'
+      'eyJzdWIiOiJVc3NlZiIsInJvbGUiOiJPV05FUiIsImV4cCI6MjUyNDYwODAwMH0.'
+      'signature';
+  const expiredAccessToken =
+      'header.'
+      'eyJzdWIiOiJVc3NlZiIsInJvbGUiOiJPV05FUiIsImV4cCI6MTU3NzgzNjgwMH0.'
+      'signature';
+  const tokenWithoutExpiry =
+      'header.eyJzdWIiOiJVc3NlZiIsInJvbGUiOiJPV05FUiJ9.signature';
+  final validTokenExpiresAt = DateTime.fromMillisecondsSinceEpoch(
+    2524608000 * 1000,
+    isUtc: true,
+  );
 
   test('persists and clears session tokens and metadata', () async {
     SharedPreferences.setMockInitialValues({});
@@ -19,8 +33,8 @@ void main() {
       sharedPreferences: sharedPreferences,
     );
 
-    const session = Session(
-      accessToken: 'access-token',
+    final session = Session(
+      accessToken: validAccessToken,
       refreshToken: 'refresh-token',
       username: 'owner@example.com',
       role: UserRole.owner,
@@ -28,6 +42,7 @@ void main() {
       tenantId: 'tenant-demo',
       userId: 'owner@example.com',
       displayName: 'Owner User',
+      tokenExpiresAt: validTokenExpiresAt,
     );
 
     await dataSource.saveSession(session);
@@ -35,7 +50,7 @@ void main() {
     final restoredSession = await dataSource.readSession();
 
     expect(restoredSession, session);
-    expect(await dataSource.readAccessToken(), 'access-token');
+    expect(await dataSource.readAccessToken(), validAccessToken);
     expect(await dataSource.readRefreshToken(), 'refresh-token');
 
     await dataSource.clearSession();
@@ -53,7 +68,7 @@ void main() {
       });
       final sharedPreferences = await SharedPreferences.getInstance();
       final secureStorage = _FakeSecureStorage()
-        ..seed(accessTokenKey, 'access-token');
+        ..seed(accessTokenKey, validAccessToken);
       final dataSource = SessionLocalDataSource(
         secureStorage: secureStorage,
         sharedPreferences: sharedPreferences,
@@ -62,7 +77,7 @@ void main() {
       final restoredSession = await dataSource.readSession();
 
       expect(restoredSession, isNotNull);
-      expect(restoredSession!.accessToken, 'access-token');
+      expect(restoredSession!.accessToken, validAccessToken);
       expect(restoredSession.refreshToken, '');
       expect(restoredSession.username, 'Ussef');
       expect(restoredSession.role, UserRole.owner);
@@ -70,6 +85,7 @@ void main() {
       expect(restoredSession.tenantId, '');
       expect(restoredSession.userId, '');
       expect(restoredSession.displayName, 'Ussef');
+      expect(restoredSession.tokenExpiresAt, validTokenExpiresAt);
     },
   );
 
@@ -77,7 +93,7 @@ void main() {
     SharedPreferences.setMockInitialValues({sessionKey: '{invalid-json'});
     final sharedPreferences = await SharedPreferences.getInstance();
     final secureStorage = _FakeSecureStorage()
-      ..seed(accessTokenKey, 'access-token')
+      ..seed(accessTokenKey, validAccessToken)
       ..seed(refreshTokenKey, 'refresh-token');
     final dataSource = SessionLocalDataSource(
       secureStorage: secureStorage,
@@ -115,11 +131,32 @@ void main() {
   test('expired cached session is cleared and returns null', () async {
     SharedPreferences.setMockInitialValues({
       sessionKey:
-          '{"username":"Ussef","role":"OWNER","tokenExpiresAt":"2020-01-01T00:00:00.000Z"}',
+          '{"username":"Ussef","role":"OWNER","tokenExpiresAt":"2099-01-01T00:00:00.000Z"}',
     });
     final sharedPreferences = await SharedPreferences.getInstance();
     final secureStorage = _FakeSecureStorage()
-      ..seed(accessTokenKey, 'access-token')
+      ..seed(accessTokenKey, expiredAccessToken)
+      ..seed(refreshTokenKey, 'refresh-token');
+    final dataSource = SessionLocalDataSource(
+      secureStorage: secureStorage,
+      sharedPreferences: sharedPreferences,
+    );
+
+    final restoredSession = await dataSource.readSession();
+
+    expect(restoredSession, isNull);
+    expect(sharedPreferences.getString(sessionKey), isNull);
+    expect(await dataSource.readAccessToken(), isNull);
+    expect(await dataSource.readRefreshToken(), isNull);
+  });
+
+  test('token without exp is treated as invalid cached session', () async {
+    SharedPreferences.setMockInitialValues({
+      sessionKey: '{"username":"Ussef","role":"OWNER"}',
+    });
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final secureStorage = _FakeSecureStorage()
+      ..seed(accessTokenKey, tokenWithoutExpiry)
       ..seed(refreshTokenKey, 'refresh-token');
     final dataSource = SessionLocalDataSource(
       secureStorage: secureStorage,

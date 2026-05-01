@@ -1,3 +1,4 @@
+import '../../../../core/network/models/paged_response.dart';
 import '../../domain/entities/transaction_draft.dart';
 import '../../domain/entities/transaction_record.dart';
 import '../../domain/entities/transaction_submission_result.dart';
@@ -53,11 +54,13 @@ class MockTransactionsRepository implements TransactionsRepository {
   ];
 
   @override
-  Future<List<TransactionRecord>> getTransactions({
+  Future<PagedResponse<TransactionRecord>> getTransactions({
     String? walletId,
     TransactionEntryType? type,
     DateTime? dateFrom,
     DateTime? dateTo,
+    int page = 0,
+    int size = 20,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 450));
     final transactions = _transactions.where((transaction) {
@@ -78,7 +81,24 @@ class MockTransactionsRepository implements TransactionsRepository {
       return true;
     }).toList();
     transactions.sort((a, b) => b.date.compareTo(a.date));
-    return transactions;
+    final start = page * size;
+    final end = (start + size).clamp(0, transactions.length);
+    final content = start >= transactions.length
+        ? const <TransactionRecord>[]
+        : transactions.sublist(start, end);
+    final totalElements = transactions.length;
+    final totalPages = totalElements == 0 ? 0 : (totalElements / size).ceil();
+    final hasNext = end < totalElements;
+
+    return PagedResponse<TransactionRecord>(
+      content: content,
+      page: page,
+      size: size,
+      totalElements: totalElements,
+      totalPages: totalPages,
+      last: !hasNext,
+      hasNext: hasNext,
+    );
   }
 
   @override

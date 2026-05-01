@@ -8,6 +8,7 @@ import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/errors/error_message_mapper.dart';
+import '../../../../core/formatters/app_date_formatter.dart';
 import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_empty_state.dart';
@@ -43,8 +44,9 @@ class _UserDashboardPageState extends ConsumerState<UserDashboardPage> {
   @override
   Widget build(BuildContext context) {
     final overviewAsync = ref.watch(userDashboardOverviewProvider);
-    final transactionsAsync = ref.watch(transactionsControllerProvider);
+    final transactionsState = ref.watch(transactionsControllerProvider);
     final l10n = appL10n(context);
+    final locale = Localizations.localeOf(context).languageCode;
     final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return SingleChildScrollView(
@@ -81,7 +83,7 @@ class _UserDashboardPageState extends ConsumerState<UserDashboardPage> {
             onTap: () => context.go(AppRoutes.userCreateTransaction),
           ),
           const SizedBox(height: AppSpacing.lg),
-          _RecentTransactionsCard(transactionsAsync: transactionsAsync),
+          _RecentTransactionsCard(transactionsState: transactionsState),
         ],
       ),
     );
@@ -344,9 +346,9 @@ class _CreateTransactionCard extends StatelessWidget {
 }
 
 class _RecentTransactionsCard extends StatelessWidget {
-  const _RecentTransactionsCard({required this.transactionsAsync});
+  const _RecentTransactionsCard({required this.transactionsState});
 
-  final AsyncValue<List<TransactionRecord>> transactionsAsync;
+  final TransactionsListState transactionsState;
 
   @override
   Widget build(BuildContext context) {
@@ -368,18 +370,21 @@ class _RecentTransactionsCard extends StatelessWidget {
             onActionPressed: () => context.go(AppRoutes.userTransactions),
           ),
           const SizedBox(height: AppSpacing.md),
-          transactionsAsync.when(
-            loading: () => AppLoadingView(message: l10n.loadingTransactions),
-            error: (error, stackTrace) => AppErrorState(
+          if (transactionsState.isInitialLoading)
+            AppLoadingView(message: l10n.loadingTransactions)
+          else if (transactionsState.errorMessage != null &&
+              transactionsState.transactions.isEmpty)
+            AppErrorState(
               message: ErrorMessageMapper.getLocalizedMessage(
                 context,
-                error,
+                transactionsState.errorMessage,
                 fallbackMessage: l10n.unableToLoadTransactions,
               ),
               compact: true,
-            ),
-            data: (transactions) {
-              final visible = [...transactions]
+            )
+          else ...[
+            () {
+              final visible = [...transactionsState.transactions]
                 ..sort((a, b) => _displayDate(b).compareTo(_displayDate(a)));
 
               if (visible.isEmpty) {
@@ -400,8 +405,8 @@ class _RecentTransactionsCard extends StatelessWidget {
                   ],
                 ],
               );
-            },
-          ),
+            }(),
+          ],
         ],
       ),
     );
@@ -420,6 +425,7 @@ class _UserRecentTransactionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = appL10n(context);
+    final locale = Localizations.localeOf(context).languageCode;
     final isCredit = transaction.type == TransactionEntryType.credit;
     final typeLabel = switch (transaction.type) {
       TransactionEntryType.credit => l10n.transactionCredit,
@@ -458,13 +464,13 @@ class _UserRecentTransactionTile extends StatelessWidget {
                       transaction.walletName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      formatNumericDateTime(_displayDate),
+                      AppDateFormatter.full(_displayDate, locale: locale),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(

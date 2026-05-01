@@ -3,8 +3,8 @@ import '../../domain/repositories/wallets_repository.dart';
 import '../models/wallet_model.dart';
 
 class MockWalletsRepository implements WalletsRepository {
-  static const _wallets = [
-    WalletModel(
+  final List<WalletModel> _wallets = [
+    const WalletModel(
       id: 'wallet-1',
       name: 'Main Wallet',
       code: 'MW-001',
@@ -12,8 +12,10 @@ class MockWalletsRepository implements WalletsRepository {
       status: WalletStatus.active,
       transactionCount: 428,
       branchName: 'Head Office',
+      walletProfit: 8400,
+      cashProfit: 2150,
     ),
-    WalletModel(
+    const WalletModel(
       id: 'wallet-2',
       name: 'Branch Wallet',
       code: 'BW-014',
@@ -21,8 +23,10 @@ class MockWalletsRepository implements WalletsRepository {
       status: WalletStatus.active,
       transactionCount: 163,
       branchName: 'Nasr City',
+      walletProfit: 1700,
+      cashProfit: 650,
     ),
-    WalletModel(
+    const WalletModel(
       id: 'wallet-3',
       name: 'Delivery Wallet',
       code: 'DW-007',
@@ -31,8 +35,10 @@ class MockWalletsRepository implements WalletsRepository {
       active: false,
       transactionCount: 57,
       branchName: 'Alexandria',
+      walletProfit: 0,
+      cashProfit: 210,
     ),
-    WalletModel(
+    const WalletModel(
       id: 'wallet-4',
       name: 'VIP Customer Wallet',
       code: 'VW-021',
@@ -40,6 +46,8 @@ class MockWalletsRepository implements WalletsRepository {
       status: WalletStatus.active,
       transactionCount: 204,
       branchName: 'Maadi',
+      walletProfit: 4900,
+      cashProfit: 1200,
     ),
   ];
 
@@ -110,6 +118,49 @@ class MockWalletsRepository implements WalletsRepository {
       dailyPercent: wallet.dailyPercent,
       monthlyPercent: wallet.monthlyPercent,
     );
+  }
+
+  @override
+  Future<Wallet?> collectProfit({
+    required String walletId,
+    required double walletProfitAmount,
+    required double cashProfitAmount,
+    String? note,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+    final index = _wallets.indexWhere((wallet) => wallet.id == walletId);
+    final wallet = _wallets[index];
+    final updated = WalletModel(
+      id: wallet.id,
+      tenantId: wallet.tenantId,
+      tenantName: wallet.tenantName,
+      branchId: wallet.branchId,
+      name: wallet.name,
+      number: wallet.number,
+      code: wallet.code,
+      balance: wallet.balance,
+      dailyLimit: wallet.dailyLimit,
+      monthlyLimit: wallet.monthlyLimit,
+      active: wallet.active,
+      status: wallet.status,
+      transactionCount: wallet.transactionCount,
+      branchName: wallet.branchName,
+      rawType: wallet.rawType,
+      walletProfit: (wallet.walletProfit - walletProfitAmount).clamp(
+        0,
+        double.infinity,
+      ),
+      cashProfit: (wallet.cashProfit - cashProfitAmount).clamp(
+        0,
+        double.infinity,
+      ),
+      dailySpent: wallet.dailySpent,
+      monthlySpent: wallet.monthlySpent,
+      dailyPercent: wallet.dailyPercent,
+      monthlyPercent: wallet.monthlyPercent,
+    );
+    _wallets[index] = updated;
+    return updated;
   }
 
   @override

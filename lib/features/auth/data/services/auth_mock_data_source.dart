@@ -10,6 +10,11 @@ final authMockDataSourceProvider = Provider<AuthMockDataSource>(
 );
 
 class AuthMockDataSource {
+  static const _mockOwnerToken =
+      'header.'
+      'eyJzdWIiOiJtb2NrLW93bmVyIiwicm9sZSI6Ik9XTkVSIiwidGVuYW50SWQiOiJ0ZW5hbnQtZGVtbyIsInVzZXJJZCI6Im1vY2stb3duZXIiLCJleHAiOjI1MjQ2MDgwMDB9.'
+      'signature';
+
   const AuthMockDataSource();
 
   Future<ApiResult<LoginResponseModel>> login(LoginRequestModel request) async {
@@ -17,7 +22,7 @@ class AuthMockDataSource {
 
     return ApiSuccess(
       LoginResponseModel(
-        accessToken: 'mock-owner-token',
+        accessToken: _mockOwnerToken,
         refreshToken: 'mock-refresh-token',
         username: request.username,
         role: UserRole.owner,

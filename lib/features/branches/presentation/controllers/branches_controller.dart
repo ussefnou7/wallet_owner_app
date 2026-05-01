@@ -54,6 +54,14 @@ class BranchesController extends AsyncNotifier<List<Branch>> {
     return repository.getBranches();
   }
 
+  Future<void> ensureLoaded() async {
+    if (state.isLoading || state.hasValue) {
+      return;
+    }
+
+    await reload();
+  }
+
   Future<void> reload() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {

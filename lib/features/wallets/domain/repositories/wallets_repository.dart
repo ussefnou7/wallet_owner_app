@@ -32,5 +32,12 @@ abstract interface class WalletsRepository {
     required double monthlyLimit,
   });
 
+  Future<Wallet?> collectProfit({
+    required String walletId,
+    required double walletProfitAmount,
+    required double cashProfitAmount,
+    String? note,
+  });
+
   Future<void> deleteWallet(String walletId);
 }

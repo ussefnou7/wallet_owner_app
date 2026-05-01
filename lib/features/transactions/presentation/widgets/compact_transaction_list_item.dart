@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/formatters/app_date_formatter.dart';
 import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/utils/formatters.dart';
 
@@ -30,9 +31,10 @@ class CompactTransactionListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = appL10n(context);
+    final locale = Localizations.localeOf(context).languageCode;
     final subtitle = recordedAt == null
         ? l10n.notAvailable
-        : formatNumericDateTime(recordedAt!);
+        : AppDateFormatter.smart(recordedAt!, locale: locale);
     final creator = createdByUsername?.trim();
     final showCreator = creator != null && creator.isNotEmpty;
 

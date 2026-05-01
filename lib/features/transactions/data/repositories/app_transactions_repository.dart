@@ -1,4 +1,5 @@
 import '../../../../core/network/api_result.dart';
+import '../../../../core/network/models/paged_response.dart';
 import '../../domain/entities/transaction_draft.dart';
 import '../../domain/entities/transaction_record.dart';
 import '../../domain/entities/transaction_submission_result.dart';
@@ -14,11 +15,13 @@ class AppTransactionsRepository implements TransactionsRepository {
   final TransactionsRemoteDataSource _remoteDataSource;
 
   @override
-  Future<List<TransactionRecord>> getTransactions({
+  Future<PagedResponse<TransactionRecord>> getTransactions({
     String? walletId,
     TransactionEntryType? type,
     DateTime? dateFrom,
     DateTime? dateTo,
+    int page = 0,
+    int size = 20,
   }) {
     return _remoteDataSource
         .getTransactions(
@@ -26,6 +29,8 @@ class AppTransactionsRepository implements TransactionsRepository {
           type: type,
           dateFrom: dateFrom,
           dateTo: dateTo,
+          page: page,
+          size: size,
         )
         .then(_unwrap);
   }

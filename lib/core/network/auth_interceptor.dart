@@ -25,6 +25,12 @@ class AuthInterceptor extends Interceptor {
     options.headers[NetworkConstants.acceptHeader] = Headers.jsonContentType;
     options.headers[Headers.contentTypeHeader] = Headers.jsonContentType;
 
+    if (NetworkConstants.isPublicAuthPath(options.uri.path)) {
+      options.headers.remove(NetworkConstants.authorizationHeader);
+      handler.next(options);
+      return;
+    }
+
     final accessToken = await _readAccessToken();
     if (accessToken != null && accessToken.isNotEmpty) {
       options.headers[NetworkConstants.authorizationHeader] =

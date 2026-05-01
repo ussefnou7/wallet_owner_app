@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/errors/app_exception.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exception_mapper.dart';
 import '../../../../core/network/api_response_extractor.dart';
 import '../../../../core/network/api_result.dart';
+import '../../../../core/network/models/paged_response.dart';
 import '../../../../core/network/network_constants.dart';
 import '../../domain/entities/transaction_draft.dart';
 import '../models/transaction_draft_model.dart';
@@ -20,11 +22,13 @@ final transactionsRemoteDataSourceProvider =
     });
 
 abstract interface class TransactionsRemoteDataSource {
-  Future<ApiResult<List<TransactionRecordModel>>> getTransactions({
+  Future<ApiResult<PagedResponse<TransactionRecordModel>>> getTransactions({
     String? walletId,
     TransactionEntryType? type,
     DateTime? dateFrom,
     DateTime? dateTo,
+    int page = 0,
+    int size = 20,
   });
 
   Future<ApiResult<TransactionRecordModel>> getTransactionById(
@@ -47,16 +51,20 @@ class DioTransactionsRemoteDataSource implements TransactionsRemoteDataSource {
   final ApiExceptionMapper _exceptionMapper;
 
   @override
-  Future<ApiResult<List<TransactionRecordModel>>> getTransactions({
+  Future<ApiResult<PagedResponse<TransactionRecordModel>>> getTransactions({
     String? walletId,
     TransactionEntryType? type,
     DateTime? dateFrom,
     DateTime? dateTo,
+    int page = 0,
+    int size = 20,
   }) async {
     try {
-      final response = await _apiClient.get<Object?>(
+      final response = await _apiClient.get<Map<String, dynamic>>(
         NetworkConstants.transactionsPath,
         queryParameters: {
+          'page': page,
+          'size': size,
           if (walletId != null && walletId.isNotEmpty) 'walletId': walletId,
           if (type != null && type != TransactionEntryType.unknown)
             'type': _typeToJson(type),
@@ -64,10 +72,20 @@ class DioTransactionsRemoteDataSource implements TransactionsRemoteDataSource {
           if (dateTo != null) 'dateTo': dateTo.toIso8601String(),
         },
       );
-      final transactions = ApiResponseExtractor.extractList(response.data)
-          .map(TransactionRecordModel.fromJson)
-          .toList();
-      return ApiSuccess(transactions);
+      final payload = response.data;
+      if (payload == null) {
+        throw const AppException(
+          code: 'UNKNOWN_ERROR',
+          message: 'Server returned empty response.',
+        );
+      }
+
+      return ApiSuccess(
+        PagedResponse<TransactionRecordModel>.fromJson(
+          payload,
+          TransactionRecordModel.fromJson,
+        ),
+      );
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));
     }

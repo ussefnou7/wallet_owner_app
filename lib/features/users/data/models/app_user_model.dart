@@ -16,9 +16,7 @@ class AppUserModel extends AppUser {
   });
 
   factory AppUserModel.fromJson(Map<String, dynamic> json) {
-    // If 'active' is not provided by the backend, default to true
-    // as per AppUser entity's default value.
-    final active = json['active'] as bool? ?? true;
+    final active = _boolFromJson(json['active'] ?? json['isActive']) ?? true;
     return AppUserModel(
       id: (json['id'] as String?) ?? (json['userId'] as String?) ?? '',
       username: (json['username'] as String?) ?? '',
@@ -32,6 +30,22 @@ class AppUserModel extends AppUser {
   }
 }
 
+bool? _boolFromJson(Object? value) {
+  if (value is bool) {
+    return value;
+  }
+  if (value is String) {
+    final normalized = value.trim().toLowerCase();
+    if (normalized == 'true') {
+      return true;
+    }
+    if (normalized == 'false') {
+      return false;
+    }
+  }
+  return null;
+}
+
 @immutable
 class CreateUserRequestModel {
   const CreateUserRequestModel({
@@ -42,29 +56,30 @@ class CreateUserRequestModel {
   final String username;
   final String password;
 
-  Map<String, dynamic> toJson() => {
-    'username': username,
-    'password': password,
-  };
+  Map<String, dynamic> toJson() => {'username': username, 'password': password};
 }
 
 @immutable
 class UpdateUserRequestModel {
   const UpdateUserRequestModel({
     required this.username,
-    required this.password,
+    this.password,
     required this.active,
   });
 
   final String username;
-  final String password;
+  final String? password;
   final bool active;
 
-  Map<String, dynamic> toJson() => {
-    'username': username,
-    'password': password,
-    'active': active,
-  };
+  Map<String, dynamic> toJson() {
+    final json = <String, dynamic>{'username': username, 'active': active};
+
+    if (password != null && password!.trim().isNotEmpty) {
+      json['password'] = password;
+    }
+
+    return json;
+  }
 }
 
 @immutable

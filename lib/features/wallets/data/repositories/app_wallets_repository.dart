@@ -69,6 +69,25 @@ class AppWalletsRepository implements WalletsRepository {
   }
 
   @override
+  Future<Wallet?> collectProfit({
+    required String walletId,
+    required double walletProfitAmount,
+    required double cashProfitAmount,
+    String? note,
+  }) {
+    return _remoteDataSource
+        .collectProfit(
+          walletId: walletId,
+          request: CollectProfitRequestModel(
+            walletProfitAmount: walletProfitAmount,
+            cashProfitAmount: cashProfitAmount,
+            note: note,
+          ),
+        )
+        .then(_unwrap);
+  }
+
+  @override
   Future<void> deleteWallet(String walletId) {
     return _remoteDataSource.deleteWallet(walletId).then(_unwrap);
   }

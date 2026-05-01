@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/storage/app_secure_storage.dart';
 import '../../domain/entities/session.dart';
+import 'jwt_decoder.dart';
 
 final sessionLocalDataSourceProvider = Provider<SessionLocalDataSource>((ref) {
   final secureStorage = ref.watch(secureStorageProvider);
@@ -61,6 +62,7 @@ class SessionLocalDataSource {
   Future<Session?> readSession() async {
     final storedSession = _sharedPreferences.getString(_sessionKey);
     if (storedSession == null || storedSession.isEmpty) {
+      await _clearDanglingSessionArtifacts();
       return null;
     }
 
@@ -71,24 +73,29 @@ class SessionLocalDataSource {
         return null;
       }
 
+      final tokenExpiresAt = JwtDecoder.tryReadExpiration(accessToken);
+      if (tokenExpiresAt == null ||
+          JwtDecoder.isExpiredOrInvalid(accessToken)) {
+        await clearSession();
+        return null;
+      }
+
       final refreshToken = await readRefreshToken();
       final decoded = jsonDecode(storedSession);
-      if (decoded is! Map<String, dynamic>) {
+      if (decoded is! Map) {
         await clearSession();
         return null;
       }
+
+      final storedSessionMap = Map<String, dynamic>.from(decoded);
 
       final session = Session.fromJson({
-        ...decoded,
+        ...storedSessionMap,
         'accessToken': accessToken,
-        'refreshToken': refreshToken ?? (decoded['refreshToken'] as String?),
+        'refreshToken':
+            refreshToken ?? (storedSessionMap['refreshToken'] as String?),
+        'tokenExpiresAt': tokenExpiresAt.toIso8601String(),
       });
-
-      final tokenExpiresAt = session.tokenExpiresAt;
-      if (tokenExpiresAt != null && tokenExpiresAt.isBefore(DateTime.now())) {
-        await clearSession();
-        return null;
-      }
 
       return session;
     } catch (_) {
@@ -107,5 +114,14 @@ class SessionLocalDataSource {
       _secureStorage.delete(_accessTokenKey),
       _secureStorage.delete(_refreshTokenKey),
     ]);
+  }
+
+  Future<void> _clearDanglingSessionArtifacts() async {
+    final accessToken = await readAccessToken();
+    final refreshToken = await readRefreshToken();
+    if ((accessToken != null && accessToken.isNotEmpty) ||
+        (refreshToken != null && refreshToken.isNotEmpty)) {
+      await clearSession();
+    }
   }
 }

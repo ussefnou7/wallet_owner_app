@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/formatters/app_date_formatter.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../domain/entities/app_notification.dart';
@@ -24,6 +25,7 @@ class LowNotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
     return Material(
       color: AppColors.surface,
       borderRadius: BorderRadius.circular(AppRadii.md),
@@ -77,7 +79,10 @@ class LowNotificationCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      formatDateTime(notification.createdAt),
+                      AppDateFormatter.smart(
+                        notification.createdAt,
+                        locale: locale,
+                      ),
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: AppColors.textMuted,
                       ),

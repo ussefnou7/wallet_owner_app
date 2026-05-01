@@ -350,7 +350,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get sessionExpiredLoginAgain =>
-      'انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.';
+      'انتهت الجلسة، برجاء تسجيل الدخول مرة أخرى';
+
+  @override
+  String get invalidSessionLoginAgain =>
+      'الجلسة غير صالحة، برجاء تسجيل الدخول مرة أخرى';
+
+  @override
+  String get accountDisabledMessage => 'تم تعطيل هذا الحساب';
 
   @override
   String get walletDailyConsumption => 'الاستهلاك اليومي';
@@ -366,6 +373,39 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get walletTotalLabel => 'الإجمالي';
+
+  @override
+  String get collectProfit => 'تحصيل الأرباح';
+
+  @override
+  String get currentWalletProfit => 'أرباح المحفظة الحالية';
+
+  @override
+  String get currentCashProfit => 'أرباح الكاش الحالية';
+
+  @override
+  String get walletProfitAmount => 'مبلغ أرباح المحفظة';
+
+  @override
+  String get cashProfitAmount => 'مبلغ أرباح الكاش';
+
+  @override
+  String get optionalNote => 'ملاحظة اختيارية';
+
+  @override
+  String get collectProfitAmountRequired =>
+      'أدخل مبلغًا أكبر من 0 في أرباح المحفظة أو أرباح الكاش.';
+
+  @override
+  String get walletProfitAmountExceeds =>
+      'لا يمكن أن يتجاوز مبلغ أرباح المحفظة الربح الحالي للمحفظة.';
+
+  @override
+  String get cashProfitAmountExceeds =>
+      'لا يمكن أن يتجاوز مبلغ أرباح الكاش الربح النقدي الحالي.';
+
+  @override
+  String get collectProfitSuccess => 'تم تحصيل الأرباح بنجاح.';
 
   @override
   String get walletNameRequired => 'اسم المحفظة مطلوب';
@@ -412,6 +452,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get refreshTransactions => 'تحديث المعاملات';
+
+  @override
+  String get loadMoreTransactions => 'تحميل المزيد';
+
+  @override
+  String get loadingMoreTransactions => 'جارٍ تحميل المزيد...';
+
+  @override
+  String get loadMoreTransactionsFailed =>
+      'تعذر تحميل المزيد من المعاملات. حاول مرة أخرى.';
 
   @override
   String get loadingTransactions => 'جارٍ تحميل المعاملات...';

@@ -112,216 +112,205 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
       child: walletsState.isLoading
           ? AppLoadingView(message: l10n.loadingWalletOptions)
           : walletsState.error != null
-              ? AppErrorState(
-                  message: l10n.unableToLoadWalletOptions,
-                  onRetry: () =>
-                      ref.read(walletsControllerProvider.notifier).reload(),
-                )
-              : SingleChildScrollView(
-                  controller: _scrollController,
-                  keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
-                  padding: EdgeInsets.fromLTRB(
-                    AppSpacing.md,
-                    AppSpacing.md,
-                    AppSpacing.md,
-                    bottomPadding,
+          ? AppErrorState(
+              message: l10n.unableToLoadWalletOptions,
+              onRetry: () =>
+                  ref.read(walletsControllerProvider.notifier).reload(),
+            )
+          : SingleChildScrollView(
+              controller: _scrollController,
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.md,
+                AppSpacing.md,
+                bottomPadding,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppSectionHeader(
+                    title: l10n.recordTransaction,
+                    subtitle: l10n.recordTransactionSubtitle,
                   ),
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AppSectionHeader(
-                          title: l10n.recordTransaction,
-                          subtitle: l10n.recordTransactionSubtitle,
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        if (submissionState.lastResult != null) ...[
-                          TransactionSuccessBanner(
-                            referenceId: submissionState.lastResult!.referenceId,
+                  const SizedBox(height: AppSpacing.md),
+                  if (submissionState.lastResult != null) ...[
+                    TransactionSuccessBanner(
+                      referenceId: submissionState.lastResult!.referenceId,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                  ],
+                  if (submissionState.errorMessage != null) ...[
+                    AppErrorState(
+                      message: ErrorMessageMapper.getMessage(
+                        submissionState.errorMessage!,
+                      ),
+                      compact: true,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                  ],
+                  AppFormSection(
+                    title: l10n.transactionDetails,
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          AppDropdownField<String>(
+                            value: _selectedWalletId,
+                            label: '${l10n.wallet} *',
+                            hintText: l10n.selectWallet,
+                            prefixIcon: const Icon(
+                              Icons.account_balance_wallet_outlined,
+                            ),
+                            items: walletsState.data
+                                .map(
+                                  (wallet) => DropdownMenuItem<String>(
+                                    value: wallet.id,
+                                    child: Text(wallet.name),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (value) {
+                              setState(() => _selectedWalletId = value);
+                            },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return l10n.walletRequired;
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
+                          AppDropdownField<TransactionEntryType>(
+                            value: _selectedType,
+                            label: '${l10n.transactionType} *',
+                            hintText: l10n.selectCreditOrDebit,
+                            prefixIcon: const Icon(Icons.swap_vert_rounded),
+                            items: [
+                              DropdownMenuItem(
+                                value: TransactionEntryType.credit,
+                                child: Text(l10n.credit),
+                              ),
+                              DropdownMenuItem(
+                                value: TransactionEntryType.debit,
+                                child: Text(l10n.debit),
+                              ),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedType = value;
+                                if (value != TransactionEntryType.credit) {
+                                  _cash = false;
+                                }
+                              });
+                            },
+                            validator: (value) {
+                              if (value == null) {
+                                return l10n.transactionTypeRequired;
+                              }
+                              return null;
+                            },
                           ),
                           const SizedBox(height: AppSpacing.md),
-                        ],
-                        if (submissionState.errorMessage != null) ...[
-                          AppErrorState(
-                            message: ErrorMessageMapper.getMessage(
-                              submissionState.errorMessage!,
+                          AppTextField(
+                            controller: _amountController,
+                            label: '${l10n.amount} *',
+                            hintText: '0.00',
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
                             ),
-                            compact: true,
+                            prefixIcon: const Icon(Icons.attach_money_rounded),
+                            inputFormatters: [PositiveAmountInputFormatter()],
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return l10n.amountRequired;
+                              }
+                              final amount = double.tryParse(value);
+                              if (amount == null || amount <= 0) {
+                                return l10n.positiveAmountRequired;
+                              }
+                              return null;
+                            },
                           ),
                           const SizedBox(height: AppSpacing.md),
-                        ],
-                        AppFormSection(
-                          title: l10n.transactionDetails,
-                          child: Form(
-                            key: _formKey,
-                            child: Column(
-                              children: [
-                                AppDropdownField<String>(
-                                  value: _selectedWalletId,
-                                  label: '${l10n.wallet} *',
-                                  hintText: l10n.selectWallet,
-                                  prefixIcon: const Icon(
-                                    Icons.account_balance_wallet_outlined,
-                                  ),
-                                  items: walletsState.data
-                                      .map(
-                                        (wallet) => DropdownMenuItem<String>(
-                                          value: wallet.id,
-                                          child: Text(wallet.name),
-                                        ),
-                                      )
-                                      .toList(),
-                                  onChanged: (value) {
-                                    setState(() => _selectedWalletId = value);
-                                  },
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return l10n.walletRequired;
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(height: AppSpacing.lg),
-                                AppDropdownField<TransactionEntryType>(
-                                  value: _selectedType,
-                                  label: '${l10n.transactionType} *',
-                                  hintText: l10n.selectCreditOrDebit,
-                                  prefixIcon: const Icon(
-                                    Icons.swap_vert_rounded,
-                                  ),
-                                  items: [
-                                    DropdownMenuItem(
-                                      value: TransactionEntryType.credit,
-                                      child: Text(l10n.credit),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: TransactionEntryType.debit,
-                                      child: Text(l10n.debit),
-                                    ),
-                                  ],
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _selectedType = value;
-                                      if (value != TransactionEntryType.credit) {
-                                        _cash = false;
-                                      }
-                                    });
-                                  },
-                                  validator: (value) {
-                                    if (value == null) {
-                                      return l10n.transactionTypeRequired;
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(height: AppSpacing.md),
-                                AppTextField(
-                                  controller: _amountController,
-                                  label: '${l10n.amount} *',
-                                  hintText: '0.00',
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                        decimal: true,
-                                      ),
-                                  prefixIcon: const Icon(
-                                    Icons.attach_money_rounded,
-                                  ),
-                                  inputFormatters: [
-                                    PositiveAmountInputFormatter(),
-                                  ],
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return l10n.amountRequired;
-                                    }
-                                    final amount = double.tryParse(value);
-                                    if (amount == null || amount <= 0) {
-                                      return l10n.positiveAmountRequired;
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(height: AppSpacing.md),
-                                AppTextField(
-                                  controller: _percentController,
-                                  label: '${l10n.percent} *',
-                                  hintText: '0.00',
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                        decimal: true,
-                                      ),
-                                  prefixIcon: const Icon(Icons.percent_rounded),
-                                  inputFormatters: [
-                                    PositiveAmountInputFormatter(),
-                                  ],
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return l10n.percentRequired;
-                                    }
-                                    final percent = double.tryParse(value);
-                                    if (percent == null || percent < 0) {
-                                      return l10n.validPercentRequired;
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(height: AppSpacing.md),
-                                AppTextField(
-                                  key: _phoneFieldKey,
-                                  controller: _phoneNumberController,
-                                  focusNode: _phoneFocusNode,
-                                  label: '${l10n.phoneNumber} *',
-                                  hintText: '01000256987',
-                                  keyboardType: TextInputType.phone,
-                                  prefixIcon: const Icon(Icons.phone_outlined),
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly,
-                                  ],
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return l10n.phoneNumberRequired;
-                                    }
-                                    if (value.trim().length < 8) {
-                                      return l10n.validPhoneNumberRequired;
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                if (_selectedType == TransactionEntryType.credit)
-                                  SwitchListTile.adaptive(
-                                    contentPadding: EdgeInsets.zero,
-                                    title: Text(l10n.cash),
-                                    value: _cash,
-                                    onChanged: (value) {
-                                      setState(() => _cash = value);
-                                    },
-                                  ),
-                                if (_selectedType == TransactionEntryType.credit)
-                                  const SizedBox(height: AppSpacing.md),
-                                AppTextField(
-                                  key: _descriptionFieldKey,
-                                  controller: _descriptionController,
-                                  focusNode: _descriptionFocusNode,
-                                  label: l10n.description,
-                                  hintText: l10n.optionalDescription,
-                                  prefixIcon: const Icon(Icons.notes_rounded),
-                                  maxLines: 3,
-                                ),
-                              ],
+                          AppTextField(
+                            controller: _percentController,
+                            label: '${l10n.percent} *',
+                            hintText: '0.00',
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
                             ),
+                            prefixIcon: const Icon(Icons.percent_rounded),
+                            inputFormatters: [PositiveAmountInputFormatter()],
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return l10n.percentRequired;
+                              }
+                              final percent = double.tryParse(value);
+                              if (percent == null || percent < 0) {
+                                return l10n.validPercentRequired;
+                              }
+                              return null;
+                            },
                           ),
-                        ),
-                        const SizedBox(height: AppSpacing.lg),
-                        SizedBox(
-                          width: double.infinity,
-                          child: AppPrimaryButton(
-                            label: l10n.saveTransaction,
-                            isLoading: submissionState.isSubmitting,
-                            onPressed: () => _submit(walletsState.data),
+                          const SizedBox(height: AppSpacing.md),
+                          AppTextField(
+                            key: _phoneFieldKey,
+                            controller: _phoneNumberController,
+                            focusNode: _phoneFocusNode,
+                            label: '${l10n.phoneNumber} *',
+                            hintText: '01000256987',
+                            keyboardType: TextInputType.phone,
+                            prefixIcon: const Icon(Icons.phone_outlined),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return l10n.phoneNumberRequired;
+                              }
+                              if (value.trim().length < 8) {
+                                return l10n.validPhoneNumberRequired;
+                              }
+                              return null;
+                            },
                           ),
-                        ),
-                      ],
+                          if (_selectedType == TransactionEntryType.credit)
+                            SwitchListTile.adaptive(
+                              contentPadding: EdgeInsets.zero,
+                              title: Text(l10n.cash),
+                              value: _cash,
+                              onChanged: (value) {
+                                setState(() => _cash = value);
+                              },
+                            ),
+                          if (_selectedType == TransactionEntryType.credit)
+                            const SizedBox(height: AppSpacing.md),
+                          AppTextField(
+                            key: _descriptionFieldKey,
+                            controller: _descriptionController,
+                            focusNode: _descriptionFocusNode,
+                            label: l10n.description,
+                            hintText: l10n.optionalDescription,
+                            prefixIcon: const Icon(Icons.notes_rounded),
+                            maxLines: 3,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
+                  const SizedBox(height: AppSpacing.lg),
+                  SizedBox(
+                    width: double.infinity,
+                    child: AppPrimaryButton(
+                      label: l10n.saveTransaction,
+                      isLoading: submissionState.isSubmitting,
+                      onPressed: () => _submit(walletsState.data),
+                    ),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 
@@ -355,7 +344,10 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
       return;
     }
 
-    ref.invalidate(transactionsControllerProvider);
+    await ref.read(transactionsControllerProvider.notifier).reload();
+    if (!mounted) {
+      return;
+    }
     ref.invalidate(walletsControllerProvider);
     ref.invalidate(dashboardOverviewProvider);
     ref.invalidate(dashboardTransactionSummaryProvider);
@@ -401,5 +393,4 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
         '${hex.substring(12, 16)}-${hex.substring(16, 20)}-'
         '${hex.substring(20)}';
   }
-
 }

@@ -35,10 +35,7 @@ class AuthState {
   }
 
   factory AuthState.unauthenticated([AppException? error]) {
-    return AuthState(
-      status: AuthStatus.unauthenticated,
-      error: error,
-    );
+    return AuthState(status: AuthStatus.unauthenticated, error: error);
   }
 }
 
@@ -46,7 +43,9 @@ class AuthController extends StateNotifier<AuthState> {
   AuthController({
     required AuthRepository authRepository,
     Session? initialSession,
+    Future<void> Function()? resetSessionScope,
   }) : _authRepository = authRepository,
+       _resetSessionScope = resetSessionScope ?? _noop,
        _streamController = StreamController<AuthState>.broadcast(),
        super(
          initialSession == null
@@ -57,7 +56,9 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   final AuthRepository _authRepository;
+  final Future<void> Function() _resetSessionScope;
   final StreamController<AuthState> _streamController;
+  Future<void>? _pendingSessionInvalidation;
 
   @override
   Stream<AuthState> get stream => _streamController.stream;
@@ -80,27 +81,57 @@ class AuthController extends StateNotifier<AuthState> {
         username: username,
         password: password,
       );
+      await _resetSessionScope();
       state = AuthState.authenticated(session);
     } on AppException catch (error) {
       state = AuthState.unauthenticated(error);
     } catch (_) {
       state = AuthState.unauthenticated(
-        const AppException(
-          code: 'UNKNOWN_ERROR',
-          message: '',
-        ),
+        const AppException(code: 'UNKNOWN_ERROR', message: ''),
       );
     }
   }
 
   Future<void> signOut() async {
-    await _authRepository.logout();
-    state = AuthState.unauthenticated();
+    await _performLogout();
   }
 
-  Future<void> handleUnauthorized(AppException exception) async {
-    await _authRepository.logout();
-    state = AuthState.unauthenticated(exception);
+  Future<void> handleSessionInvalidation(AppException exception) {
+    if (state.status == AuthStatus.unauthenticated && state.session == null) {
+      return Future.value();
+    }
+
+    if (_pendingSessionInvalidation == null) {
+      final completer = Completer<void>();
+      _pendingSessionInvalidation = completer.future;
+      () async {
+        try {
+          await _performLogout(exception: exception);
+          completer.complete();
+        } catch (error, stackTrace) {
+          completer.completeError(error, stackTrace);
+        } finally {
+          if (identical(_pendingSessionInvalidation, completer.future)) {
+            _pendingSessionInvalidation = null;
+          }
+        }
+      }();
+    }
+
+    return _pendingSessionInvalidation!;
+  }
+
+  Future<void> handleUnauthorized(AppException exception) {
+    return handleSessionInvalidation(exception);
+  }
+
+  Future<void> _performLogout({AppException? exception}) async {
+    try {
+      await _authRepository.logout();
+    } finally {
+      state = AuthState.unauthenticated(exception);
+      await _resetSessionScope();
+    }
   }
 
   @override
@@ -109,3 +140,5 @@ class AuthController extends StateNotifier<AuthState> {
     super.dispose();
   }
 }
+
+Future<void> _noop() async {}

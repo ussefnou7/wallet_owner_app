@@ -66,7 +66,7 @@ void main() {
         remoteDataSource: _FakeAuthRemoteDataSource.success(
           LoginResponseModel.fromJson({
             'token':
-                'header.eyJzdWIiOiJvd25lcjEiLCJ1c2VySWQiOiJ1c2VyLTEiLCJ0ZW5hbnRJZCI6InRlbmFudC1kZW1vIiwicm9sZSI6Ik9XTkVSIn0.signature',
+                'header.eyJzdWIiOiJvd25lcjEiLCJ1c2VySWQiOiJ1c2VyLTEiLCJ0ZW5hbnRJZCI6InRlbmFudC1kZW1vIiwicm9sZSI6Ik9XTkVSIiwiZXhwIjoyNTI0NjA4MDAwfQ.signature',
             'username': 'owner1',
             'role': 'OWNER',
           }),
@@ -91,37 +91,34 @@ void main() {
     },
   );
 
-  test(
-    'repository preserves unauthorized backend login message',
-    () async {
-      SharedPreferences.setMockInitialValues({});
-      final sharedPreferences = await SharedPreferences.getInstance();
-      final repository = AppAuthRepository(
-        sessionLocalDataSource: SessionLocalDataSource(
-          secureStorage: _FakeSecureStorage(),
-          sharedPreferences: sharedPreferences,
+  test('repository preserves unauthorized backend login message', () async {
+    SharedPreferences.setMockInitialValues({});
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final repository = AppAuthRepository(
+      sessionLocalDataSource: SessionLocalDataSource(
+        secureStorage: _FakeSecureStorage(),
+        sharedPreferences: sharedPreferences,
+      ),
+      remoteDataSource: _FakeAuthRemoteDataSource.failure(
+        const AppException(
+          code: 'UNAUTHORIZED',
+          message: 'Unauthorized',
+          status: 401,
         ),
-        remoteDataSource: _FakeAuthRemoteDataSource.failure(
-          const AppException(
-            code: 'UNAUTHORIZED',
-            message: 'Unauthorized',
-            status: 401,
-          ),
-        ),
-      );
+      ),
+    );
 
-      await expectLater(
-        repository.login(username: 'owner1', password: 'bad-password'),
-        throwsA(
-          isA<AppException>().having(
-            (error) => error.message,
-            'message',
-            'Unauthorized',
-          ),
+    await expectLater(
+      repository.login(username: 'owner1', password: 'bad-password'),
+      throwsA(
+        isA<AppException>().having(
+          (error) => error.message,
+          'message',
+          'Unauthorized',
         ),
-      );
-    },
-  );
+      ),
+    );
+  });
 }
 
 class _FakeAuthRemoteDataSource implements AuthRemoteDataSource {

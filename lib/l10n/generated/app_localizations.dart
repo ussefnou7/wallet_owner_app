@@ -767,8 +767,20 @@ abstract class AppLocalizations {
   /// No description provided for @sessionExpiredLoginAgain.
   ///
   /// In en, this message translates to:
-  /// **'Session expired. Please log in again.'**
+  /// **'Session expired. Please login again.'**
   String get sessionExpiredLoginAgain;
+
+  /// No description provided for @invalidSessionLoginAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid session. Please login again.'**
+  String get invalidSessionLoginAgain;
+
+  /// No description provided for @accountDisabledMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This account has been disabled.'**
+  String get accountDisabledMessage;
 
   /// No description provided for @walletDailyConsumption.
   ///
@@ -799,6 +811,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Total'**
   String get walletTotalLabel;
+
+  /// No description provided for @collectProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Collect Profit'**
+  String get collectProfit;
+
+  /// No description provided for @currentWalletProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Current wallet profit'**
+  String get currentWalletProfit;
+
+  /// No description provided for @currentCashProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Current cash profit'**
+  String get currentCashProfit;
+
+  /// No description provided for @walletProfitAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet Profit Amount'**
+  String get walletProfitAmount;
+
+  /// No description provided for @cashProfitAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash Profit Amount'**
+  String get cashProfitAmount;
+
+  /// No description provided for @optionalNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional note'**
+  String get optionalNote;
+
+  /// No description provided for @collectProfitAmountRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount greater than 0 for wallet profit or cash profit.'**
+  String get collectProfitAmountRequired;
+
+  /// No description provided for @walletProfitAmountExceeds.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet profit amount cannot exceed the current wallet profit.'**
+  String get walletProfitAmountExceeds;
+
+  /// No description provided for @cashProfitAmountExceeds.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash profit amount cannot exceed the current cash profit.'**
+  String get cashProfitAmountExceeds;
+
+  /// No description provided for @collectProfitSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit collected successfully.'**
+  String get collectProfitSuccess;
 
   /// No description provided for @walletNameRequired.
   ///
@@ -883,6 +955,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Refresh transactions'**
   String get refreshTransactions;
+
+  /// No description provided for @loadMoreTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get loadMoreTransactions;
+
+  /// No description provided for @loadingMoreTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading more...'**
+  String get loadingMoreTransactions;
+
+  /// No description provided for @loadMoreTransactionsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load more transactions. Try again.'**
+  String get loadMoreTransactionsFailed;
 
   /// No description provided for @loadingTransactions.
   ///

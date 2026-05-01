@@ -1,5 +1,7 @@
 import 'package:intl/intl.dart';
 
+import '../formatters/app_date_formatter.dart';
+
 String formatCurrency(num value) {
   final locale = Intl.getCurrentLocale();
   if (locale.startsWith('ar')) {
@@ -9,15 +11,29 @@ String formatCurrency(num value) {
 }
 
 final _compactNumberFormatter = NumberFormat.compact();
-final _dateFormatter = DateFormat('dd MMM yyyy');
-final _dateTimeFormatter = DateFormat('dd MMM yyyy, hh:mm a');
-final _numericDateTimeFormatter = DateFormat('dd/MM/yyyy, hh:mm a');
 
 String formatCompactNumber(num value) => _compactNumberFormatter.format(value);
 
-String formatDate(DateTime value) => _dateFormatter.format(value);
+/// Formats date using smart format (based on recency).
+///
+/// DEPRECATED: Use [AppDateFormatter.smart] instead.
+/// Kept for backwards compatibility.
+@Deprecated('Use AppDateFormatter.smart(date, locale: locale) instead')
+String formatDateTime(DateTime value) =>
+    AppDateFormatter.smart(value, locale: 'en');
 
-String formatDateTime(DateTime value) => _dateTimeFormatter.format(value);
-
+/// Formats date/time as numeric format (dd/MM/yyyy, hh:mm a).
+///
+/// DEPRECATED: Use [AppDateFormatter.full] or [AppDateFormatter.smart] instead.
+/// Kept for backwards compatibility.
+@Deprecated('Use AppDateFormatter.full(date, locale: locale) instead')
 String formatNumericDateTime(DateTime value) =>
-    _numericDateTimeFormatter.format(value);
+    AppDateFormatter.full(value, locale: 'en');
+
+/// Formats date only (dd MMM yyyy).
+///
+/// DEPRECATED: Use [AppDateFormatter.compact] instead.
+/// Kept for backwards compatibility.
+@Deprecated('Use AppDateFormatter.compact(date, locale: locale) instead')
+String formatDate(DateTime value) =>
+    AppDateFormatter.compact(value, locale: 'en');

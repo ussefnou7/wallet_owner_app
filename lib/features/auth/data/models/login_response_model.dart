@@ -1,7 +1,6 @@
-import 'dart:convert';
-
 import '../../../../core/errors/app_exception.dart';
 import '../../domain/entities/session.dart';
+import '../services/jwt_decoder.dart';
 
 class LoginResponseModel {
   const LoginResponseModel({
@@ -43,7 +42,7 @@ class LoginResponseModel {
       );
     }
 
-    final claims = _decodeJwtClaims(accessToken);
+    final claims = JwtDecoder.tryDecodePayload(accessToken) ?? const {};
     final resolvedUsername =
         _readString(payload, const ['username', 'userName']) ??
         _readString(claims, const ['username', 'preferred_username', 'sub']) ??
@@ -70,7 +69,7 @@ class LoginResponseModel {
         _readString(payload, const ['displayName', 'name', 'fullName']) ??
         _readString(claims, const ['name']) ??
         resolvedUsername;
-    final resolvedExpiry = _readExpiry(claims);
+    final resolvedExpiry = JwtDecoder.readExpirationFromClaims(claims);
 
     return LoginResponseModel(
       accessToken: accessToken,
@@ -123,36 +122,6 @@ class LoginResponseModel {
             return item.trim();
           }
         }
-      }
-    }
-    return null;
-  }
-
-  static Map<String, dynamic> _decodeJwtClaims(String token) {
-    final segments = token.split('.');
-    if (segments.length < 2) {
-      return const {};
-    }
-
-    try {
-      final normalized = base64.normalize(segments[1]);
-      final decoded = utf8.decode(base64Url.decode(normalized));
-      final payload = jsonDecode(decoded);
-      return payload is Map<String, dynamic> ? payload : const {};
-    } catch (_) {
-      return const {};
-    }
-  }
-
-  static DateTime? _readExpiry(Map<String, dynamic> claims) {
-    final rawExp = claims['exp'];
-    if (rawExp is int) {
-      return DateTime.fromMillisecondsSinceEpoch(rawExp * 1000, isUtc: true);
-    }
-    if (rawExp is String) {
-      final parsed = int.tryParse(rawExp);
-      if (parsed != null) {
-        return DateTime.fromMillisecondsSinceEpoch(parsed * 1000, isUtc: true);
       }
     }
     return null;

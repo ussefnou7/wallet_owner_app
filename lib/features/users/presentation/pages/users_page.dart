@@ -1,12 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/router/app_routes.dart';
+import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
+import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/errors/app_exception.dart';
 import '../../../../core/errors/error_message_mapper.dart';
 import '../../../../core/localization/app_l10n.dart';
-import '../../../../core/widgets/app_buttons.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading_view.dart';
@@ -15,7 +19,9 @@ import '../../../../core/widgets/app_result_summary.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/filter_chip_row.dart';
+import '../../../../core/widgets/icon_action_button.dart';
 import '../../../../core/widgets/owner_app_drawer.dart';
+import '../../../branches/domain/entities/branch.dart';
 import '../../../branches/presentation/controllers/branches_controller.dart';
 import '../../domain/entities/app_user.dart';
 import '../controllers/users_controller.dart';
@@ -36,6 +42,9 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     super.initState();
     _searchController = TextEditingController(
       text: ref.read(usersSearchQueryProvider),
+    );
+    Future<void>.microtask(
+      () => ref.read(branchesControllerProvider.notifier).ensureLoaded(),
     );
   }
 
@@ -79,26 +88,33 @@ class _UsersPageState extends ConsumerState<UsersPage> {
           const SizedBox(height: AppSpacing.md),
           Row(
             children: [
-              AppPrimaryButton(
-                label: l10n.createUser,
-                icon: const Icon(Icons.person_add_alt_1_rounded),
-                onPressed: () => _showUserFormDialog(context),
+              Expanded(
+                child: AppTextField(
+                  controller: _searchController,
+                  label: l10n.searchUsers,
+                  hintText: l10n.searchUsersHint,
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  onChanged: ref
+                      .read(usersControllerProvider.notifier)
+                      .updateQuery,
+                ),
               ),
               const SizedBox(width: AppSpacing.sm),
-              IconButton.outlined(
-                onPressed: () => ref.read(usersControllerProvider.notifier).reload(),
-                icon: const Icon(Icons.refresh_rounded),
+              IconActionButton(
+                icon: Icons.refresh_rounded,
                 tooltip: l10n.refresh,
+                onPressed: usersState.isLoading
+                    ? null
+                    : () => ref.read(usersControllerProvider.notifier).reload(),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              IconActionButton(
+                icon: Icons.add_rounded,
+                tooltip: l10n.createUser,
+                filled: true,
+                onPressed: () => _showUserFormDialog(context),
               ),
             ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          AppTextField(
-            controller: _searchController,
-            label: l10n.searchUsers,
-            hintText: l10n.searchUsersHint,
-            prefixIcon: const Icon(Icons.search_rounded),
-            onChanged: ref.read(usersControllerProvider.notifier).updateQuery,
           ),
           const SizedBox(height: AppSpacing.sm),
           FilterChipRow<UserRoleFilter>(
@@ -139,7 +155,9 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                 return ListView.separated(
                   itemCount: filteredUsers.length,
                   padding: EdgeInsets.only(
-                    bottom: bottomInset + AppDimensions.floatingBottomNavContentPadding,
+                    bottom:
+                        bottomInset +
+                        AppDimensions.floatingBottomNavContentPadding,
                   ),
                   separatorBuilder: (context, index) =>
                       const SizedBox(height: AppSpacing.md),
@@ -149,8 +167,10 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                       user: user,
                       onEdit: () => _showUserFormDialog(context, user: user),
                       onDelete: () => _confirmDeleteUser(context, user),
-                      onAssignBranch: () => _showAssignBranchDialog(context, user),
-                      onUnassignBranch: () => _confirmUnassignBranch(context, user),
+                      onAssignBranch: () =>
+                          _showAssignBranchDialog(context, user),
+                      onUnassignBranch: () =>
+                          _confirmUnassignBranch(context, user),
                     );
                   },
                 );
@@ -179,13 +199,13 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     final l10n = appL10n(context);
     switch (action) {
       case _UserFormResult.created:
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.userCreatedSuccessfully)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.userCreatedSuccessfully)));
       case _UserFormResult.updated:
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.userUpdatedSuccessfully)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.userUpdatedSuccessfully)));
     }
   }
 
@@ -220,9 +240,9 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       if (!context.mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.userDeletedSuccessfully)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.userDeletedSuccessfully)));
     } on AppException catch (error) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -232,84 +252,33 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     }
   }
 
-  Future<void> _showAssignBranchDialog(BuildContext context, AppUser user) async {
-    final l10n = appL10n(context);
-    String? selectedBranchId = user.branchId;
+  Future<void> _showAssignBranchDialog(
+    BuildContext context,
+    AppUser user,
+  ) async {
+    unawaited(ref.read(branchesControllerProvider.notifier).ensureLoaded());
+
     final submitted = await showDialog<bool>(
       context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            final branchesAsync = ref.watch(branchesControllerProvider);
-            return AlertDialog(
-              title: Text(l10n.assignBranch),
-              content: branchesAsync.when(
-                data: (branches) => DropdownButtonFormField<String>(
-                  initialValue: selectedBranchId,
-                  decoration: InputDecoration(
-                    labelText: l10n.selectBranch,
-                    prefixIcon: const Icon(Icons.account_tree_outlined),
-                  ),
-                  items: branches
-                      .map(
-                        (branch) => DropdownMenuItem<String>(
-                          value: branch.id,
-                          child: Text(branch.name),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (value) {
-                    setDialogState(() => selectedBranchId = value);
-                  },
-                ),
-                loading: () => AppLoadingView(message: l10n.loadingBranches),
-                error: (_, stackTrace) => AppErrorState(
-                  message: l10n.unableToLoadBranches,
-                  compact: true,
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: Text(l10n.cancel),
-                ),
-                FilledButton(
-                  onPressed: selectedBranchId == null
-                      ? null
-                      : () => Navigator.of(context).pop(true),
-                  child: Text(l10n.save),
-                ),
-              ],
-            );
-          },
-        );
-      },
+      barrierDismissible: false,
+      builder: (dialogContext) => _AssignBranchDialog(user: user),
     );
 
-    if (submitted != true || selectedBranchId == null || !context.mounted) {
+    if (submitted != true || !context.mounted) {
       return;
     }
 
-    try {
-      await ref
-          .read(usersControllerProvider.notifier)
-          .assignUserToBranch(user.id, selectedBranchId!);
-      if (!context.mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.userAssignedToBranchSuccessfully)),
-      );
-    } on AppException catch (error) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(ErrorMessageMapper.getMessage(error))),
-        );
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(appL10n(context).userAssignedToBranchSuccessfully),
+      ),
+    );
   }
 
-  Future<void> _confirmUnassignBranch(BuildContext context, AppUser user) async {
+  Future<void> _confirmUnassignBranch(
+    BuildContext context,
+    AppUser user,
+  ) async {
     final l10n = appL10n(context);
     final confirmed = await showDialog<bool>(
       context: context,
@@ -336,9 +305,9 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     }
 
     try {
-      await ref.read(usersControllerProvider.notifier).unassignUserFromBranch(
-            user.id,
-          );
+      await ref
+          .read(usersControllerProvider.notifier)
+          .unassignUserFromBranch(user.id);
       if (!context.mounted) {
         return;
       }
@@ -396,37 +365,29 @@ class _UserFormDialogState extends ConsumerState<_UserFormDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = appL10n(context);
-    final theme = Theme.of(context);
 
     return PopScope(
       canPop: !_isSubmitting,
-      child: AlertDialog(
-        title: Text(
-          _isEditMode ? l10n.editUser : l10n.createUser,
-          style: theme.textTheme.titleLarge, // Smaller title font
+      child: _StyledDialog(
+        title: _isEditMode ? l10n.editUser : l10n.createUser,
+        actions: _DialogActions(
+          cancelLabel: l10n.cancel,
+          confirmLabel: l10n.save,
+          isBusy: _isSubmitting,
+          onCancel: _cancel,
+          onConfirm: _submit,
         ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm, // Reduced vertical padding
-        ),
-        content: Form(
+        child: Form(
           key: _formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextFormField(
+              AppTextField(
                 controller: _usernameController,
-                style: theme.textTheme.bodyMedium, // Smaller input text
-                decoration: InputDecoration(
-                  labelText: l10n.username,
-                  labelStyle: theme.textTheme.bodyMedium, // Smaller label
-                  prefixIcon: const Icon(Icons.person_outline_rounded),
-                  isDense: true, // Dense input
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
-                    vertical: AppSpacing.xs, // Smaller content padding
-                  ),
-                ),
+                label: l10n.username,
+                prefixIcon: const Icon(Icons.person_outline_rounded),
+                textInputAction: TextInputAction.next,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return l10n.usernameRequired;
@@ -434,47 +395,33 @@ class _UserFormDialogState extends ConsumerState<_UserFormDialog> {
                   return null;
                 },
               ),
-              const SizedBox(height: AppSpacing.sm), // Reduced spacing
-              TextFormField(
+              const SizedBox(height: AppSpacing.md),
+              AppTextField(
                 controller: _passwordController,
+                label: l10n.password,
+                hintText: _isEditMode ? l10n.password_optional_hint : null,
+                prefixIcon: const Icon(Icons.lock_outline_rounded),
+                textInputAction: TextInputAction.done,
                 obscureText: true,
-                style: theme.textTheme.bodyMedium, // Smaller input text
-                decoration: InputDecoration(
-                  labelText: l10n.password,
-                  labelStyle: theme.textTheme.bodyMedium, // Smaller label
-                  prefixIcon: const Icon(Icons.lock_outline_rounded),
-                  isDense: true, // Dense input
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
-                    vertical: AppSpacing.xs, // Smaller content padding
-                  ),
-                ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (!_isEditMode && (value == null || value.isEmpty)) {
                     return l10n.passwordRequired;
                   }
                   return null;
                 },
               ),
               if (_isEditMode) ...[
-                const SizedBox(height: AppSpacing.sm), // Reduced spacing
-                SwitchListTile.adaptive(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(
-                    l10n.active,
-                    style: theme.textTheme.bodyMedium, // Smaller switch label
-                  ),
+                const SizedBox(height: AppSpacing.md),
+                _DialogToggleCard(
+                  label: l10n.active,
                   value: _active,
                   onChanged: (value) {
-                    if (!mounted) {
-                      return;
-                    }
                     setState(() => _active = value);
                   },
                 ),
               ],
-              if (!_isEditMode && _submitError != null) ...[
-                const SizedBox(height: AppSpacing.sm), // Reduced spacing
+              if (_submitError != null) ...[
+                const SizedBox(height: AppSpacing.md),
                 AppErrorState(
                   key: const Key('user_inline_error'),
                   message: ErrorMessageMapper.getLocalizedMessage(
@@ -487,28 +434,6 @@ class _UserFormDialogState extends ConsumerState<_UserFormDialog> {
             ],
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: _isSubmitting ? null : _cancel,
-            child: Text(
-              l10n.cancel,
-              style: theme.textTheme.labelMedium, // Smaller button text
-            ),
-          ),
-          FilledButton(
-            onPressed: _isSubmitting ? null : _submit,
-            child: _isSubmitting
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(
-                    l10n.save,
-                    style: theme.textTheme.labelMedium, // Smaller button text
-                  ),
-          ),
-        ],
       ),
     );
   }
@@ -524,9 +449,6 @@ class _UserFormDialogState extends ConsumerState<_UserFormDialog> {
       return;
     }
 
-    if (!mounted) {
-      return;
-    }
     setState(() {
       _isSubmitting = true;
       _submitError = null;
@@ -538,7 +460,7 @@ class _UserFormDialogState extends ConsumerState<_UserFormDialog> {
         await notifier.updateUser(
           widget.user!.id,
           _usernameController.text.trim(),
-          _passwordController.text,
+          _passwordController.text.trim(),
           _active,
         );
       } else {
@@ -551,9 +473,9 @@ class _UserFormDialogState extends ConsumerState<_UserFormDialog> {
       if (!mounted) {
         return;
       }
-      Navigator.of(context).pop(
-        _isEditMode ? _UserFormResult.updated : _UserFormResult.created,
-      );
+      Navigator.of(
+        context,
+      ).pop(_isEditMode ? _UserFormResult.updated : _UserFormResult.created);
     } on AppException catch (error) {
       if (!mounted) {
         return;
@@ -563,5 +485,365 @@ class _UserFormDialogState extends ConsumerState<_UserFormDialog> {
         _submitError = error;
       });
     }
+  }
+}
+
+class _AssignBranchDialog extends ConsumerStatefulWidget {
+  const _AssignBranchDialog({required this.user});
+
+  final AppUser user;
+
+  @override
+  ConsumerState<_AssignBranchDialog> createState() =>
+      _AssignBranchDialogState();
+}
+
+class _AssignBranchDialogState extends ConsumerState<_AssignBranchDialog> {
+  String? _selectedBranchId;
+  bool _isSubmitting = false;
+  AppException? _submitError;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedBranchId = widget.user.branchId;
+    Future<void>.microtask(
+      () => ref.read(branchesControllerProvider.notifier).ensureLoaded(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final branchesAsync = ref.watch(branchesControllerProvider);
+    final l10n = appL10n(context);
+    final branches = branchesAsync.asData?.value ?? const <Branch>[];
+    final selectedBranchId =
+        _selectedBranchId != null &&
+            branches.isNotEmpty &&
+            !branches.any((branch) => branch.id == _selectedBranchId)
+        ? null
+        : _selectedBranchId;
+
+    final canSubmit =
+        !_isSubmitting &&
+        !branchesAsync.isLoading &&
+        selectedBranchId != null &&
+        branches.isNotEmpty;
+
+    return PopScope(
+      canPop: !_isSubmitting,
+      child: _StyledDialog(
+        title: l10n.assignBranch,
+        actions: _DialogActions(
+          cancelLabel: l10n.cancel,
+          confirmLabel: l10n.save,
+          isBusy: _isSubmitting,
+          isConfirmEnabled: canSubmit,
+          onCancel: () => Navigator.of(context).pop(false),
+          onConfirm: _submit,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _AssignBranchBody(
+              branchesAsync: branchesAsync,
+              selectedBranchId: selectedBranchId,
+              onChanged: _isSubmitting
+                  ? null
+                  : (value) => setState(() => _selectedBranchId = value),
+              onRetry: () =>
+                  ref.read(branchesControllerProvider.notifier).reload(),
+            ),
+            if (_submitError != null) ...[
+              const SizedBox(height: AppSpacing.md),
+              AppErrorState(
+                message: ErrorMessageMapper.getLocalizedMessage(
+                  context,
+                  _submitError,
+                ),
+                compact: true,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _submit() async {
+    final branchId = _selectedBranchId;
+    if (branchId == null) {
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+      _submitError = null;
+    });
+
+    try {
+      await ref
+          .read(usersControllerProvider.notifier)
+          .assignUserToBranch(widget.user.id, branchId);
+
+      if (!mounted) {
+        return;
+      }
+      Navigator.of(context).pop(true);
+    } on AppException catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isSubmitting = false;
+        _submitError = error;
+      });
+    }
+  }
+}
+
+class _AssignBranchBody extends StatelessWidget {
+  const _AssignBranchBody({
+    required this.branchesAsync,
+    required this.selectedBranchId,
+    required this.onChanged,
+    required this.onRetry,
+  });
+
+  final AsyncValue<List<Branch>> branchesAsync;
+  final String? selectedBranchId;
+  final ValueChanged<String?>? onChanged;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = appL10n(context);
+
+    return branchesAsync.when(
+      loading: () => SizedBox(
+        height: 160,
+        child: AppLoadingView(message: l10n.loadingBranches),
+      ),
+      error: (_, stackTrace) =>
+          AppErrorState(message: l10n.failedToLoadBranches, onRetry: onRetry),
+      data: (branches) {
+        if (branches.isEmpty) {
+          return const _DialogInfoState(
+            icon: Icons.account_tree_outlined,
+            titleKey: 'noBranches',
+          );
+        }
+
+        return DropdownButtonFormField<String>(
+          initialValue: selectedBranchId,
+          isExpanded: true,
+          menuMaxHeight: 320,
+          style: Theme.of(context).textTheme.bodyLarge,
+          decoration: InputDecoration(
+            labelText: l10n.selectBranch,
+            prefixIcon: const Icon(Icons.account_tree_outlined),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.md,
+            ),
+          ),
+          items: branches
+              .map(
+                (branch) => DropdownMenuItem<String>(
+                  value: branch.id,
+                  child: Text(branch.name, overflow: TextOverflow.ellipsis),
+                ),
+              )
+              .toList(),
+          onChanged: onChanged,
+        );
+      },
+    );
+  }
+}
+
+class _StyledDialog extends StatelessWidget {
+  const _StyledDialog({
+    required this.title,
+    required this.child,
+    required this.actions,
+  });
+
+  final String title;
+  final Widget child;
+  final Widget actions;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.lg,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadii.xl),
+      ),
+      titlePadding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.lg,
+        0,
+      ),
+      contentPadding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.md,
+        AppSpacing.lg,
+        0,
+      ),
+      actionsPadding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.md,
+        AppSpacing.lg,
+        AppSpacing.lg,
+      ),
+      title: Text(title),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 440),
+        child: SingleChildScrollView(child: child),
+      ),
+      actions: [actions],
+    );
+  }
+}
+
+class _DialogActions extends StatelessWidget {
+  const _DialogActions({
+    required this.cancelLabel,
+    required this.confirmLabel,
+    required this.isBusy,
+    required this.onCancel,
+    required this.onConfirm,
+    this.isConfirmEnabled = true,
+  });
+
+  final String cancelLabel;
+  final String confirmLabel;
+  final bool isBusy;
+  final bool isConfirmEnabled;
+  final VoidCallback onCancel;
+  final VoidCallback onConfirm;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: Row(
+        children: [
+          Expanded(
+            child: OutlinedButton(
+              onPressed: isBusy ? null : onCancel,
+              child: Text(cancelLabel),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: FilledButton(
+              onPressed: isBusy || !isConfirmEnabled ? null : onConfirm,
+              child: isBusy
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(confirmLabel),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DialogToggleCard extends StatelessWidget {
+  const _DialogToggleCard({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(AppRadii.lg),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(label, style: Theme.of(context).textTheme.titleSmall),
+          ),
+          Switch.adaptive(value: value, onChanged: onChanged),
+        ],
+      ),
+    );
+  }
+}
+
+class _DialogInfoState extends StatelessWidget {
+  const _DialogInfoState({required this.icon, required this.titleKey});
+
+  final IconData icon;
+  final String titleKey;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = appL10n(context);
+    final title = switch (titleKey) {
+      'noBranches' => l10n.noBranchesAvailable,
+      _ => '',
+    };
+    final message = switch (titleKey) {
+      'noBranches' => l10n.branchesEmptyMessage,
+      _ => '',
+    };
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(AppRadii.lg),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 28, color: AppColors.textSecondary),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.titleSmall,
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

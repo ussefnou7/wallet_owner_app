@@ -44,6 +44,7 @@ import '../features/users/domain/repositories/users_repository.dart';
 import '../features/wallets/data/repositories/app_wallets_repository.dart';
 import '../features/wallets/data/services/wallets_remote_data_source.dart';
 import '../features/wallets/domain/repositories/wallets_repository.dart';
+import 'session/session_scope_resetter.dart';
 
 Future<ProviderContainer> bootstrap() async {
   final config = AppConfig.fromEnv();
@@ -77,13 +78,17 @@ Future<ProviderContainer> bootstrap() async {
   } catch (_) {
     initialSession = null;
   }
+  late final ProviderContainer container;
   final authController = AuthController(
     authRepository: authRepository,
     initialSession: initialSession,
+    resetSessionScope: () async {
+      resetSessionScopedProviders(container);
+    },
   );
   final sessionErrorInterceptor = SessionErrorInterceptor(
     exceptionMapper: apiExceptionMapper,
-    onUnauthorized: authController.handleUnauthorized,
+    onSessionInvalidated: authController.handleSessionInvalidation,
   );
   final dioWithErrorHandler = createDio(
     config: config,
@@ -164,7 +169,7 @@ Future<ProviderContainer> bootstrap() async {
     remoteDataSource: renewalRemoteDataSource,
   );
 
-  return ProviderContainer(
+  container = ProviderContainer(
     overrides: [
       appConfigProvider.overrideWithValue(config),
       sharedPreferencesProvider.overrideWithValue(sharedPreferences),
@@ -213,4 +218,6 @@ Future<ProviderContainer> bootstrap() async {
       initialSessionProvider.overrideWithValue(initialSession),
     ],
   );
+
+  return container;
 }

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/errors/app_exception.dart';
 import '../../../../core/errors/error_message_mapper.dart';
 import '../../../../core/localization/app_l10n.dart';
-import '../../../../core/widgets/app_buttons.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading_view.dart';
@@ -15,6 +15,7 @@ import '../../../../core/widgets/app_result_summary.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/filter_chip_row.dart';
+import '../../../../core/widgets/icon_action_button.dart';
 import '../../../../core/widgets/owner_app_drawer.dart';
 import '../../domain/entities/branch.dart';
 import '../controllers/branches_controller.dart';
@@ -78,29 +79,35 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
           const SizedBox(height: AppSpacing.md),
           Row(
             children: [
-              AppPrimaryButton(
-                label: l10n.createBranch,
-                icon: const Icon(Icons.add_rounded),
-                onPressed: () => _showBranchFormDialog(context),
+              Expanded(
+                child: AppTextField(
+                  controller: _searchController,
+                  label: l10n.searchBranches,
+                  hintText: l10n.searchBranchesHint,
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  onChanged: ref
+                      .read(branchesControllerProvider.notifier)
+                      .updateQuery,
+                ),
               ),
               const SizedBox(width: AppSpacing.sm),
-              IconButton.outlined(
-                onPressed: () =>
-                    ref.read(branchesControllerProvider.notifier).reload(),
-                icon: const Icon(Icons.refresh_rounded),
+              IconActionButton(
+                icon: Icons.refresh_rounded,
                 tooltip: l10n.refresh,
+                onPressed: branchesState.isLoading
+                    ? null
+                    : () => ref
+                          .read(branchesControllerProvider.notifier)
+                          .reload(),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              IconActionButton(
+                icon: Icons.add_rounded,
+                tooltip: l10n.createBranch,
+                filled: true,
+                onPressed: () => _showBranchFormDialog(context),
               ),
             ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          AppTextField(
-            controller: _searchController,
-            label: l10n.searchBranches,
-            hintText: l10n.searchBranchesHint,
-            prefixIcon: const Icon(Icons.search_rounded),
-            onChanged: ref
-                .read(branchesControllerProvider.notifier)
-                .updateQuery,
           ),
           const SizedBox(height: AppSpacing.md),
           FilterChipRow<BranchStatusFilter>(
@@ -153,7 +160,9 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
                 return ListView.separated(
                   itemCount: filteredBranches.length,
                   padding: EdgeInsets.only(
-                    bottom: bottomInset + AppDimensions.floatingBottomNavContentPadding,
+                    bottom:
+                        bottomInset +
+                        AppDimensions.floatingBottomNavContentPadding,
                   ),
                   separatorBuilder: (context, index) =>
                       const SizedBox(height: AppSpacing.md),
@@ -161,7 +170,8 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
                     final branch = filteredBranches[index];
                     return BranchCard(
                       branch: branch,
-                      onEdit: () => _showBranchFormDialog(context, branch: branch),
+                      onEdit: () =>
+                          _showBranchFormDialog(context, branch: branch),
                       onDelete: () => _confirmDeleteBranch(context, branch),
                     );
                   },
@@ -269,9 +279,9 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
       if (!context.mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.branchUpdatedSuccessfully)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.branchUpdatedSuccessfully)));
     } on AppException catch (error) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -310,13 +320,15 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
     }
 
     try {
-      await ref.read(branchesControllerProvider.notifier).deleteBranch(branch.id);
+      await ref
+          .read(branchesControllerProvider.notifier)
+          .deleteBranch(branch.id);
       if (!context.mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.branchDeletedSuccessfully)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.branchDeletedSuccessfully)));
     } on AppException catch (error) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -331,7 +343,8 @@ class _CreateBranchDialog extends ConsumerStatefulWidget {
   const _CreateBranchDialog();
 
   @override
-  ConsumerState<_CreateBranchDialog> createState() => _CreateBranchDialogState();
+  ConsumerState<_CreateBranchDialog> createState() =>
+      _CreateBranchDialogState();
 }
 
 class _CreateBranchDialogState extends ConsumerState<_CreateBranchDialog> {

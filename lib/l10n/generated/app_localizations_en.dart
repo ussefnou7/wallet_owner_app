@@ -352,8 +352,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get failedToLoadWalletTypes => 'Failed to load wallet types';
 
   @override
-  String get sessionExpiredLoginAgain =>
-      'Session expired. Please log in again.';
+  String get sessionExpiredLoginAgain => 'Session expired. Please login again.';
+
+  @override
+  String get invalidSessionLoginAgain => 'Invalid session. Please login again.';
+
+  @override
+  String get accountDisabledMessage => 'This account has been disabled.';
 
   @override
   String get walletDailyConsumption => 'Daily consumption';
@@ -369,6 +374,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get walletTotalLabel => 'Total';
+
+  @override
+  String get collectProfit => 'Collect Profit';
+
+  @override
+  String get currentWalletProfit => 'Current wallet profit';
+
+  @override
+  String get currentCashProfit => 'Current cash profit';
+
+  @override
+  String get walletProfitAmount => 'Wallet Profit Amount';
+
+  @override
+  String get cashProfitAmount => 'Cash Profit Amount';
+
+  @override
+  String get optionalNote => 'Optional note';
+
+  @override
+  String get collectProfitAmountRequired =>
+      'Enter an amount greater than 0 for wallet profit or cash profit.';
+
+  @override
+  String get walletProfitAmountExceeds =>
+      'Wallet profit amount cannot exceed the current wallet profit.';
+
+  @override
+  String get cashProfitAmountExceeds =>
+      'Cash profit amount cannot exceed the current cash profit.';
+
+  @override
+  String get collectProfitSuccess => 'Profit collected successfully.';
 
   @override
   String get walletNameRequired => 'Wallet name is required';
@@ -414,6 +452,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get refreshTransactions => 'Refresh transactions';
+
+  @override
+  String get loadMoreTransactions => 'Load more';
+
+  @override
+  String get loadingMoreTransactions => 'Loading more...';
+
+  @override
+  String get loadMoreTransactionsFailed =>
+      'Unable to load more transactions. Try again.';
 
   @override
   String get loadingTransactions => 'Loading transactions...';

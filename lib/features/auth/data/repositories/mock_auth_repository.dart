@@ -3,6 +3,11 @@ import '../../domain/repositories/auth_repository.dart';
 import '../services/session_local_data_source.dart';
 
 class MockAuthRepository implements AuthRepository {
+  static const _mockOwnerToken =
+      'header.'
+      'eyJzdWIiOiJtb2NrLW93bmVyIiwicm9sZSI6Ik9XTkVSIiwidGVuYW50SWQiOiJ0ZW5hbnQtZGVtbyIsInVzZXJJZCI6Im1vY2stb3duZXIiLCJleHAiOjI1MjQ2MDgwMDB9.'
+      'signature';
+
   MockAuthRepository(this._localDataSource);
 
   final SessionLocalDataSource _localDataSource;
@@ -18,7 +23,7 @@ class MockAuthRepository implements AuthRepository {
     required String password,
   }) async {
     final session = Session(
-      accessToken: 'mock-owner-token',
+      accessToken: _mockOwnerToken,
       refreshToken: 'mock-refresh-token',
       username: username,
       role: UserRole.owner,

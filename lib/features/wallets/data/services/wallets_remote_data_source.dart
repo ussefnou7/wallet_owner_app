@@ -31,6 +31,11 @@ abstract interface class WalletsRemoteDataSource {
     required UpdateWalletRequestModel request,
   });
 
+  Future<ApiResult<WalletModel?>> collectProfit({
+    required String walletId,
+    required CollectProfitRequestModel request,
+  });
+
   Future<ApiResult<void>> deleteWallet(String walletId);
 
   Future<ApiResult<List<String>>> getWalletTypes();
@@ -52,9 +57,9 @@ class DioWalletsRemoteDataSource implements WalletsRemoteDataSource {
       final response = await _apiClient.get<Object?>(
         NetworkConstants.walletsPath,
       );
-      final wallets = ApiResponseExtractor.extractList(response.data)
-          .map(WalletModel.fromJson)
-          .toList();
+      final wallets = ApiResponseExtractor.extractList(
+        response.data,
+      ).map(WalletModel.fromJson).toList();
       return ApiSuccess(wallets);
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));
@@ -105,6 +110,22 @@ class DioWalletsRemoteDataSource implements WalletsRemoteDataSource {
       return ApiSuccess(
         WalletModel.fromJson(ApiResponseExtractor.extractObject(response.data)),
       );
+    } catch (error) {
+      return ApiError(_exceptionMapper.map(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<WalletModel?>> collectProfit({
+    required String walletId,
+    required CollectProfitRequestModel request,
+  }) async {
+    try {
+      final response = await _apiClient.post<Object?>(
+        '${NetworkConstants.walletsPath}/$walletId/collect-profit',
+        data: request.toJson(),
+      );
+      return ApiSuccess(_tryExtractWalletModel(response.data));
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));
     }
@@ -185,6 +206,35 @@ class DioWalletsRemoteDataSource implements WalletsRemoteDataSource {
         }
       }
     }
+    return null;
+  }
+
+  WalletModel? _tryExtractWalletModel(Object? payload) {
+    final raw = _tryExtractWalletObject(payload);
+    if (raw == null) {
+      return null;
+    }
+    return WalletModel.fromJson(raw);
+  }
+
+  Map<String, dynamic>? _tryExtractWalletObject(Object? payload) {
+    if (payload == null) {
+      return null;
+    }
+
+    if (payload is Map<String, dynamic>) {
+      for (final key in const ['data', 'content', 'item', 'result']) {
+        final nested = _tryExtractWalletObject(payload[key]);
+        if (nested != null) {
+          return nested;
+        }
+      }
+
+      if (payload.containsKey('id') && payload.containsKey('name')) {
+        return payload;
+      }
+    }
+
     return null;
   }
 }

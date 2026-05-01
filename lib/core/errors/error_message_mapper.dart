@@ -10,13 +10,18 @@ abstract final class ErrorMessageMapper {
     }
 
     final backendMessage = error.message.trim();
-    if (backendMessage.isNotEmpty && error.code.toUpperCase() != 'DATA_CONFLICT') {
+    if (backendMessage.isNotEmpty &&
+        error.code.toUpperCase() != 'DATA_CONFLICT') {
       return backendMessage;
     }
 
     return switch (error.code.toUpperCase()) {
-      'UNAUTHORIZED' || 'INVALID_CREDENTIALS' || 'BAD_CREDENTIALS' =>
-        'Invalid username or password',
+      'TOKEN_EXPIRED' => 'Session expired. Please login again.',
+      'INVALID_TOKEN' => 'Invalid session. Please login again.',
+      'ACCOUNT_INACTIVE' => 'This account has been disabled.',
+      'UNAUTHORIZED' ||
+      'INVALID_CREDENTIALS' ||
+      'BAD_CREDENTIALS' => 'Invalid username or password',
       'FILE_TOO_LARGE' => 'File is too large',
       'UNSUPPORTED_FILE_TYPE' => 'Unsupported file type',
       'VALIDATION_ERROR' => 'Please check the entered data',
@@ -44,8 +49,12 @@ abstract final class ErrorMessageMapper {
     final backendMessage = error.message.trim();
 
     return switch (error.code.toUpperCase()) {
-      'UNAUTHORIZED' || 'INVALID_CREDENTIALS' || 'BAD_CREDENTIALS' =>
-        l10n.invalidUsernameOrPassword,
+      'TOKEN_EXPIRED' => l10n.sessionExpiredLoginAgain,
+      'INVALID_TOKEN' => l10n.invalidSessionLoginAgain,
+      'ACCOUNT_INACTIVE' => l10n.accountDisabledMessage,
+      'UNAUTHORIZED' ||
+      'INVALID_CREDENTIALS' ||
+      'BAD_CREDENTIALS' => l10n.invalidUsernameOrPassword,
       'FILE_TOO_LARGE' => l10n.fileTooLarge,
       'UNSUPPORTED_FILE_TYPE' => l10n.unsupportedFileType,
       'VALIDATION_ERROR' => l10n.validationError,

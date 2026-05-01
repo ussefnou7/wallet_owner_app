@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
@@ -7,6 +8,7 @@ import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_shadows.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/errors/error_message_mapper.dart';
+import '../../../../core/formatters/app_date_formatter.dart';
 import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_dropdown_field.dart';
@@ -318,9 +320,7 @@ class _FiltersGrid extends StatelessWidget {
                   value: selectedWalletId,
                   label: l10n.wallet,
                   hintText: l10n.selectWallet,
-                  prefixIcon: const Icon(
-                    Icons.account_balance_wallet_outlined,
-                  ),
+                  prefixIcon: const Icon(Icons.account_balance_wallet_outlined),
                   items: [
                     DropdownMenuItem(value: null, child: Text(l10n.all)),
                     ...walletsState.data.map(
@@ -1084,7 +1084,9 @@ class _ConsumptionSummaryBox extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             '$spentLabel / $limitLabel',
-            style: textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+            style: textTheme.bodySmall?.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
@@ -1097,7 +1099,9 @@ class _ConsumptionSummaryBox extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             percentLabel,
-            style: textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+            style: textTheme.bodySmall?.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
         ],
       ),
@@ -1353,7 +1357,7 @@ String _formatValue(BuildContext context, Object? value) {
   if (value is String) {
     final parsedDate = DateTime.tryParse(value);
     if (parsedDate != null) {
-      return formatDate(parsedDate);
+      return AppDateFormatter.compact(parsedDate, locale: 'en');
     }
     return value;
   }
@@ -1418,9 +1422,9 @@ String _formatReportValue(BuildContext context, String key, Object? value) {
     final parsedDate = DateTime.tryParse(value);
     if (parsedDate != null) {
       if (key == 'occurredAt' || key == 'updatedAt') {
-        return formatDateTime(parsedDate);
+        return AppDateFormatter.smart(parsedDate, locale: 'en');
       }
-      return formatDate(parsedDate);
+      return AppDateFormatter.compact(parsedDate, locale: 'en');
     }
 
     return value;

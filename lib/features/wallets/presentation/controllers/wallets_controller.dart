@@ -17,12 +17,10 @@ final walletTypesProvider = FutureProvider<List<String>>((ref) async {
 });
 
 final walletsControllerProvider =
-    StateNotifierProvider<WalletsController, WalletListState>(
-      (ref) {
-        final repository = ref.watch(walletsRepositoryProvider);
-        return WalletsController(repository, ref);
-      },
-    );
+    StateNotifierProvider<WalletsController, WalletListState>((ref) {
+      final repository = ref.watch(walletsRepositoryProvider);
+      return WalletsController(repository, ref);
+    });
 
 final filteredWalletsProvider = Provider<List<Wallet>>((ref) {
   final state = ref.watch(walletsControllerProvider);
@@ -55,6 +53,7 @@ class WalletListState {
     this.error,
     this.isCreating = false,
     this.isUpdating = false,
+    this.isCollectingProfit = false,
     this.isDeleting = false,
   });
 
@@ -63,6 +62,7 @@ class WalletListState {
   final AppException? error;
   final bool isCreating;
   final bool isUpdating;
+  final bool isCollectingProfit;
   final bool isDeleting;
 
   WalletListState copyWith({
@@ -71,6 +71,7 @@ class WalletListState {
     AppException? error,
     bool? isCreating,
     bool? isUpdating,
+    bool? isCollectingProfit,
     bool? isDeleting,
     bool clearError = false,
   }) {
@@ -80,6 +81,7 @@ class WalletListState {
       error: clearError ? null : error ?? this.error,
       isCreating: isCreating ?? this.isCreating,
       isUpdating: isUpdating ?? this.isUpdating,
+      isCollectingProfit: isCollectingProfit ?? this.isCollectingProfit,
       isDeleting: isDeleting ?? this.isDeleting,
     );
   }
@@ -100,10 +102,7 @@ class WalletsController extends StateNotifier<WalletListState> {
       final wallets = await _repository.getWallets();
       state = state.copyWith(data: wallets, isLoading: false);
     } on AppException catch (error) {
-      state = state.copyWith(
-        isLoading: false,
-        error: error,
-      );
+      state = state.copyWith(isLoading: false, error: error);
     }
   }
 
@@ -135,10 +134,7 @@ class WalletsController extends StateNotifier<WalletListState> {
       );
       await _loadWallets();
     } on AppException catch (error) {
-      state = state.copyWith(
-        isCreating: false,
-        error: error,
-      );
+      state = state.copyWith(isCreating: false, error: error);
     }
   }
 
@@ -160,10 +156,7 @@ class WalletsController extends StateNotifier<WalletListState> {
       );
       await _loadWallets();
     } on AppException catch (error) {
-      state = state.copyWith(
-        isUpdating: false,
-        error: error,
-      );
+      state = state.copyWith(isUpdating: false, error: error);
     }
   }
 
@@ -173,10 +166,39 @@ class WalletsController extends StateNotifier<WalletListState> {
       await _repository.deleteWallet(walletId);
       await _loadWallets();
     } on AppException catch (error) {
-      state = state.copyWith(
-        isDeleting: false,
-        error: error,
+      state = state.copyWith(isDeleting: false, error: error);
+    }
+  }
+
+  Future<bool> collectProfit({
+    required String walletId,
+    required double walletProfitAmount,
+    required double cashProfitAmount,
+    String? note,
+  }) async {
+    state = state.copyWith(isCollectingProfit: true, clearError: true);
+    try {
+      final updatedWallet = await _repository.collectProfit(
+        walletId: walletId,
+        walletProfitAmount: walletProfitAmount,
+        cashProfitAmount: cashProfitAmount,
+        note: note,
       );
+      if (updatedWallet != null) {
+        state = state.copyWith(
+          data: [
+            for (final wallet in state.data)
+              wallet.id == walletId ? updatedWallet : wallet,
+          ],
+        );
+      }
+      _ref.invalidate(walletDetailsProvider(walletId));
+      await _loadWallets();
+      state = state.copyWith(isCollectingProfit: false);
+      return true;
+    } on AppException catch (error) {
+      state = state.copyWith(isCollectingProfit: false, error: error);
+      return false;
     }
   }
 

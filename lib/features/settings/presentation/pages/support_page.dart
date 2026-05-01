@@ -7,8 +7,8 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/formatters/app_date_formatter.dart';
 import '../../../../core/localization/app_l10n.dart';
-import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_buttons.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
@@ -91,6 +91,7 @@ class _SupportTicketsErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = appL10n(context);
+    final locale = Localizations.localeOf(context).languageCode;
 
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -143,6 +144,7 @@ class _SupportTicketCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = appL10n(context);
+    final locale = Localizations.localeOf(context).languageCode;
 
     return Container(
       key: ValueKey('support_ticket_card_${ticket.ticketId}'),
@@ -182,13 +184,13 @@ class _SupportTicketCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           _InfoRow(
             label: l10n.createdAt,
-            value: formatDateTime(ticket.createdAt),
+            value: AppDateFormatter.smart(ticket.createdAt, locale: locale),
           ),
           if (_shouldShowResolvedAt(ticket)) ...[
             const SizedBox(height: AppSpacing.sm),
             _InfoRow(
               label: l10n.resolvedAt,
-              value: formatDateTime(ticket.resolvedAt!),
+              value: AppDateFormatter.smart(ticket.resolvedAt!, locale: locale),
             ),
           ],
         ],
@@ -197,7 +199,8 @@ class _SupportTicketCard extends StatelessWidget {
   }
 
   bool _shouldShowResolvedAt(SupportTicketItem ticket) {
-    return ticket.status.toUpperCase() == 'RESOLVED' && ticket.resolvedAt != null;
+    return ticket.status.toUpperCase() == 'RESOLVED' &&
+        ticket.resolvedAt != null;
   }
 
   String _enumLabel(String value) {
@@ -265,9 +268,9 @@ class _InfoRow extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.textSecondary,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
           ),
         ),
         const SizedBox(width: AppSpacing.md),

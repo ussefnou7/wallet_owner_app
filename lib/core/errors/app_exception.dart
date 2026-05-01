@@ -1,6 +1,12 @@
 import 'package:equatable/equatable.dart';
 
 class AppException extends Equatable implements Exception {
+  static const Set<String> _sessionInvalidationCodes = {
+    'TOKEN_EXPIRED',
+    'INVALID_TOKEN',
+    'ACCOUNT_INACTIVE',
+  };
+
   const AppException({
     required this.code,
     required this.message,
@@ -19,10 +25,12 @@ class AppException extends Equatable implements Exception {
 
   bool get isForbidden => status == 403 || code == 'FORBIDDEN';
 
+  bool get requiresSessionInvalidation =>
+      _sessionInvalidationCodes.contains(code.toUpperCase());
+
   @override
   List<Object?> get props => [code, message, status, details, traceId];
 
   @override
   String toString() => message;
 }
-

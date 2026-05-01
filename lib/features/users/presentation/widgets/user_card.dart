@@ -5,8 +5,7 @@ import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_shadows.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_l10n.dart';
-import '../../../../core/widgets/app_initials_avatar.dart';
-import '../../../../core/widgets/app_status_badge.dart';
+import '../../../../core/widgets/app_status_indicator.dart';
 import '../../../auth/domain/entities/session.dart';
 import '../../domain/entities/app_user.dart';
 
@@ -29,155 +28,248 @@ class UserCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = appL10n(context);
+    final branchName = user.branchName?.trim() ?? '';
+    final hasAssignedBranch = branchName.isNotEmpty;
+    final subtitle = user.tenantName;
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadii.lg),
-        border: Border.all(color: AppColors.border),
-        boxShadow: AppShadows.sm,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.9)),
+        boxShadow: AppShadows.card,
       ),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _UserAvatar(name: user.username),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      user.username,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      user.tenantName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    if (user.branchName != null &&
-                        user.branchName!.trim().isNotEmpty) ...[
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        '${l10n.branchName}: ${user.branchName}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              AppStatusBadge(
-                label: user.active ? l10n.active : l10n.inactive,
-                foregroundColor: user.active
-                    ? AppColors.success
-                    : AppColors.textSecondary,
-                backgroundColor: user.active
-                    ? AppColors.successSoft
-                    : AppColors.surfaceVariant,
-              ),
-            ],
+          _UserActionsColumn(
+            isActive: user.active,
+            activeLabel: l10n.active,
+            inactiveLabel: l10n.inactive,
+            editLabel: l10n.edit,
+            editTooltip: l10n.editUser,
+            deleteLabel: l10n.delete,
+            deleteTooltip: l10n.deleteUser,
+            assignLabel: l10n.assignBranch,
+            assignTooltip: l10n.assignBranch,
+            unassignLabel: l10n.unassignBranch,
+            unassignTooltip: l10n.unassignBranch,
+            canUnassign: user.branchId != null,
+            onEdit: onEdit,
+            onDelete: onDelete,
+            onAssignBranch: onAssignBranch,
+            onUnassignBranch: user.branchId == null ? null : onUnassignBranch,
           ),
-          const SizedBox(height: AppSpacing.md),
-          Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
-            children: [
-              _MetaPill(
-                icon: user.role == UserRole.owner
-                    ? Icons.verified_user_outlined
-                    : Icons.person_outline_rounded,
-                label: user.role == UserRole.owner
-                    ? l10n.ownerRole
-                    : l10n.userRole,
-              ),
-              _MetaPill(
-                icon: Icons.account_tree_outlined,
-                label: user.branchName?.trim().isNotEmpty == true
-                    ? user.branchName!
-                    : l10n.notAvailable,
-              ),
-            ],
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: _UserDetailsColumn(
+              username: user.username,
+              subtitle: subtitle,
+              roleLabel: user.role == UserRole.owner
+                  ? l10n.ownerRole
+                  : l10n.userRole,
+              branchLabel: hasAssignedBranch
+                  ? '${l10n.branchName}: $branchName'
+                  : l10n.notAvailable,
+              hasAssignedBranch: hasAssignedBranch,
+            ),
           ),
-          const SizedBox(height: AppSpacing.md),
-          Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
-            children: [
-              _ActionButton(
-                label: l10n.editUser,
-                icon: Icons.edit_outlined,
-                onPressed: onEdit,
-                isPrimary: true,
-              ),
-              _ActionButton(
-                label: l10n.assignBranch,
-                icon: Icons.assignment_ind_outlined,
-                onPressed: onAssignBranch,
-              ),
-              _ActionButton(
-                label: l10n.unassignBranch,
-                icon: Icons.link_off_rounded,
-                onPressed: user.branchId == null ? null : onUnassignBranch,
-                foregroundColor: AppColors.textSecondary,
-              ),
-              _ActionButton(
-                label: l10n.deleteUser,
-                icon: Icons.delete_outline_rounded,
-                onPressed: onDelete,
-                foregroundColor: AppColors.danger,
-                backgroundColor: AppColors.dangerSoft,
-              ),
-            ],
-          ),
+          const SizedBox(width: 12),
+          _UserAvatar(name: user.username),
         ],
       ),
     );
   }
 }
 
-class _MetaPill extends StatelessWidget {
-  const _MetaPill({required this.icon, required this.label});
+class _UserDetailsColumn extends StatelessWidget {
+  const _UserDetailsColumn({
+    required this.username,
+    required this.subtitle,
+    required this.roleLabel,
+    required this.branchLabel,
+    required this.hasAssignedBranch,
+  });
+
+  final String username;
+  final String subtitle;
+  final String roleLabel;
+  final String branchLabel;
+  final bool hasAssignedBranch;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          username,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.end,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: AppColors.textPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            height: 1.15,
+          ),
+        ),
+        if (subtitle.trim().isNotEmpty) ...[
+          const SizedBox(height: 5),
+          Text(
+            subtitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.end,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: AppColors.textSecondary,
+              fontSize: 14,
+              height: 1.2,
+            ),
+          ),
+        ],
+        const SizedBox(height: 10),
+        _UserInfoLine(icon: Icons.verified_user_outlined, label: roleLabel),
+        const SizedBox(height: 6),
+        _UserInfoLine(
+          icon: hasAssignedBranch
+              ? Icons.account_tree_outlined
+              : Icons.link_off_rounded,
+          label: branchLabel,
+        ),
+      ],
+    );
+  }
+}
+
+class _UserActionsColumn extends StatelessWidget {
+  const _UserActionsColumn({
+    required this.isActive,
+    required this.activeLabel,
+    required this.inactiveLabel,
+    required this.editLabel,
+    required this.editTooltip,
+    required this.deleteLabel,
+    required this.deleteTooltip,
+    required this.assignLabel,
+    required this.assignTooltip,
+    required this.unassignLabel,
+    required this.unassignTooltip,
+    required this.canUnassign,
+    required this.onEdit,
+    required this.onDelete,
+    required this.onAssignBranch,
+    required this.onUnassignBranch,
+  });
+
+  final bool isActive;
+  final String activeLabel;
+  final String inactiveLabel;
+  final String editLabel;
+  final String editTooltip;
+  final String deleteLabel;
+  final String deleteTooltip;
+  final String assignLabel;
+  final String assignTooltip;
+  final String unassignLabel;
+  final String unassignTooltip;
+  final bool canUnassign;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+  final VoidCallback onAssignBranch;
+  final VoidCallback? onUnassignBranch;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AppStatusIndicator(
+          label: isActive ? activeLabel : inactiveLabel,
+          isActive: isActive,
+          inactiveColor: AppColors.textMuted,
+          iconSize: 16,
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          direction: Axis.vertical,
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _CompactActionButton(
+              label: editLabel,
+              tooltip: editTooltip,
+              icon: Icons.edit_outlined,
+              foregroundColor: AppColors.primary,
+              backgroundColor: AppColors.primarySoft,
+              onPressed: onEdit,
+            ),
+            _CompactActionButton(
+              label: deleteLabel,
+              tooltip: deleteTooltip,
+              icon: Icons.delete_outline_rounded,
+              foregroundColor: AppColors.danger,
+              backgroundColor: AppColors.dangerSoft,
+              onPressed: onDelete,
+            ),
+            _CompactActionButton(
+              label: assignLabel,
+              tooltip: assignTooltip,
+              icon: Icons.assignment_ind_outlined,
+              foregroundColor: AppColors.primary,
+              backgroundColor: AppColors.primarySoft,
+              onPressed: onAssignBranch,
+            ),
+            _CompactActionButton(
+              label: unassignLabel,
+              tooltip: unassignTooltip,
+              icon: Icons.link_off_rounded,
+              foregroundColor: canUnassign
+                  ? AppColors.textSecondary
+                  : AppColors.textMuted,
+              backgroundColor: canUnassign
+                  ? AppColors.surfaceVariant
+                  : AppColors.surfaceVariant.withValues(alpha: 0.75),
+              onPressed: onUnassignBranch,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _UserInfoLine extends StatelessWidget {
+  const _UserInfoLine({required this.icon, required this.label});
 
   final IconData icon;
   final String label;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xs,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
-        borderRadius: BorderRadius.circular(AppRadii.md),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: AppColors.textSecondary),
-          const SizedBox(width: AppSpacing.xs),
-          Flexible(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelMedium,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.end,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: AppColors.textSecondary,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              height: 1.2,
             ),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 6),
+        Icon(icon, size: 17, color: AppColors.textMuted),
+      ],
     );
   }
 }
@@ -189,67 +281,90 @@ class _UserAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final initials = _initialsFor(name);
+
     return Container(
+      width: 48,
+      height: 48,
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: AppColors.border),
+        color: AppColors.primarySoft,
+        borderRadius: BorderRadius.circular(AppRadii.lg),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.12)),
       ),
-      child: AppInitialsAvatar(name: name),
+      child: Center(
+        child: Text(
+          initials,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: AppColors.primary,
+            fontWeight: FontWeight.w700,
+            fontSize: 16,
+          ),
+        ),
+      ),
     );
+  }
+
+  static String _initialsFor(String value) {
+    final parts = value
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .toList(growable: false);
+
+    if (parts.isEmpty) {
+      return 'U';
+    }
+    if (parts.length == 1) {
+      final name = parts.first;
+      return name.substring(0, name.length >= 2 ? 2 : 1).toUpperCase();
+    }
+
+    return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
   }
 }
 
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
+class _CompactActionButton extends StatelessWidget {
+  const _CompactActionButton({
     required this.label,
+    required this.tooltip,
     required this.icon,
+    required this.foregroundColor,
+    required this.backgroundColor,
     required this.onPressed,
-    this.isPrimary = false,
-    this.foregroundColor,
-    this.backgroundColor,
   });
 
   final String label;
+  final String tooltip;
   final IconData icon;
+  final Color foregroundColor;
+  final Color backgroundColor;
   final VoidCallback? onPressed;
-  final bool isPrimary;
-  final Color? foregroundColor;
-  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
-    final resolvedForeground =
-        foregroundColor ??
-        (isPrimary ? AppColors.primary : AppColors.textPrimary);
-    final resolvedBackground =
-        backgroundColor ??
-        (isPrimary ? AppColors.primarySoft : AppColors.surfaceVariant);
-
-    return Opacity(
-      opacity: onPressed == null ? 0.55 : 1,
-      child: Material(
-        color: resolvedBackground,
-        borderRadius: BorderRadius.circular(AppRadii.xl),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(AppRadii.xl),
-          onTap: onPressed,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md,
-              vertical: AppSpacing.sm,
+    return Tooltip(
+      message: tooltip,
+      child: SizedBox(
+        height: 32,
+        child: TextButton.icon(
+          onPressed: onPressed,
+          icon: Icon(icon, size: 14, color: foregroundColor),
+          label: Text(
+            label,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: foregroundColor,
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon, size: 18, color: resolvedForeground),
-                const SizedBox(width: AppSpacing.xs),
-                Text(
-                  label,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelLarge?.copyWith(color: resolvedForeground),
-                ),
-              ],
+          ),
+          style: TextButton.styleFrom(
+            foregroundColor: foregroundColor,
+            backgroundColor: backgroundColor,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            visualDensity: VisualDensity.compact,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
         ),

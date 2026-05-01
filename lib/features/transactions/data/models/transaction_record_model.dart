@@ -39,7 +39,7 @@ class TransactionRecordModel extends TransactionRecord {
       amount: _doubleFromJson(json['amount']),
       percent: _doubleFromJson(json['percent']),
       phoneNumber: json['phoneNumber'] as String?,
-      cash: json['cash'] as bool? ?? false,
+      cash: _boolFromJson(json['cash']),
       date: json['date'] is String
           ? DateTime.tryParse(json['date'] as String) ?? date
           : date,
@@ -47,8 +47,9 @@ class TransactionRecordModel extends TransactionRecord {
       createdAt: createdAt,
       updatedAt: updatedAt,
       createdBy:
-          json['createdBy'] as String? ??
-          'Backend',
+          _stringOrNull(json['createdByUsername']) ??
+          _stringOrNull(json['createdBy']) ??
+          '',
       createdByUsername: _stringOrNull(json['createdByUsername']),
       status: json['status'] is String
           ? _statusFromJson(json['status'] as String)
@@ -56,6 +57,20 @@ class TransactionRecordModel extends TransactionRecord {
       note: json['description'] as String? ?? json['note'] as String?,
     );
   }
+}
+
+bool _boolFromJson(Object? value) {
+  if (value is bool) {
+    return value;
+  }
+  if (value is num) {
+    return value != 0;
+  }
+  if (value is String) {
+    final normalized = value.trim().toLowerCase();
+    return normalized == 'true' || normalized == '1';
+  }
+  return false;
 }
 
 double _doubleFromJson(Object? value) {

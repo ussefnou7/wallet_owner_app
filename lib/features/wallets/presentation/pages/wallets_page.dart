@@ -14,10 +14,12 @@ import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading_view.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/icon_action_button.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../branches/presentation/controllers/branches_controller.dart';
 import '../../domain/entities/wallet.dart';
 import '../controllers/wallets_controller.dart';
+import '../widgets/collect_profit_sheet.dart';
 import '../widgets/wallet_card.dart';
 
 class WalletsPage extends ConsumerStatefulWidget {
@@ -51,7 +53,10 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
     final walletState = ref.watch(walletsControllerProvider);
     final filteredWallets = ref.watch(filteredWalletsProvider);
     final searchQuery = ref.watch(walletsSearchQueryProvider);
+    final authState = ref.watch(authControllerProvider);
     final canManageWallets = !widget.readOnly;
+    final canCollectProfit =
+        canManageWallets && (authState.session?.isOwner ?? false);
     final l10n = appL10n(context);
     final bottomInset = MediaQuery.paddingOf(context).bottom;
 
@@ -87,23 +92,23 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
               ),
             ),
             const SizedBox(width: AppSpacing.sm),
-            OutlinedButton.icon(
+            IconActionButton(
+              icon: Icons.refresh_rounded,
+              tooltip: l10n.refresh,
               onPressed: walletState.isLoading
                   ? null
                   : () => ref.read(walletsControllerProvider.notifier).reload(),
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(l10n.refresh),
             ),
-            if (canManageWallets) ...[
-              const SizedBox(width: AppSpacing.sm),
-              FilledButton.icon(
+            const SizedBox(width: AppSpacing.sm),
+            if (canManageWallets)
+              IconActionButton(
+                icon: Icons.add_rounded,
+                tooltip: l10n.createWallet,
+                filled: true,
                 onPressed: walletState.isLoading || walletState.isCreating
                     ? null
                     : () => _showWalletFormDialog(context),
-                icon: const Icon(Icons.add_rounded),
-                label: Text(l10n.create),
               ),
-            ],
           ],
         ),
         const SizedBox(height: AppSpacing.md),
@@ -111,36 +116,40 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
           child: walletState.isLoading
               ? AppLoadingView(message: l10n.loadingWallets)
               : filteredWallets.isEmpty
-                  ? AppEmptyState(
-                      title: searchQuery.trim().isEmpty
-                          ? l10n.noWalletsFound
-                          : l10n.noMatchingWallets,
-                      message: searchQuery.trim().isEmpty
-                          ? l10n.walletsEmptyMessage
-                          : l10n.walletsSearchEmptyMessage,
-                      icon: Icons.account_balance_wallet_outlined,
-                    )
-                  : ListView.separated(
-                      padding: EdgeInsets.only(
-                        bottom: bottomInset +
-                            AppDimensions.floatingBottomNavContentPadding,
-                      ),
-                      itemCount: filteredWallets.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(height: AppSpacing.md),
-                      itemBuilder: (context, index) {
-                        final wallet = filteredWallets[index];
-                        return WalletCard(
-                          wallet: wallet,
-                          onEdit: canManageWallets
-                              ? () => _showWalletFormDialog(context, wallet: wallet)
-                              : null,
-                          onDelete: canManageWallets
-                              ? () => _confirmDeleteWallet(context, wallet)
-                              : null,
-                        );
-                      },
-                    ),
+              ? AppEmptyState(
+                  title: searchQuery.trim().isEmpty
+                      ? l10n.noWalletsFound
+                      : l10n.noMatchingWallets,
+                  message: searchQuery.trim().isEmpty
+                      ? l10n.walletsEmptyMessage
+                      : l10n.walletsSearchEmptyMessage,
+                  icon: Icons.account_balance_wallet_outlined,
+                )
+              : ListView.separated(
+                  padding: EdgeInsets.only(
+                    bottom:
+                        bottomInset +
+                        AppDimensions.floatingBottomNavContentPadding,
+                  ),
+                  itemCount: filteredWallets.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: AppSpacing.md),
+                  itemBuilder: (context, index) {
+                    final wallet = filteredWallets[index];
+                    return WalletCard(
+                      wallet: wallet,
+                      onCollectProfit: canCollectProfit
+                          ? () => _showCollectProfitSheet(context, wallet)
+                          : null,
+                      onEdit: canManageWallets
+                          ? () => _showWalletFormDialog(context, wallet: wallet)
+                          : null,
+                      onDelete: canManageWallets
+                          ? () => _confirmDeleteWallet(context, wallet)
+                          : null,
+                    );
+                  },
+                ),
         ),
       ],
     );
@@ -151,184 +160,20 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
     Wallet? wallet,
   }) async {
     if (wallet != null) {
-      final controller = TextEditingController(text: wallet.name);
-      final dailyLimitController = TextEditingController(
-        text: wallet.dailyLimit.toStringAsFixed(
-          wallet.dailyLimit.truncateToDouble() == wallet.dailyLimit ? 0 : 2,
-        ),
-      );
-      final monthlyLimitController = TextEditingController(
-        text: wallet.monthlyLimit.toStringAsFixed(
-          wallet.monthlyLimit.truncateToDouble() == wallet.monthlyLimit ? 0 : 2,
-        ),
-      );
-      var active = wallet.active;
-      final formKey = GlobalKey<FormState>();
       final l10n = appL10n(context);
       final messenger = ScaffoldMessenger.of(context);
 
       final submitted = await showDialog<bool>(
         context: context,
-        builder: (context) {
-          return StatefulBuilder(
-            builder: (context, setDialogState) {
-              return AlertDialog(
-                title: Text(l10n.editWallet),
-                content: SizedBox(
-                  width: 420,
-                  child: SingleChildScrollView(
-                    child: Form(
-                      key: formKey,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AppTextField(
-                            controller: controller,
-                            label: l10n.walletName,
-                            prefixIcon: const Icon(
-                              Icons.account_balance_wallet_outlined,
-                            ),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return l10n.walletNameRequired;
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          Text(
-                            l10n.walletStatusLabel,
-                            style: Theme.of(context).textTheme.labelLarge,
-                          ),
-                          const SizedBox(height: AppSpacing.xs),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.surfaceContainerLowest,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: SwitchListTile.adaptive(
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.sm,
-                              ),
-                              title: Text(l10n.active),
-                              value: active,
-                              onChanged: (value) {
-                                setDialogState(() => active = value);
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: AppTextField(
-                                  controller: dailyLimitController,
-                                  label: l10n.dailyLimitLabel,
-                                  prefixIcon: const Icon(Icons.today_outlined),
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                        decimal: true,
-                                      ),
-                                  inputFormatters: [_decimalInputFormatter],
-                                  validator: (value) => _validateLimitField(
-                                    value,
-                                    l10n.dailyLimitRequired,
-                                    l10n.validLimitRequired,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: AppSpacing.sm),
-                              Expanded(
-                                child: AppTextField(
-                                  controller: monthlyLimitController,
-                                  label: l10n.monthlyLimitLabel,
-                                  prefixIcon: const Icon(
-                                    Icons.calendar_month_outlined,
-                                  ),
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                        decimal: true,
-                                      ),
-                                  inputFormatters: [_decimalInputFormatter],
-                                  validator: (value) => _validateLimitField(
-                                    value,
-                                    l10n.monthlyLimitRequired,
-                                    l10n.validLimitRequired,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: Text(l10n.cancel),
-                  ),
-                  FilledButton(
-                    onPressed: () {
-                      if (formKey.currentState?.validate() == true) {
-                        Navigator.of(context).pop(true);
-                      }
-                    },
-                    child: Text(l10n.save),
-                  ),
-                ],
-              );
-            },
-          );
-        },
+        barrierDismissible: false,
+        builder: (dialogContext) => _EditWalletDialog(wallet: wallet),
       );
 
       if (submitted != true || !mounted) {
-        controller.dispose();
-        dailyLimitController.dispose();
-        monthlyLimitController.dispose();
         return;
       }
 
-      final name = controller.text.trim();
-      final dailyLimit = double.parse(dailyLimitController.text.trim());
-      final monthlyLimit = double.parse(monthlyLimitController.text.trim());
-      controller.dispose();
-      dailyLimitController.dispose();
-      monthlyLimitController.dispose();
-
-      final notifier = ref.read(walletsControllerProvider.notifier);
-      await notifier.updateWallet(
-        walletId: wallet.id,
-        name: name,
-        active: active,
-        dailyLimit: dailyLimit,
-        monthlyLimit: monthlyLimit,
-      );
-
-      if (!mounted) {
-        return;
-      }
-
-      final state = ref.read(walletsControllerProvider);
-      if (state.error != null) {
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(
-              _getErrorMessage(state.error!),
-            ),
-          ),
-        );
-        return;
-      }
-
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.walletUpdated)),
-      );
+      messenger.showSnackBar(SnackBar(content: Text(l10n.walletUpdated)));
       return;
     }
 
@@ -346,9 +191,7 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
       return;
     }
 
-    messenger.showSnackBar(
-      SnackBar(content: Text(l10n.walletCreated)),
-    );
+    messenger.showSnackBar(SnackBar(content: Text(l10n.walletCreated)));
   }
 
   Future<void> _confirmDeleteWallet(BuildContext context, Wallet wallet) async {
@@ -377,9 +220,7 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
       return;
     }
 
-    await ref
-        .read(walletsControllerProvider.notifier)
-        .deleteWallet(wallet.id);
+    await ref.read(walletsControllerProvider.notifier).deleteWallet(wallet.id);
 
     if (!context.mounted) {
       return;
@@ -387,15 +228,36 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
 
     final state = ref.read(walletsControllerProvider);
     if (state.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_getErrorMessage(state.error!))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(_getErrorMessage(state.error!))));
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.walletDeleted)),
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.walletDeleted)));
+  }
+
+  Future<void> _showCollectProfitSheet(
+    BuildContext context,
+    Wallet wallet,
+  ) async {
+    final l10n = appL10n(context);
+    final submitted = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => CollectProfitSheet(wallet: wallet),
     );
+
+    if (submitted != true || !context.mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.collectProfitSuccess)));
   }
 
   String _getErrorMessage(AppException error) {
@@ -407,7 +269,8 @@ class _CreateWalletDialog extends ConsumerStatefulWidget {
   const _CreateWalletDialog();
 
   @override
-  ConsumerState<_CreateWalletDialog> createState() => _CreateWalletDialogState();
+  ConsumerState<_CreateWalletDialog> createState() =>
+      _CreateWalletDialogState();
 }
 
 class _CreateWalletDialogState extends ConsumerState<_CreateWalletDialog> {
@@ -451,197 +314,197 @@ class _CreateWalletDialogState extends ConsumerState<_CreateWalletDialog> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                AppTextField(
-                  controller: _nameController,
-                  label: l10n.walletName,
-                  prefixIcon: const Icon(
-                    Icons.account_balance_wallet_outlined,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return l10n.walletNameRequired;
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: AppSpacing.md),
-                AppTextField(
-                  controller: _numberController,
-                  label: l10n.number,
-                  prefixIcon: const Icon(Icons.phone_rounded),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return l10n.walletNumberRequired;
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: AppSpacing.md),
-                AppTextField(
-                  controller: _balanceController,
-                  label: l10n.balance,
-                  prefixIcon: const Icon(Icons.attach_money_rounded),
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  inputFormatters: [_decimalInputFormatter],
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return l10n.balanceRequired;
-                    }
-                    if (double.tryParse(value) == null) {
-                      return l10n.validAmountRequired;
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: AppSpacing.md),
-                Row(
-                  children: [
-                    Expanded(
-                      child: AppTextField(
-                        controller: _dailyLimitController,
-                        label: l10n.dailyLimitLabel,
-                        prefixIcon: const Icon(Icons.today_outlined),
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        inputFormatters: [_decimalInputFormatter],
-                        validator: (value) => _validateLimitField(
-                          value,
-                          l10n.dailyLimitRequired,
-                          l10n.validLimitRequired,
-                        ),
-                      ),
+                  AppTextField(
+                    controller: _nameController,
+                    label: l10n.walletName,
+                    prefixIcon: const Icon(
+                      Icons.account_balance_wallet_outlined,
                     ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: AppTextField(
-                        controller: _monthlyLimitController,
-                        label: l10n.monthlyLimitLabel,
-                        prefixIcon: const Icon(Icons.calendar_month_outlined),
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        inputFormatters: [_decimalInputFormatter],
-                        validator: (value) => _validateLimitField(
-                          value,
-                          l10n.monthlyLimitRequired,
-                          l10n.validLimitRequired,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.md),
-                branchesAsync.when(
-                  data: (branches) => DropdownButtonFormField<String>(
-                    decoration: InputDecoration(
-                      labelText: l10n.branchName,
-                      prefixIcon: const Icon(Icons.account_tree_outlined),
-                    ),
-                    initialValue: _selectedBranchId,
-                    hint: Text(l10n.selectBranch),
-                    items: branches
-                        .map(
-                          (branch) => DropdownMenuItem(
-                            value: branch.id,
-                            child: Text(branch.name),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() => _selectedBranchId = value);
-                    },
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return l10n.branchRequired;
+                      if (value == null || value.trim().isEmpty) {
+                        return l10n.walletNameRequired;
                       }
                       return null;
                     },
                   ),
-                  loading: () => const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: SizedBox(
-                      height: 24,
-                      width: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                  const SizedBox(height: AppSpacing.md),
+                  AppTextField(
+                    controller: _numberController,
+                    label: l10n.number,
+                    prefixIcon: const Icon(Icons.phone_rounded),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return l10n.walletNumberRequired;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  AppTextField(
+                    controller: _balanceController,
+                    label: l10n.balance,
+                    prefixIcon: const Icon(Icons.attach_money_rounded),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
                     ),
+                    inputFormatters: [_decimalInputFormatter],
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return l10n.balanceRequired;
+                      }
+                      if (double.tryParse(value) == null) {
+                        return l10n.validAmountRequired;
+                      }
+                      return null;
+                    },
                   ),
-                  error: (error, stackTrace) => const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: SizedBox.shrink(),
-                  ),
-                ),
-                if (branchesAsync.hasError)
-                  Padding(
-                    padding: const EdgeInsets.only(top: AppSpacing.xs),
-                    child: Text(
-                      l10n.failedToLoadBranches,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.error,
+                  const SizedBox(height: AppSpacing.md),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: AppTextField(
+                          controller: _dailyLimitController,
+                          label: l10n.dailyLimitLabel,
+                          prefixIcon: const Icon(Icons.today_outlined),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          inputFormatters: [_decimalInputFormatter],
+                          validator: (value) => _validateLimitField(
+                            value,
+                            l10n.dailyLimitRequired,
+                            l10n.validLimitRequired,
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: AppTextField(
+                          controller: _monthlyLimitController,
+                          label: l10n.monthlyLimitLabel,
+                          prefixIcon: const Icon(Icons.calendar_month_outlined),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          inputFormatters: [_decimalInputFormatter],
+                          validator: (value) => _validateLimitField(
+                            value,
+                            l10n.monthlyLimitRequired,
+                            l10n.validLimitRequired,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                const SizedBox(height: AppSpacing.md),
-                walletTypesAsync.when(
-                  data: (types) {
-                    if (types.isEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(l10n.noWalletTypesAvailable),
-                      );
-                    }
-
-                    return DropdownButtonFormField<String>(
+                  const SizedBox(height: AppSpacing.md),
+                  branchesAsync.when(
+                    data: (branches) => DropdownButtonFormField<String>(
                       decoration: InputDecoration(
-                        labelText: l10n.walletTypeLabel,
-                        prefixIcon: const Icon(Icons.category_outlined),
+                        labelText: l10n.branchName,
+                        prefixIcon: const Icon(Icons.account_tree_outlined),
                       ),
-                      initialValue: _selectedType,
-                      hint: Text(l10n.selectWalletType),
-                      items: types
+                      initialValue: _selectedBranchId,
+                      hint: Text(l10n.selectBranch),
+                      items: branches
                           .map(
-                            (type) => DropdownMenuItem(
-                              value: type,
-                              child: Text(type),
+                            (branch) => DropdownMenuItem(
+                              value: branch.id,
+                              child: Text(branch.name),
                             ),
                           )
                           .toList(),
                       onChanged: (value) {
-                        setState(() => _selectedType = value);
+                        setState(() => _selectedBranchId = value);
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return l10n.walletTypeRequired;
+                          return l10n.branchRequired;
                         }
                         return null;
                       },
-                    );
-                  },
-                  loading: () => const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: SizedBox(
-                      height: 24,
-                      width: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2),
                     ),
-                  ),
-                  error: (error, stackTrace) => const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: SizedBox.shrink(),
-                  ),
-                ),
-                if (walletTypesAsync.hasError)
-                  Padding(
-                    padding: const EdgeInsets.only(top: AppSpacing.xs),
-                    child: Text(
-                      l10n.failedToLoadWalletTypes,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.error,
+                    loading: () => const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
                       ),
                     ),
+                    error: (error, stackTrace) => const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: SizedBox.shrink(),
+                    ),
                   ),
+                  if (branchesAsync.hasError)
+                    Padding(
+                      padding: const EdgeInsets.only(top: AppSpacing.xs),
+                      child: Text(
+                        l10n.failedToLoadBranches,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: AppSpacing.md),
+                  walletTypesAsync.when(
+                    data: (types) {
+                      if (types.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(l10n.noWalletTypesAvailable),
+                        );
+                      }
+
+                      return DropdownButtonFormField<String>(
+                        decoration: InputDecoration(
+                          labelText: l10n.walletTypeLabel,
+                          prefixIcon: const Icon(Icons.category_outlined),
+                        ),
+                        initialValue: _selectedType,
+                        hint: Text(l10n.selectWalletType),
+                        items: types
+                            .map(
+                              (type) => DropdownMenuItem(
+                                value: type,
+                                child: Text(type),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() => _selectedType = value);
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return l10n.walletTypeRequired;
+                          }
+                          return null;
+                        },
+                      );
+                    },
+                    loading: () => const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                    error: (error, stackTrace) => const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: SizedBox.shrink(),
+                    ),
+                  ),
+                  if (walletTypesAsync.hasError)
+                    Padding(
+                      padding: const EdgeInsets.only(top: AppSpacing.xs),
+                      child: Text(
+                        l10n.failedToLoadWalletTypes,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
                   if (_submitError != null) ...[
                     const SizedBox(height: AppSpacing.md),
                     AppErrorState(
@@ -734,6 +597,246 @@ class _CreateWalletDialogState extends ConsumerState<_CreateWalletDialog> {
       monthlyLimit: double.parse(_monthlyLimitController.text.trim()),
       type: _selectedType!,
       tenantId: tenantId,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    final state = ref.read(walletsControllerProvider);
+    if (state.error != null) {
+      setState(() {
+        _isSubmitting = false;
+        _submitError = state.error;
+      });
+      return;
+    }
+
+    _close(true);
+  }
+}
+
+class _EditWalletDialog extends ConsumerStatefulWidget {
+  const _EditWalletDialog({required this.wallet});
+
+  final Wallet wallet;
+
+  @override
+  ConsumerState<_EditWalletDialog> createState() => _EditWalletDialogState();
+}
+
+class _EditWalletDialogState extends ConsumerState<_EditWalletDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _nameController;
+  late final TextEditingController _dailyLimitController;
+  late final TextEditingController _monthlyLimitController;
+  late bool _active;
+  bool _isSubmitting = false;
+  AppException? _submitError;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.wallet.name);
+    _dailyLimitController = TextEditingController(
+      text: widget.wallet.dailyLimit.toStringAsFixed(
+        widget.wallet.dailyLimit.truncateToDouble() == widget.wallet.dailyLimit
+            ? 0
+            : 2,
+      ),
+    );
+    _monthlyLimitController = TextEditingController(
+      text: widget.wallet.monthlyLimit.toStringAsFixed(
+        widget.wallet.monthlyLimit.truncateToDouble() ==
+                widget.wallet.monthlyLimit
+            ? 0
+            : 2,
+      ),
+    );
+    _active = widget.wallet.active;
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _dailyLimitController.dispose();
+    _monthlyLimitController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = appL10n(context);
+
+    return PopScope(
+      canPop: !_isSubmitting,
+      child: AlertDialog(
+        title: Text(l10n.editWallet),
+        content: SizedBox(
+          width: 420,
+          child: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppTextField(
+                    controller: _nameController,
+                    label: l10n.walletName,
+                    prefixIcon: const Icon(
+                      Icons.account_balance_wallet_outlined,
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return l10n.walletNameRequired;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    l10n.walletStatusLabel,
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerLowest,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: SwitchListTile.adaptive(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm,
+                      ),
+                      title: Text(l10n.active),
+                      value: _active,
+                      onChanged: _isSubmitting
+                          ? null
+                          : (value) {
+                              if (!mounted) {
+                                return;
+                              }
+                              setState(() => _active = value);
+                            },
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: AppTextField(
+                          controller: _dailyLimitController,
+                          label: l10n.dailyLimitLabel,
+                          prefixIcon: const Icon(Icons.today_outlined),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          inputFormatters: [_decimalInputFormatter],
+                          validator: (value) => _validateLimitField(
+                            value,
+                            l10n.dailyLimitRequired,
+                            l10n.validLimitRequired,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: AppTextField(
+                          controller: _monthlyLimitController,
+                          label: l10n.monthlyLimitLabel,
+                          prefixIcon: const Icon(
+                            Icons.calendar_month_outlined,
+                          ),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          inputFormatters: [_decimalInputFormatter],
+                          validator: (value) => _validateLimitField(
+                            value,
+                            l10n.monthlyLimitRequired,
+                            l10n.validLimitRequired,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (_submitError != null) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    AppErrorState(
+                      key: const Key('edit_wallet_inline_error'),
+                      message: ErrorMessageMapper.getLocalizedMessage(
+                        context,
+                        _submitError,
+                      ),
+                      compact: true,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: _isSubmitting ? null : () => _close(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: _isSubmitting ? null : _submit,
+            child: _isSubmitting
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(l10n.save),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _close([bool? result]) {
+    if (!mounted) {
+      return;
+    }
+
+    FocusScope.of(context).unfocus();
+    final navigator = Navigator.of(context, rootNavigator: true);
+    if (navigator.canPop()) {
+      navigator.pop(result);
+    }
+  }
+
+  Future<void> _submit() async {
+    FocusScope.of(context).unfocus();
+    if (_formKey.currentState?.validate() != true) {
+      return;
+    }
+
+    final name = _nameController.text.trim();
+    final dailyLimit = double.parse(_dailyLimitController.text.trim());
+    final monthlyLimit = double.parse(_monthlyLimitController.text.trim());
+    final active = _active;
+
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _isSubmitting = true;
+      _submitError = null;
+    });
+
+    final notifier = ref.read(walletsControllerProvider.notifier);
+    await notifier.updateWallet(
+      walletId: widget.wallet.id,
+      name: name,
+      active: active,
+      dailyLimit: dailyLimit,
+      monthlyLimit: monthlyLimit,
     );
 
     if (!mounted) {

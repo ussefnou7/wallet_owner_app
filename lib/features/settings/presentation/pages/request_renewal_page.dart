@@ -8,6 +8,7 @@ import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_l10n.dart';
+import '../../../../core/formatters/app_date_formatter.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_buttons.dart';
 import '../../../../core/widgets/app_empty_state.dart';
@@ -92,6 +93,7 @@ class _RenewalRequestsErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = appL10n(context);
+    final locale = Localizations.localeOf(context).languageCode;
 
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -121,6 +123,7 @@ class _RenewalRequestsEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = appL10n(context);
+    final locale = Localizations.localeOf(context).languageCode;
 
     return Column(
       children: [
@@ -144,6 +147,7 @@ class _RenewalRequestCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = appL10n(context);
+    final locale = Localizations.localeOf(context).languageCode;
 
     return Container(
       key: ValueKey('renewal_request_card_${request.requestId}'),
@@ -184,13 +188,16 @@ class _RenewalRequestCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           _InfoRow(
             label: l10n.requestedAt,
-            value: formatDateTime(request.createdAt),
+            value: AppDateFormatter.smart(request.createdAt, locale: locale),
           ),
           if (_shouldShowReviewedAt(request)) ...[
             const SizedBox(height: AppSpacing.sm),
             _InfoRow(
               label: l10n.reviewedAt,
-              value: formatDateTime(request.reviewedAt!),
+              value: AppDateFormatter.smart(
+                request.reviewedAt!,
+                locale: locale,
+              ),
             ),
           ],
           if ((request.adminNote ?? '').trim().isNotEmpty) ...[
