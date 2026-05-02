@@ -20,7 +20,9 @@ class UserAppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final contentMaxWidth = currentRoute == AppRoutes.userCreateTransaction
+    final contentMaxWidth =
+        currentRoute == AppRoutes.userCreateTransaction ||
+            currentRoute == AppRoutes.userCreateSupport
         ? AppDimensions.compactContentMaxWidth
         : AppDimensions.contentMaxWidth;
 
@@ -28,8 +30,9 @@ class UserAppShell extends StatelessWidget {
       title: _titleForRoute(context, currentRoute),
       currentRoute: currentRoute,
       navVariant: AppBottomNavVariant.user,
-      endDrawer: const UserAppDrawer(),
+      endDrawer: UserAppDrawer(currentRoute: currentRoute),
       onDestinationSelected: context.go,
+      onBackPressed: context.canPop() ? context.pop : null,
       maxWidth: contentMaxWidth,
       showNotifications: false,
       child: child,
@@ -42,6 +45,8 @@ class UserAppShell extends StatelessWidget {
       AppRoutes.userWallets => l10n.wallets,
       AppRoutes.userTransactions => l10n.transactions,
       AppRoutes.userCreateTransaction => l10n.newTransaction,
+      AppRoutes.userSupport => l10n.supportTickets,
+      AppRoutes.userCreateSupport => l10n.newTicket,
       _ => l10n.dashboard,
     };
   }

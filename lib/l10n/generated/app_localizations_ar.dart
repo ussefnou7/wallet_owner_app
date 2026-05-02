@@ -9,7 +9,7 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get appName => 'إدارة المحافظ';
+  String get appName => 'تفعيلة';
 
   @override
   String get language => 'اللغة';
@@ -228,7 +228,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get portfolioOverviewSubtitle =>
-      'تابع حركة الرصيد ونشاط المحافظ في حساب المالك.';
+      'تابع حركة الرصيد ونشاط المحافظ في حسابك.';
 
   @override
   String get latestTransactions => 'آخر العمليات';
@@ -373,6 +373,22 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get walletTotalLabel => 'الإجمالي';
+
+  @override
+  String get totalProfitLabel => 'إجمالي الربح';
+
+  @override
+  String get noCollectionYet => 'لا يوجد تحصيل بعد';
+
+  @override
+  String lastCollectionWithDate(String date) {
+    return 'آخر تحصيل: $date';
+  }
+
+  @override
+  String lastCollectionWithDateByName(String date, String name) {
+    return 'آخر تحصيل: $date بواسطة $name';
+  }
 
   @override
   String get collectProfit => 'تحصيل الأرباح';
@@ -572,20 +588,20 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get ownerSettings => 'إعدادات المالك';
+  String get ownerSettings => 'الإعدادات';
 
   @override
   String get ownerSettingsSubtitle =>
-      'أدر ملف المالك، تفاصيل الاشتراك، التفضيلات، وأمان الحساب من مكان واحد.';
+      'أدر ملفك الشخصي، تفاصيل الاشتراك، التفضيلات، وأمان الحساب من مكان واحد.';
 
   @override
   String get account => 'الحساب';
 
   @override
-  String get accountSubtitle => 'هوية المالك الحالية وتعيين مساحة العمل.';
+  String get accountSubtitle => 'هوية الحساب الحالية وتعيين مساحة العمل.';
 
   @override
-  String get ownerName => 'اسم المالك';
+  String get ownerName => 'الاسم';
 
   @override
   String get email => 'البريد الإلكتروني';
@@ -597,7 +613,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get workspace => 'مساحة العمل';
 
   @override
-  String get ownerWorkspaceFallback => 'مساحة عمل المالك';
+  String get ownerWorkspaceFallback => 'مساحة العمل';
 
   @override
   String get workspaceSubscription => 'مساحة العمل والاشتراك';
@@ -649,10 +665,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'اضبط اللغة والإشعارات والمظهر ومعلومات التطبيق.';
 
   @override
-  String get notificationsEnabledSubtitle => 'مفعلة لتنبيهات المالك التجريبية';
+  String get notificationsEnabledSubtitle => 'مفعلة لتنبيهات التطبيق';
 
   @override
-  String get notificationsDisabledSubtitle => 'معطلة لتنبيهات المالك التجريبية';
+  String get notificationsDisabledSubtitle => 'معطلة لتنبيهات التطبيق';
 
   @override
   String get theme => 'المظهر';
@@ -666,6 +682,101 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get appVersion => 'إصدار التطبيق';
+
+  @override
+  String get versionLabel => 'الإصدار';
+
+  @override
+  String get legalInformation => 'معلومات وقانونيات';
+
+  @override
+  String get legalInformationSubtitle =>
+      'اطلع على معلومات بسيطة عن تفعيلة والخصوصية وشروط استخدام المنصة.';
+
+  @override
+  String get aboutTa2feela => 'عن تفعيلة';
+
+  @override
+  String get aboutTa2feelaSubtitle =>
+      'تعرف على ما تساعدك تفعيلة على إدارته وكيفية الوصول إلى الدعم.';
+
+  @override
+  String get aboutOverviewTitle => 'نبذة عامة';
+
+  @override
+  String get aboutOverviewBody =>
+      'تفعيلة تطبيق لإدارة المحافظ يساعد على متابعة المحافظ، والمعاملات، والفروع، والمستخدمين، والأرباح، والاستهلاك اليومي أو الشهري. يهدف إلى تنظيم نشاط الحساب في مكان واحد.';
+
+  @override
+  String get aboutMissionTitle => 'ما الذي يمكنك إدارته';
+
+  @override
+  String get aboutMissionBody =>
+      'من خلال تفعيلة يمكنك مراجعة أرصدة المحافظ، وتسجيل حركة المعاملات، ومتابعة ربط الفروع والمستخدمين، ومراقبة الأرباح، والاطلاع على تفاصيل الاستهلاك داخل مساحة العمل.';
+
+  @override
+  String get aboutContactTitle => 'الإصدار والدعم';
+
+  @override
+  String aboutContactBody(String version) {
+    return 'يتوفر دعم تفعيلة من خلال صفحة الدعم داخل التطبيق عند الحاجة للمساعدة. إصدار التطبيق الحالي: $version. جهة تواصل الدعم المؤقتة: support@ta2feela.example.';
+  }
+
+  @override
+  String get privacyPolicy => 'سياسة الخصوصية';
+
+  @override
+  String get privacyPolicySubtitle =>
+      'تعرف على البيانات التي قد تستخدمها تفعيلة ولماذا تحتاج إليها.';
+
+  @override
+  String get privacyCollectionTitle => 'البيانات التي قد نجمعها';
+
+  @override
+  String get privacyCollectionBody =>
+      'قد تجمع تفعيلة بيانات الحساب والاستخدام مثل اسم المستخدم، والدور، وبيانات المحافظ، وبيانات المعاملات، وبيانات ربط الفروع والمستخدمين، وتذاكر الدعم، والسجلات التقنية اللازمة لتشغيل الخدمة.';
+
+  @override
+  String get privacyUsageTitle => 'لماذا يتم استخدام البيانات';
+
+  @override
+  String get privacyUsageBody =>
+      'قد تستخدم هذه البيانات لأغراض تسجيل الدخول، وإدارة المحافظ، وإعداد التقارير، والدعم، والأمان، وتحسين الخدمة حتى يعمل التطبيق بشكل موثوق لكل مستأجر.';
+
+  @override
+  String get privacySecurityTitle => 'الوصول والمشاركة والدعم';
+
+  @override
+  String get privacySecurityBody =>
+      'لا تبيع تفعيلة بياناتك. الوصول إلى البيانات يعتمد على الدور ومحدود بنطاق المستأجر. جهة تواصل الدعم المؤقتة: support@ta2feela.example.';
+
+  @override
+  String get termsAndConditions => 'الشروط والأحكام';
+
+  @override
+  String get termsAndConditionsSubtitle =>
+      'اطلع على القواعد البسيطة لاستخدام منصة تفعيلة.';
+
+  @override
+  String get termsAcceptanceTitle => 'قبول الشروط';
+
+  @override
+  String get termsAcceptanceBody =>
+      'استمرارك في استخدام تفعيلة يعني قبولك لهذه الشروط. يجب عليك الحفاظ على سرية بيانات الدخول وتأمين الوصول إلى حسابك.';
+
+  @override
+  String get termsUsageTitle => 'استخدام الخدمة';
+
+  @override
+  String get termsUsageBody =>
+      'يجب إدخال بيانات المحافظ والمعاملات بشكل صحيح عند استخدام تفعيلة. يُمنع الوصول غير المصرح به أو إساءة الاستخدام أو محاولة استخدام بيانات مستأجر آخر. قد تتوقف الخدمة مؤقتًا أثناء الصيانة.';
+
+  @override
+  String get termsResponsibilityTitle => 'مسؤوليات الحساب';
+
+  @override
+  String get termsResponsibilityBody =>
+      'لا تتحمل تفعيلة المسؤولية عن الخسائر الناتجة عن إدخال بيانات غير صحيح أو إساءة الاستخدام أو النشاط غير المصرح به على الحساب. كل مستخدم مسؤول عن استخدام التطبيق ضمن الصلاحيات المخصصة له.';
 
   @override
   String get security => 'الأمان';
@@ -719,6 +830,36 @@ class AppLocalizationsAr extends AppLocalizations {
   String get passwordChangedSuccessfully => 'تم تغيير كلمة المرور بنجاح.';
 
   @override
+  String get forgotPassword => 'نسيت كلمة المرور؟';
+
+  @override
+  String get forgotPasswordTitle => 'استعادة كلمة المرور';
+
+  @override
+  String get forgotPasswordSubtitle =>
+      'ادخل بيانات حسابك لإرسال طلب استعادة كلمة المرور';
+
+  @override
+  String get submitResetRequest => 'إرسال الطلب';
+
+  @override
+  String get resetRequestSubmittedFallback =>
+      'إذا كان الحساب موجودًا، تم إرسال طلب استعادة كلمة المرور.';
+
+  @override
+  String get backToLogin => 'العودة لتسجيل الدخول';
+
+  @override
+  String get usernameOrEmail => 'اسم المستخدم أو البريد الإلكتروني';
+
+  @override
+  String get usernameOrEmailRequired =>
+      'برجاء إدخال اسم المستخدم أو البريد الإلكتروني';
+
+  @override
+  String get unableToSubmitResetRequest => 'تعذر إرسال طلب استعادة كلمة المرور';
+
+  @override
   String get changePasswordComingSoon =>
       'سيتم ربط إدارة كلمة المرور في مرحلة لاحقة.';
 
@@ -731,7 +872,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get logoutSubtitle => 'تسجيل الخروج من جلسة المالك الحالية.';
+  String get logoutSubtitle => 'تسجيل الخروج من الجلسة الحالية.';
 
   @override
   String get notificationsComingSoon => 'ستتوفر الإشعارات قريبًا.';
@@ -943,7 +1084,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get signInSubtitle =>
-      'استخدم حساب المالك للوصول إلى أدوات المحافظ والتقارير.';
+      'استخدم حسابك للوصول إلى أدوات المحافظ والتقارير.';
 
   @override
   String get username => 'اسم المستخدم';
@@ -981,7 +1122,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get loginHeroSubtitle =>
-      'وصول عبر الجوال لمتابعة المحافظ وتسجيل المعاملات والتقارير على مستوى المالك.';
+      'وصول عبر الجوال لمتابعة المحافظ وتسجيل المعاملات والتقارير.';
 
   @override
   String get loadingWorkspace => 'جارٍ تحميل مساحة العمل...';
@@ -1086,7 +1227,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get userDirectorySubtitle =>
-      'راقب حسابات المالكين والمستخدمين وتعيين الفروع وحالة النشاط.';
+      'راقب الحسابات وتعيين الفروع وحالة النشاط.';
 
   @override
   String get searchUsers => 'بحث في المستخدمين';
@@ -1227,8 +1368,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get maxBranches => 'الحد الأقصى للفروع';
 
   @override
-  String planPrice(num price) {
-    return '$price جنيه';
+  String get currencyEgp => 'جنيه';
+
+  @override
+  String get monthlyBillingPeriod => 'شهريًا';
+
+  @override
+  String planPricePerMonth(String currency, String price, String period) {
+    return '$price $currency / $period';
   }
 
   @override
@@ -1320,7 +1467,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get subject => 'الموضوع';
 
   @override
+  String get supportMessage => 'الرسالة';
+
+  @override
   String get subjectRequired => 'الموضوع مطلوب';
+
+  @override
+  String get supportMessageRequired => 'الرسالة مطلوبة';
 
   @override
   String get createdAt => 'تاريخ الإنشاء';

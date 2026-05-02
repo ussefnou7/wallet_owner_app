@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appName => 'Wallet Owner';
+  String get appName => 'Ta2feela';
 
   @override
   String get language => 'Language';
@@ -229,7 +229,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get portfolioOverviewSubtitle =>
-      'Track balance movement and wallet activity across your owner account.';
+      'Track balance movement and wallet activity across your account.';
 
   @override
   String get latestTransactions => 'Latest Transactions';
@@ -374,6 +374,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get walletTotalLabel => 'Total';
+
+  @override
+  String get totalProfitLabel => 'Total profit';
+
+  @override
+  String get noCollectionYet => 'No collection yet';
+
+  @override
+  String lastCollectionWithDate(String date) {
+    return 'Last collection: $date';
+  }
+
+  @override
+  String lastCollectionWithDateByName(String date, String name) {
+    return 'Last collection: $date by $name';
+  }
 
   @override
   String get collectProfit => 'Collect Profit';
@@ -575,21 +591,21 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get ownerSettings => 'Owner Settings';
+  String get ownerSettings => 'Settings';
 
   @override
   String get ownerSettingsSubtitle =>
-      'Manage your owner profile, subscription details, preferences, and account security from one place.';
+      'Manage your profile, subscription details, preferences, and account security from one place.';
 
   @override
   String get account => 'Account';
 
   @override
   String get accountSubtitle =>
-      'Current owner identity and workspace assignment.';
+      'Current account identity and workspace assignment.';
 
   @override
-  String get ownerName => 'Owner name';
+  String get ownerName => 'Name';
 
   @override
   String get email => 'Email';
@@ -601,7 +617,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get workspace => 'Workspace';
 
   @override
-  String get ownerWorkspaceFallback => 'Owner workspace';
+  String get ownerWorkspaceFallback => 'Workspace';
 
   @override
   String get workspaceSubscription => 'Workspace & Subscription';
@@ -656,10 +672,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Adjust language, notifications, theme, and app details.';
 
   @override
-  String get notificationsEnabledSubtitle => 'Enabled for mock owner alerts';
+  String get notificationsEnabledSubtitle => 'Enabled for app alerts';
 
   @override
-  String get notificationsDisabledSubtitle => 'Disabled for mock owner alerts';
+  String get notificationsDisabledSubtitle => 'Disabled for app alerts';
 
   @override
   String get theme => 'Theme';
@@ -673,6 +689,101 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appVersion => 'App version';
+
+  @override
+  String get versionLabel => 'Version';
+
+  @override
+  String get legalInformation => 'Legal & Information';
+
+  @override
+  String get legalInformationSubtitle =>
+      'Read simple information about Ta2feela, privacy, and platform terms.';
+
+  @override
+  String get aboutTa2feela => 'About Ta2feela';
+
+  @override
+  String get aboutTa2feelaSubtitle =>
+      'Learn what Ta2feela helps you manage and where to get support.';
+
+  @override
+  String get aboutOverviewTitle => 'Overview';
+
+  @override
+  String get aboutOverviewBody =>
+      'Ta2feela is a wallet management app for tracking wallets, transactions, branches, users, profits, and daily or monthly consumption. It helps teams keep account activity organized in one place.';
+
+  @override
+  String get aboutMissionTitle => 'What you can manage';
+
+  @override
+  String get aboutMissionBody =>
+      'With Ta2feela, you can review wallet balances, record transaction activity, follow branch and user assignments, monitor profits, and check consumption details across your workspace.';
+
+  @override
+  String get aboutContactTitle => 'Version & Support';
+
+  @override
+  String aboutContactBody(String version) {
+    return 'Ta2feela support is available through the in-app Support page when you need help. Current app version: $version. Support contact placeholder: support@ta2feela.example.';
+  }
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get privacyPolicySubtitle =>
+      'Learn what data Ta2feela may use and why it is needed.';
+
+  @override
+  String get privacyCollectionTitle => 'Data we may collect';
+
+  @override
+  String get privacyCollectionBody =>
+      'Ta2feela may collect account and usage data such as username, role, wallet data, transaction data, branch and user assignment data, support tickets, and technical logs needed to operate the service.';
+
+  @override
+  String get privacyUsageTitle => 'Why data is used';
+
+  @override
+  String get privacyUsageBody =>
+      'This data may be used for authentication, wallet management, reporting, support, security, and service improvement so the app can work reliably for each tenant.';
+
+  @override
+  String get privacySecurityTitle => 'Access, sharing, and support';
+
+  @override
+  String get privacySecurityBody =>
+      'Ta2feela does not sell your data. Access to data is role-based and tenant-scoped. Support contact placeholder: support@ta2feela.example.';
+
+  @override
+  String get termsAndConditions => 'Terms & Conditions';
+
+  @override
+  String get termsAndConditionsSubtitle =>
+      'Read the simple rules for using the Ta2feela platform.';
+
+  @override
+  String get termsAcceptanceTitle => 'Acceptance of terms';
+
+  @override
+  String get termsAcceptanceBody =>
+      'By continuing to use Ta2feela, you accept these terms. You must keep your account credentials secure and protect access to your account.';
+
+  @override
+  String get termsUsageTitle => 'Using the service';
+
+  @override
+  String get termsUsageBody =>
+      'You must enter accurate wallet and transaction data when using Ta2feela. Unauthorized access, misuse, or attempts to use another tenant\'s data are prohibited. The service may sometimes be unavailable during maintenance.';
+
+  @override
+  String get termsResponsibilityTitle => 'Account responsibilities';
+
+  @override
+  String get termsResponsibilityBody =>
+      'Ta2feela is not responsible for losses caused by incorrect data entry, misuse, or unauthorized account activity. Each user is responsible for using the app properly within their assigned access.';
 
   @override
   String get security => 'Security';
@@ -727,6 +838,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordChangedSuccessfully => 'Password changed successfully.';
 
   @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get forgotPasswordTitle => 'Reset password';
+
+  @override
+  String get forgotPasswordSubtitle =>
+      'Enter your account details to submit a password reset request.';
+
+  @override
+  String get submitResetRequest => 'Submit request';
+
+  @override
+  String get resetRequestSubmittedFallback =>
+      'If the account exists, a reset request has been submitted.';
+
+  @override
+  String get backToLogin => 'Back to login';
+
+  @override
+  String get usernameOrEmail => 'Username or email';
+
+  @override
+  String get usernameOrEmailRequired => 'Please enter your username or email';
+
+  @override
+  String get unableToSubmitResetRequest => 'Unable to submit reset request';
+
+  @override
   String get changePasswordComingSoon =>
       'Password management will be connected in a later phase.';
 
@@ -739,7 +879,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get logoutSubtitle => 'Sign out from the current owner session.';
+  String get logoutSubtitle => 'Sign out from the current session.';
 
   @override
   String get notificationsComingSoon => 'Notifications will be available soon.';
@@ -954,7 +1094,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signInSubtitle =>
-      'Use your owner account to access wallet controls and reporting.';
+      'Use your account to access wallet controls and reporting.';
 
   @override
   String get username => 'Username';
@@ -992,7 +1132,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginHeroSubtitle =>
-      'Mobile access for owner-level wallet oversight, transaction recording, and reporting.';
+      'Mobile access for wallet oversight, transaction recording, and reporting.';
 
   @override
   String get loadingWorkspace => 'Loading workspace...';
@@ -1098,7 +1238,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get userDirectorySubtitle =>
-      'Monitor owner and user accounts, branch assignment, and activity status.';
+      'Monitor account access, branch assignment, and activity status.';
 
   @override
   String get searchUsers => 'Search users';
@@ -1240,8 +1380,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maxBranches => 'Max Branches';
 
   @override
-  String planPrice(num price) {
-    return '$price EGP';
+  String get currencyEgp => 'EGP';
+
+  @override
+  String get monthlyBillingPeriod => 'month';
+
+  @override
+  String planPricePerMonth(String currency, String price, String period) {
+    return '$currency $price / $period';
   }
 
   @override
@@ -1336,7 +1482,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subject => 'Subject';
 
   @override
+  String get supportMessage => 'Message';
+
+  @override
   String get subjectRequired => 'Subject is required';
+
+  @override
+  String get supportMessageRequired => 'Message is required';
 
   @override
   String get createdAt => 'Created at';

@@ -1,0 +1,74 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:ta2feela_app/app/router/app_routes.dart';
+import 'package:ta2feela_app/core/providers/app_version_provider.dart';
+import 'package:ta2feela_app/core/widgets/user_app_drawer.dart';
+import 'package:ta2feela_app/features/auth/domain/entities/session.dart';
+import 'package:ta2feela_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:ta2feela_app/features/auth/presentation/controllers/auth_controller.dart';
+
+void main() {
+  testWidgets('renders user identity and support access', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => AuthController(
+              authRepository: _FakeAuthRepository(),
+              initialSession: const Session(
+                accessToken: 'token',
+                refreshToken: 'refresh',
+                username: 'user@example.com',
+                role: UserRole.user,
+                backendRole: 'USER',
+                tenantId: 'tenant-demo',
+                userId: 'user-1',
+                displayName: 'Normal User',
+              ),
+            ),
+          ),
+          appVersionProvider.overrideWith((ref) async => '9.8.7'),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: UserAppDrawer(currentRoute: AppRoutes.userSupport),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Normal User'), findsOneWidget);
+    expect(find.text('@user@example.com'), findsOneWidget);
+    expect(find.text('USER'), findsOneWidget);
+    expect(find.byKey(const Key('user_support_nav_item')), findsOneWidget);
+    expect(find.text('Version 9.8.7'), findsOneWidget);
+  });
+}
+
+class _FakeAuthRepository implements AuthRepository {
+  @override
+  Future<Session?> getCurrentSession() async => null;
+
+  @override
+  Future<Session> login({required String username, required String password}) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<String?> forgotPassword({required String username}) async {
+    return null;
+  }
+
+  @override
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {}
+
+  @override
+  Future<void> logout() async {}
+}

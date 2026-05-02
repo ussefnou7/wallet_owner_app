@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wallet_owner_app/core/errors/app_exception.dart';
-import 'package:wallet_owner_app/core/network/api_exception_mapper.dart';
-import 'package:wallet_owner_app/core/network/api_result.dart';
-import 'package:wallet_owner_app/features/wallets/data/models/wallet_model.dart';
-import 'package:wallet_owner_app/features/wallets/data/repositories/app_wallets_repository.dart';
-import 'package:wallet_owner_app/features/wallets/data/services/wallets_remote_data_source.dart';
+import 'package:ta2feela_app/core/errors/app_exception.dart';
+import 'package:ta2feela_app/core/network/api_exception_mapper.dart';
+import 'package:ta2feela_app/core/network/api_result.dart';
+import 'package:ta2feela_app/features/wallets/data/models/wallet_model.dart';
+import 'package:ta2feela_app/features/wallets/data/repositories/app_wallets_repository.dart';
+import 'package:ta2feela_app/features/wallets/data/services/wallets_remote_data_source.dart';
 
 void main() {
   group('ApiExceptionMapper', () {
@@ -170,6 +170,14 @@ class _FakeWalletsRemoteDataSource implements WalletsRemoteDataSource {
   Future<ApiResult<WalletModel>> updateWallet({
     required String walletId,
     required UpdateWalletRequestModel request,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ApiResult<WalletModel?>> collectProfit({
+    required String walletId,
+    required CollectProfitRequestModel request,
   }) {
     throw UnimplementedError();
   }

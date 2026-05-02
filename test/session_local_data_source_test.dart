@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:wallet_owner_app/core/storage/app_secure_storage.dart';
-import 'package:wallet_owner_app/features/auth/data/services/session_local_data_source.dart';
-import 'package:wallet_owner_app/features/auth/domain/entities/session.dart';
+import 'package:ta2feela_app/core/storage/app_secure_storage.dart';
+import 'package:ta2feela_app/features/auth/data/services/session_local_data_source.dart';
+import 'package:ta2feela_app/features/auth/domain/entities/session.dart';
 
 void main() {
   const sessionKey = 'auth.session';

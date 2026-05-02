@@ -1,5 +1,5 @@
-name: wallet_owner_app
-description: "Owner mobile app foundation for a wallet transaction control SaaS."
+name: ta2feela_app
+description: "Ta2feela mobile app for wallet transaction control and reporting."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -39,6 +39,7 @@ dependencies:
   flutter_secure_storage: ^10.0.0
   go_router: ^17.2.1
   intl: ^0.20.2
+  package_info_plus: ^8.3.1
   shared_preferences: ^2.5.3
 
 dev_dependencies:

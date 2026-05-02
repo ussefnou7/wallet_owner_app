@@ -1,7 +1,7 @@
 abstract final class Env {
   static const appName = String.fromEnvironment(
     'APP_NAME',
-    defaultValue: 'Wallet Owner',
+    defaultValue: 'Ta2feela',
   );
   static const apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',

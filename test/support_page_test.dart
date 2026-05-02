@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wallet_owner_app/features/settings/domain/entities/support_ticket.dart';
-import 'package:wallet_owner_app/features/settings/domain/entities/support_ticket_item.dart';
-import 'package:wallet_owner_app/features/settings/domain/repositories/support_repository.dart';
-import 'package:wallet_owner_app/features/settings/presentation/pages/create_support_ticket_page.dart';
-import 'package:wallet_owner_app/features/settings/presentation/pages/support_page.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:ta2feela_app/app/router/app_routes.dart';
+import 'package:ta2feela_app/features/auth/domain/entities/session.dart';
+import 'package:ta2feela_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:ta2feela_app/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:ta2feela_app/features/settings/domain/entities/support_ticket.dart';
+import 'package:ta2feela_app/features/settings/domain/entities/support_ticket_item.dart';
+import 'package:ta2feela_app/features/settings/domain/repositories/support_repository.dart';
+import 'package:ta2feela_app/features/settings/presentation/pages/create_support_ticket_page.dart';
+import 'package:ta2feela_app/features/settings/presentation/pages/support_page.dart';
 
 void main() {
   testWidgets('list page shows empty state and new ticket button', (
@@ -14,6 +20,12 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => AuthController(
+              authRepository: _FakeAuthRepository(),
+              initialSession: _userSession,
+            ),
+          ),
           supportRepositoryProvider.overrideWithValue(_FakeSupportRepository()),
         ],
         child: const MaterialApp(home: Scaffold(body: SupportPage())),
@@ -26,7 +38,7 @@ void main() {
     expect(find.text('There are no support tickets yet.'), findsOneWidget);
   });
 
-  testWidgets('create page submits subject description and priority', (
+  testWidgets('create page submits subject and message with default priority', (
     tester,
   ) async {
     final fakeSupportRepository = _FakeSupportRepository();
@@ -53,13 +65,6 @@ void main() {
       'The receipt printer stops after the first line.',
     );
 
-    final priorityField = find.byKey(const Key('support_priority_field'));
-    await tester.ensureVisible(priorityField);
-    await tester.tap(priorityField);
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('High').last);
-    await tester.pumpAndSettle();
-
     await tester.tap(find.byKey(const Key('support_submit_button')));
     await tester.pumpAndSettle();
 
@@ -69,7 +74,49 @@ void main() {
       fakeSupportRepository.lastTicket!.description,
       'The receipt printer stops after the first line.',
     );
-    expect(fakeSupportRepository.lastTicket!.priority, SupportPriority.high);
+    expect(fakeSupportRepository.lastTicket!.priority, SupportPriority.medium);
+  });
+
+  testWidgets('user support page opens user create ticket route', (
+    tester,
+  ) async {
+    final router = GoRouter(
+      initialLocation: AppRoutes.userSupport,
+      routes: [
+        GoRoute(
+          path: AppRoutes.userSupport,
+          builder: (context, state) => const Scaffold(body: SupportPage()),
+        ),
+        GoRoute(
+          path: AppRoutes.userCreateSupport,
+          builder: (context, state) =>
+              const Scaffold(body: CreateSupportTicketPage()),
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => AuthController(
+              authRepository: _FakeAuthRepository(),
+              initialSession: _userSession,
+            ),
+          ),
+          supportRepositoryProvider.overrideWithValue(_FakeSupportRepository()),
+        ],
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Support Tickets'), findsNWidgets(2));
+    await tester.tap(find.byKey(const Key('support_new_ticket_button')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CreateSupportTicketPage), findsOneWidget);
   });
 }
 
@@ -83,4 +130,39 @@ class _FakeSupportRepository implements SupportRepository {
   Future<void> createTicket(SupportTicket ticket) async {
     lastTicket = ticket;
   }
+}
+
+const _userSession = Session(
+  accessToken: 'token',
+  refreshToken: 'refresh',
+  username: 'user@example.com',
+  role: UserRole.user,
+  backendRole: 'USER',
+  tenantId: 'tenant-demo',
+  userId: 'user-1',
+  displayName: 'Normal User',
+);
+
+class _FakeAuthRepository implements AuthRepository {
+  @override
+  Future<String?> forgotPassword({required String username}) async {
+    return null;
+  }
+
+  @override
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {}
+
+  @override
+  Future<Session?> getCurrentSession() async => null;
+
+  @override
+  Future<Session> login({required String username, required String password}) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> logout() async {}
 }

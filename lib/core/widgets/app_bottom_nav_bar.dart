@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/router/app_routes.dart';
+import '../constants/app_dimensions.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_radii.dart';
@@ -31,7 +32,7 @@ class AppBottomNavBar extends StatelessWidget {
     final trailingItems = items.skip(centerIndex + 1).toList(growable: false);
     final centerItem = items[centerIndex];
     return SizedBox(
-      height: 76,
+      height: AppDimensions.floatingBottomNavHeight,
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.bottomCenter,
@@ -66,7 +67,8 @@ class AppBottomNavBar extends StatelessWidget {
                                 child: _NavItemButton(
                                   item: item,
                                   selected: currentRoute == item.route,
-                                  onTap: () => onDestinationSelected(item.route),
+                                  onTap: () =>
+                                      onDestinationSelected(item.route),
                                 ),
                               ),
                           ],
@@ -81,7 +83,8 @@ class AppBottomNavBar extends StatelessWidget {
                                 child: _NavItemButton(
                                   item: item,
                                   selected: currentRoute == item.route,
-                                  onTap: () => onDestinationSelected(item.route),
+                                  onTap: () =>
+                                      onDestinationSelected(item.route),
                                 ),
                               ),
                           ],
@@ -273,7 +276,7 @@ class _PrimaryNavAction extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(28),
           onTap: onTap,
-        child: Ink(
+          child: Ink(
             width: 58,
             height: 58,
             decoration: BoxDecoration(

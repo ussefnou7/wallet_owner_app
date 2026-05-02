@@ -14,11 +14,14 @@ import '../../features/dashboard/presentation/pages/user_dashboard_page.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/plans/presentation/pages/plans_page.dart';
 import '../../features/reports/presentation/pages/reports_page.dart';
+import '../../features/settings/presentation/pages/about_page.dart';
 import '../../features/settings/presentation/pages/create_renewal_request_page.dart';
 import '../../features/settings/presentation/pages/create_support_ticket_page.dart';
+import '../../features/settings/presentation/pages/privacy_policy_page.dart';
 import '../../features/settings/presentation/pages/request_renewal_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/settings/presentation/pages/support_page.dart';
+import '../../features/settings/presentation/pages/terms_and_conditions_page.dart';
 import '../../features/transactions/presentation/pages/create_transaction_page.dart';
 import '../../features/transactions/presentation/pages/transactions_page.dart';
 import '../../features/users/presentation/pages/users_page.dart';
@@ -163,6 +166,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const SettingsPage(),
           ),
           GoRoute(
+            path: AppRoutes.ownerAbout,
+            name: 'owner-about',
+            builder: (context, state) => const AboutPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.ownerPrivacyPolicy,
+            name: 'owner-privacy-policy',
+            builder: (context, state) => const PrivacyPolicyPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.ownerTermsAndConditions,
+            name: 'owner-terms-and-conditions',
+            builder: (context, state) => const TermsAndConditionsPage(),
+          ),
+          GoRoute(
             path: AppRoutes.ownerNotifications,
             name: 'owner-notifications',
             builder: (context, state) => const NotificationsScreen(),
@@ -196,6 +214,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: AppRoutes.userCreateTransaction,
             name: 'user-create-transaction',
             builder: (context, state) => const CreateTransactionPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.userSupport,
+            name: 'user-support',
+            builder: (context, state) => const SupportPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.userCreateSupport,
+            name: 'user-create-support',
+            builder: (context, state) => const CreateSupportTicketPage(),
           ),
         ],
       ),

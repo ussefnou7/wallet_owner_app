@@ -30,6 +30,9 @@ class Wallet extends Equatable {
     this.createdAt,
     this.updatedAt,
     this.branchName,
+    this.collectedAt,
+    this.collectedByName,
+    this.lastProfitCollectionAt,
   });
 
   final String id;
@@ -56,6 +59,9 @@ class Wallet extends Equatable {
   final DateTime? updatedAt;
   final int transactionCount;
   final String? branchName;
+  final DateTime? collectedAt;
+  final String? collectedByName;
+  final DateTime? lastProfitCollectionAt;
 
   @override
   List<Object?> get props => [
@@ -83,5 +89,8 @@ class Wallet extends Equatable {
     updatedAt,
     transactionCount,
     branchName,
+    collectedAt,
+    collectedByName,
+    lastProfitCollectionAt,
   ];
 }

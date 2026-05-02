@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:wallet_owner_app/core/network/api_client.dart';
-import 'package:wallet_owner_app/core/network/api_exception_mapper.dart';
-import 'package:wallet_owner_app/features/users/data/models/app_user_model.dart';
-import 'package:wallet_owner_app/features/users/data/services/users_remote_data_source.dart';
+import 'package:ta2feela_app/core/network/api_client.dart';
+import 'package:ta2feela_app/core/network/api_exception_mapper.dart';
+import 'package:ta2feela_app/features/users/data/models/app_user_model.dart';
+import 'package:ta2feela_app/features/users/data/services/users_remote_data_source.dart';
 
 void main() {
   test(

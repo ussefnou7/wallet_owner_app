@@ -3,11 +3,12 @@ abstract final class NetworkConstants {
   static const authorizationHeader = 'Authorization';
   static const bearerPrefix = 'Bearer';
   static const authLoginPath = '/api/v1/auth/login';
-  static const publicAuthPaths = {authLoginPath};
+  static const authForgotPasswordPath = '/api/v1/auth/forgot-password';
+  static const publicAuthPaths = {authLoginPath, authForgotPasswordPath};
   static const walletsPath = '/api/v1/wallets';
   static const transactionsPath = '/api/v1/transactions';
   static const usersPath = '/api/v1/users';
-  static const mePasswordPath = '$usersPath/me/password';
+  static const mePasswordPath = '/api/v1/auth/me/password';
   static const branchesPath = '/api/v1/branches';
   static const reportsDashboardOverviewPath =
       '/api/v1/reports/dashboard/overview';

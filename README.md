@@ -1,10 +1,10 @@
-# Wallet Owner App
+# Ta2feela
 
 A production-oriented Flutter mobile application for managing wallet transactions in a multi-tenant SaaS environment.
 
-The app is designed for businesses that manage multiple wallets, users, and branches. It does not execute financial transactions directly. Instead, it allows owners and users to record and monitor transactions that already happened in real life.
+The app is designed for businesses that manage multiple wallets, users, and branches. It does not execute financial transactions directly. Instead, it allows authenticated users to record and monitor transactions that already happened in real life.
 
-The current version focuses on the OWNER experience and provides a complete operational and administrative flow.
+The current version supports role-based experiences under one unified Ta2feela brand.
 
 ---
 
@@ -118,7 +118,7 @@ Built with:
 
 ### Authentication
 
-The current implementation uses a mock OWNER login flow and local session abstraction.
+The current implementation uses a mock login flow and local session abstraction.
 
 Planned future support:
 
@@ -127,7 +127,7 @@ Planned future support:
 * Role-based routing
 * Multi-tenant session handling
 
-### Owner Flow
+### App Flow
 
 1. Login
 2. Dashboard
@@ -185,7 +185,7 @@ Implemented:
 
 * App shell
 * Authentication skeleton
-* Owner dashboard
+* Dashboard
 * Wallets module
 * Create Transaction module
 * Transactions history
@@ -206,7 +206,7 @@ Planned:
 * API environment configuration
 * Export generation
 * Advanced reporting
-* Role-based USER experience
+* Additional role-based experience refinements
 * Push notifications
 
 ---

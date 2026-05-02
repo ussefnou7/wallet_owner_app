@@ -3,12 +3,12 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wallet_owner_app/core/errors/app_exception.dart';
-import 'package:wallet_owner_app/core/network/api_exception_mapper.dart';
-import 'package:wallet_owner_app/core/network/session_error_interceptor.dart';
-import 'package:wallet_owner_app/features/auth/domain/entities/session.dart';
-import 'package:wallet_owner_app/features/auth/domain/repositories/auth_repository.dart';
-import 'package:wallet_owner_app/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:ta2feela_app/core/errors/app_exception.dart';
+import 'package:ta2feela_app/core/network/api_exception_mapper.dart';
+import 'package:ta2feela_app/core/network/session_error_interceptor.dart';
+import 'package:ta2feela_app/features/auth/domain/entities/session.dart';
+import 'package:ta2feela_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:ta2feela_app/features/auth/presentation/controllers/auth_controller.dart';
 
 void main() {
   test(
@@ -143,10 +143,14 @@ class _FakeAuthRepository implements AuthRepository {
   int logoutCalls = 0;
 
   @override
+  Future<String?> forgotPassword({required String username}) {
+    throw UnimplementedError();
+  }
+
+  @override
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,
-    required String confirmPassword,
   }) {
     throw UnimplementedError();
   }

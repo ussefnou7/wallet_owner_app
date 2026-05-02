@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appName": "Wallet Owner",
+  "appName": "Ta2feela",
   "language": "Language",
   "english": "English",
   "arabic": "Arabic",
@@ -72,7 +72,7 @@
   "disabled": "Disabled",
   "notAvailable": "Not available",
   "portfolioOverview": "Portfolio Overview",
-  "portfolioOverviewSubtitle": "Track balance movement and wallet activity across your owner account.",
+  "portfolioOverviewSubtitle": "Track balance movement and wallet activity across your account.",
   "latestTransactions": "Latest Transactions",
   "latestTransactionsSubtitle": "Latest recorded wallet activity",
   "totalCredits": "Total Credits",
@@ -126,6 +126,27 @@
   "walletProfitLabel": "Wallet profit",
   "walletCashProfit": "Cash profit",
   "walletTotalLabel": "Total",
+  "totalProfitLabel": "Total profit",
+  "noCollectionYet": "No collection yet",
+  "lastCollectionWithDate": "Last collection: {date}",
+  "@lastCollectionWithDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "lastCollectionWithDateByName": "Last collection: {date} by {name}",
+  "@lastCollectionWithDateByName": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "collectProfit": "Collect Profit",
   "currentWalletProfit": "Current wallet profit",
   "currentCashProfit": "Current cash profit",
@@ -205,15 +226,15 @@
       }
     }
   },
-  "ownerSettings": "Owner Settings",
-  "ownerSettingsSubtitle": "Manage your owner profile, subscription details, preferences, and account security from one place.",
+  "ownerSettings": "Settings",
+  "ownerSettingsSubtitle": "Manage your profile, subscription details, preferences, and account security from one place.",
   "account": "Account",
-  "accountSubtitle": "Current owner identity and workspace assignment.",
-  "ownerName": "Owner name",
+  "accountSubtitle": "Current account identity and workspace assignment.",
+  "ownerName": "Name",
   "email": "Email",
   "role": "Role",
   "workspace": "Workspace",
-  "ownerWorkspaceFallback": "Owner workspace",
+  "ownerWorkspaceFallback": "Workspace",
   "workspaceSubscription": "Workspace & Subscription",
   "workspaceSubscriptionSubtitle": "Read-only workspace subscription overview.",
   "loadingWorkspaceSubscription": "Loading workspace subscription...",
@@ -229,12 +250,46 @@
   "requestRenewalSubtitle": "Send a mock renewal or upgrade request.",
   "preferences": "Preferences",
   "preferencesSubtitle": "Adjust language, notifications, theme, and app details.",
-  "notificationsEnabledSubtitle": "Enabled for mock owner alerts",
-  "notificationsDisabledSubtitle": "Disabled for mock owner alerts",
+  "notificationsEnabledSubtitle": "Enabled for app alerts",
+  "notificationsDisabledSubtitle": "Disabled for app alerts",
   "theme": "Theme",
   "systemDefault": "System default",
   "themeComingSoon": "Theme settings will be added after backend integration planning.",
   "appVersion": "App version",
+  "versionLabel": "Version",
+  "legalInformation": "Legal & Information",
+  "legalInformationSubtitle": "Read simple information about Ta2feela, privacy, and platform terms.",
+  "aboutTa2feela": "About Ta2feela",
+  "aboutTa2feelaSubtitle": "Learn what Ta2feela helps you manage and where to get support.",
+  "aboutOverviewTitle": "Overview",
+  "aboutOverviewBody": "Ta2feela is a wallet management app for tracking wallets, transactions, branches, users, profits, and daily or monthly consumption. It helps teams keep account activity organized in one place.",
+  "aboutMissionTitle": "What you can manage",
+  "aboutMissionBody": "With Ta2feela, you can review wallet balances, record transaction activity, follow branch and user assignments, monitor profits, and check consumption details across your workspace.",
+  "aboutContactTitle": "Version & Support",
+  "aboutContactBody": "Ta2feela support is available through the in-app Support page when you need help. Current app version: {version}. Support contact placeholder: support@ta2feela.example.",
+  "@aboutContactBody": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "privacyPolicy": "Privacy Policy",
+  "privacyPolicySubtitle": "Learn what data Ta2feela may use and why it is needed.",
+  "privacyCollectionTitle": "Data we may collect",
+  "privacyCollectionBody": "Ta2feela may collect account and usage data such as username, role, wallet data, transaction data, branch and user assignment data, support tickets, and technical logs needed to operate the service.",
+  "privacyUsageTitle": "Why data is used",
+  "privacyUsageBody": "This data may be used for authentication, wallet management, reporting, support, security, and service improvement so the app can work reliably for each tenant.",
+  "privacySecurityTitle": "Access, sharing, and support",
+  "privacySecurityBody": "Ta2feela does not sell your data. Access to data is role-based and tenant-scoped. Support contact placeholder: support@ta2feela.example.",
+  "termsAndConditions": "Terms & Conditions",
+  "termsAndConditionsSubtitle": "Read the simple rules for using the Ta2feela platform.",
+  "termsAcceptanceTitle": "Acceptance of terms",
+  "termsAcceptanceBody": "By continuing to use Ta2feela, you accept these terms. You must keep your account credentials secure and protect access to your account.",
+  "termsUsageTitle": "Using the service",
+  "termsUsageBody": "You must enter accurate wallet and transaction data when using Ta2feela. Unauthorized access, misuse, or attempts to use another tenant's data are prohibited. The service may sometimes be unavailable during maintenance.",
+  "termsResponsibilityTitle": "Account responsibilities",
+  "termsResponsibilityBody": "Ta2feela is not responsible for losses caused by incorrect data entry, misuse, or unauthorized account activity. Each user is responsible for using the app properly within their assigned access.",
   "security": "Security",
   "securitySubtitle": "Update your password and manage access to this account.",
   "securitySession": "Security & Session",
@@ -251,6 +306,15 @@
   "confirmPasswordRequired": "Please confirm the new password",
   "confirmPasswordMismatch": "Passwords do not match",
   "passwordChangedSuccessfully": "Password changed successfully.",
+  "forgotPassword": "Forgot password?",
+  "forgotPasswordTitle": "Reset password",
+  "forgotPasswordSubtitle": "Enter your account details to submit a password reset request.",
+  "submitResetRequest": "Submit request",
+  "resetRequestSubmittedFallback": "If the account exists, a reset request has been submitted.",
+  "backToLogin": "Back to login",
+  "usernameOrEmail": "Username or email",
+  "usernameOrEmailRequired": "Please enter your username or email",
+  "unableToSubmitResetRequest": "Unable to submit reset request",
   "changePasswordComingSoon": "Password management will be connected in a later phase.",
   "session": "Session",
   "signedInAs": "Signed in as {value}",
@@ -261,7 +325,7 @@
       }
     }
   },
-  "logoutSubtitle": "Sign out from the current owner session.",
+  "logoutSubtitle": "Sign out from the current session.",
   "notificationsComingSoon": "Notifications will be available soon.",
   "notificationsTitle": "Notifications",
   "notificationsImportantSection": "Important",
@@ -339,7 +403,7 @@
     }
   },
   "signIn": "Sign in",
-  "signInSubtitle": "Use your owner account to access wallet controls and reporting.",
+  "signInSubtitle": "Use your account to access wallet controls and reporting.",
   "username": "Username",
   "password": "Password",
   "enterPassword": "Enter your password",
@@ -351,7 +415,7 @@
   "usernameRequired": "Username is required",
   "passwordRequired": "Password is required",
   "passwordTooShort": "Password is too short",
-  "loginHeroSubtitle": "Mobile access for owner-level wallet oversight, transaction recording, and reporting.",
+  "loginHeroSubtitle": "Mobile access for wallet oversight, transaction recording, and reporting.",
   "loadingWorkspace": "Loading workspace...",
   "unsupportedAccountRole": "Unsupported account role",
   "unsupportedAccountRoleMessage": "This app supports OWNER and USER accounts. Current role: {role}.",
@@ -417,7 +481,7 @@
     }
   },
   "userDirectory": "User Directory",
-  "userDirectorySubtitle": "Monitor owner and user accounts, branch assignment, and activity status.",
+  "userDirectorySubtitle": "Monitor account access, branch assignment, and activity status.",
   "searchUsers": "Search users",
   "searchUsersHint": "Search by name, email, or branch",
   "allRoles": "All Roles",
@@ -462,11 +526,19 @@
   "maxUsers": "Max Users",
   "maxWallets": "Max Wallets",
   "maxBranches": "Max Branches",
-  "planPrice": "{price} EGP",
-  "@planPrice": {
+  "currencyEgp": "EGP",
+  "monthlyBillingPeriod": "month",
+  "planPricePerMonth": "{currency} {price} / {period}",
+  "@planPricePerMonth": {
     "placeholders": {
+      "currency": {
+        "type": "String"
+      },
       "price": {
-        "type": "num"
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
       }
     }
   },
@@ -504,7 +576,9 @@
   "unableToSubmitSupportRequest": "Unable to submit support request",
   "tryAgain": "Try again",
   "subject": "Subject",
+  "supportMessage": "Message",
   "subjectRequired": "Subject is required",
+  "supportMessageRequired": "Message is required",
   "createdAt": "Created at",
   "descriptionRequired": "Description is required",
   "priority": "Priority",

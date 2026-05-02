@@ -6,7 +6,6 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/errors/error_message_mapper.dart';
 import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_buttons.dart';
-import '../../../../core/widgets/app_dropdown_field.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_form_section.dart';
 import '../../../../core/widgets/app_page_scaffold.dart';
@@ -29,7 +28,6 @@ class _CreateSupportTicketPageState
   final _formKey = GlobalKey<FormState>();
   final _subjectController = TextEditingController();
   final _descriptionController = TextEditingController();
-  SupportPriority _priority = SupportPriority.medium;
 
   @override
   void dispose() {
@@ -81,41 +79,17 @@ class _CreateSupportTicketPageState
                     AppTextField(
                       fieldKey: const Key('support_description_field'),
                       controller: _descriptionController,
-                      label: l10n.description,
-                      hintText: l10n.description,
+                      label: l10n.supportMessage,
+                      hintText: l10n.supportMessage,
                       maxLines: 5,
                       textInputAction: TextInputAction.newline,
                       prefixIcon: const Icon(Icons.description_outlined),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return l10n.descriptionRequired;
+                          return l10n.supportMessageRequired;
                         }
                         return null;
                       },
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    AppDropdownField<SupportPriority>(
-                      fieldKey: const Key('support_priority_field'),
-                      value: _priority,
-                      label: l10n.priority,
-                      items: SupportPriority.values.map((priority) {
-                        return DropdownMenuItem(
-                          value: priority,
-                          child: Text(_priorityLabel(priority, l10n)),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() => _priority = value);
-                        }
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return l10n.priorityRequired;
-                        }
-                        return null;
-                      },
-                      prefixIcon: const Icon(Icons.flag_outlined),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     if (state.error != null) ...[
@@ -149,14 +123,6 @@ class _CreateSupportTicketPageState
     );
   }
 
-  String _priorityLabel(SupportPriority priority, dynamic l10n) {
-    return switch (priority) {
-      SupportPriority.low => l10n.low,
-      SupportPriority.medium => l10n.medium,
-      SupportPriority.high => l10n.high,
-    };
-  }
-
   Future<void> _submit() async {
     if (_formKey.currentState?.validate() != true) {
       return;
@@ -165,7 +131,7 @@ class _CreateSupportTicketPageState
     final ticket = SupportTicket(
       subject: _subjectController.text.trim(),
       description: _descriptionController.text.trim(),
-      priority: _priority,
+      priority: SupportPriority.medium,
     );
 
     final success = await ref
@@ -181,9 +147,9 @@ class _CreateSupportTicketPageState
       return;
     }
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(appL10n(context).supportRequestSent)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(appL10n(context).supportRequestSent)),
+    );
     await Navigator.of(context).maybePop();
   }
 }

@@ -1,15 +1,17 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:wallet_owner_app/core/errors/app_exception.dart';
-import 'package:wallet_owner_app/core/network/api_result.dart';
-import 'package:wallet_owner_app/core/storage/app_secure_storage.dart';
-import 'package:wallet_owner_app/features/auth/data/models/login_request_model.dart';
-import 'package:wallet_owner_app/features/auth/data/models/login_response_model.dart';
-import 'package:wallet_owner_app/features/auth/data/repositories/app_auth_repository.dart';
-import 'package:wallet_owner_app/features/auth/data/services/auth_remote_data_source.dart';
-import 'package:wallet_owner_app/features/auth/data/services/session_local_data_source.dart';
-import 'package:wallet_owner_app/features/auth/domain/entities/session.dart';
+import 'package:ta2feela_app/core/errors/app_exception.dart';
+import 'package:ta2feela_app/core/network/api_result.dart';
+import 'package:ta2feela_app/core/storage/app_secure_storage.dart';
+import 'package:ta2feela_app/features/auth/data/models/forgot_password_request_model.dart';
+import 'package:ta2feela_app/features/auth/data/models/forgot_password_response_model.dart';
+import 'package:ta2feela_app/features/auth/data/models/login_request_model.dart';
+import 'package:ta2feela_app/features/auth/data/models/login_response_model.dart';
+import 'package:ta2feela_app/features/auth/data/repositories/app_auth_repository.dart';
+import 'package:ta2feela_app/features/auth/data/services/auth_remote_data_source.dart';
+import 'package:ta2feela_app/features/auth/data/services/session_local_data_source.dart';
+import 'package:ta2feela_app/features/auth/domain/entities/session.dart';
 
 void main() {
   test('login response model parses token variants and fallback claims', () {
@@ -119,6 +121,53 @@ void main() {
       ),
     );
   });
+
+  test(
+    'repository change password forwards only current and new password',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final sharedPreferences = await SharedPreferences.getInstance();
+      final remoteDataSource = _RecordingAuthRemoteDataSource();
+      final repository = AppAuthRepository(
+        sessionLocalDataSource: SessionLocalDataSource(
+          secureStorage: _FakeSecureStorage(),
+          sharedPreferences: sharedPreferences,
+        ),
+        remoteDataSource: remoteDataSource,
+      );
+
+      await repository.changePassword(
+        currentPassword: 'old-pass',
+        newPassword: 'new-pass-123',
+      );
+
+      expect(remoteDataSource.currentPassword, 'old-pass');
+      expect(remoteDataSource.newPassword, 'new-pass-123');
+    },
+  );
+
+  test('repository forgot password returns backend response message', () async {
+    SharedPreferences.setMockInitialValues({});
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final remoteDataSource = _RecordingAuthRemoteDataSource();
+    remoteDataSource.forgotPasswordMessage =
+        'If the account exists, a reset request has been submitted.';
+    final repository = AppAuthRepository(
+      sessionLocalDataSource: SessionLocalDataSource(
+        secureStorage: _FakeSecureStorage(),
+        sharedPreferences: sharedPreferences,
+      ),
+      remoteDataSource: remoteDataSource,
+    );
+
+    final result = await repository.forgotPassword(username: 'owner1');
+
+    expect(remoteDataSource.username, 'owner1');
+    expect(
+      result,
+      'If the account exists, a reset request has been submitted.',
+    );
+  });
 }
 
 class _FakeAuthRemoteDataSource implements AuthRemoteDataSource {
@@ -137,12 +186,50 @@ class _FakeAuthRemoteDataSource implements AuthRemoteDataSource {
   }
 
   @override
+  Future<ApiResult<ForgotPasswordResponseModel>> forgotPassword(
+    ForgotPasswordRequestModel request,
+  ) async {
+    return const ApiSuccess(ForgotPasswordResponseModel());
+  }
+
+  @override
   Future<ApiResult<void>> changePassword({
     required String currentPassword,
     required String newPassword,
-    required String confirmPassword,
   }) async {
     return const ApiSuccess(null);
+  }
+}
+
+class _RecordingAuthRemoteDataSource implements AuthRemoteDataSource {
+  String? currentPassword;
+  String? newPassword;
+  String? username;
+  String? forgotPasswordMessage;
+
+  @override
+  Future<ApiResult<void>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    this.currentPassword = currentPassword;
+    this.newPassword = newPassword;
+    return const ApiSuccess(null);
+  }
+
+  @override
+  Future<ApiResult<ForgotPasswordResponseModel>> forgotPassword(
+    ForgotPasswordRequestModel request,
+  ) async {
+    username = request.username;
+    return ApiSuccess(
+      ForgotPasswordResponseModel(responseMessage: forgotPasswordMessage),
+    );
+  }
+
+  @override
+  Future<ApiResult<LoginResponseModel>> login(LoginRequestModel request) async {
+    throw UnimplementedError();
   }
 }
 

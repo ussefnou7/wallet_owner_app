@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wallet_owner_app/features/branches/data/repositories/mock_branches_repository.dart';
-import 'package:wallet_owner_app/features/branches/domain/repositories/branches_repository.dart';
-import 'package:wallet_owner_app/features/branches/presentation/pages/branches_page.dart';
+import 'package:ta2feela_app/features/branches/data/repositories/mock_branches_repository.dart';
+import 'package:ta2feela_app/features/branches/domain/repositories/branches_repository.dart';
+import 'package:ta2feela_app/features/branches/presentation/pages/branches_page.dart';
 
 void main() {
   testWidgets('create branch dialog cancels safely', (tester) async {

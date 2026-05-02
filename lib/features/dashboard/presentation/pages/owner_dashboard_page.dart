@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/errors/error_message_mapper.dart';
@@ -42,13 +41,9 @@ class _OwnerDashboardPageState extends ConsumerState<OwnerDashboardPage> {
     final overview = ref.watch(dashboardOverviewProvider);
     final recentTransactions = ref.watch(dashboardRecentTransactionsProvider);
     final l10n = appL10n(context);
-    final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return SingleChildScrollView(
-      padding: EdgeInsets.only(
-        top: AppSpacing.md,
-        bottom: bottomInset + AppDimensions.floatingBottomNavContentPadding,
-      ),
+      padding: const EdgeInsets.only(top: AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

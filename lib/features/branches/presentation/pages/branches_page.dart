@@ -52,7 +52,6 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
     final statusFilter = ref.watch(branchesStatusFilterProvider);
     final searchQuery = ref.watch(branchesSearchQueryProvider);
     final l10n = appL10n(context);
-    final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return AppPageScaffold(
       title: l10n.branches,
@@ -159,11 +158,6 @@ class _BranchesPageState extends ConsumerState<BranchesPage> {
 
                 return ListView.separated(
                   itemCount: filteredBranches.length,
-                  padding: EdgeInsets.only(
-                    bottom:
-                        bottomInset +
-                        AppDimensions.floatingBottomNavContentPadding,
-                  ),
                   separatorBuilder: (context, index) =>
                       const SizedBox(height: AppSpacing.md),
                   itemBuilder: (context, index) {

@@ -8,6 +8,7 @@ import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading_view.dart';
 import '../../../../core/widgets/app_page_scaffold.dart';
+import '../../../../core/widgets/app_route_back_button.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/owner_app_drawer.dart';
 import '../controllers/plans_controller.dart';
@@ -36,39 +37,51 @@ class PlansPage extends ConsumerWidget {
       endDrawer: const OwnerAppDrawer(currentRoute: AppRoutes.plans),
       embedded: true,
       maxWidth: AppDimensions.contentMaxWidth,
-      child: plansState.when(
-        loading: () => AppLoadingView(message: l10n.loadingSubscriptionPlans),
-        error: (error, stackTrace) => AppErrorState(
-          message: l10n.unableToLoadSubscriptionDetails,
-          onRetry: () => ref.read(plansControllerProvider.notifier).reload(),
-        ),
-        data: (plans) {
-          if (plans.isEmpty) {
-            return AppEmptyState(
-              title: l10n.noPlansAvailable,
-              message: l10n.plansEmptyMessage,
-              icon: Icons.workspace_premium_outlined,
-            );
-          }
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const AppRouteBackButton(fallbackRoute: AppRoutes.settings),
+          const SizedBox(height: AppSpacing.sm),
+          Expanded(
+            child: plansState.when(
+              loading: () =>
+                  AppLoadingView(message: l10n.loadingSubscriptionPlans),
+              error: (error, stackTrace) => AppErrorState(
+                message: l10n.unableToLoadSubscriptionDetails,
+                onRetry: () =>
+                    ref.read(plansControllerProvider.notifier).reload(),
+              ),
+              data: (plans) {
+                if (plans.isEmpty) {
+                  return AppEmptyState(
+                    title: l10n.noPlansAvailable,
+                    message: l10n.plansEmptyMessage,
+                    icon: Icons.workspace_premium_outlined,
+                  );
+                }
 
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppSectionHeader(
-                  title: l10n.subscriptionPlans,
-                  subtitle: l10n.subscriptionPlansSubtitle,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                for (var index = 0; index < plans.length; index++) ...[
-                  PlanCard(plan: plans[index]),
-                  if (index != plans.length - 1)
-                    const SizedBox(height: AppSpacing.md),
-                ],
-              ],
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.only(top: AppSpacing.xs),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppSectionHeader(
+                        title: l10n.subscriptionPlans,
+                        subtitle: l10n.subscriptionPlansSubtitle,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      for (var index = 0; index < plans.length; index++) ...[
+                        PlanCard(plan: plans[index]),
+                        if (index != plans.length - 1)
+                          const SizedBox(height: AppSpacing.md),
+                      ],
+                    ],
+                  ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

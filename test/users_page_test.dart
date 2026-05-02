@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wallet_owner_app/features/branches/data/repositories/mock_branches_repository.dart';
-import 'package:wallet_owner_app/features/branches/domain/repositories/branches_repository.dart';
-import 'package:wallet_owner_app/features/users/data/repositories/mock_users_repository.dart';
-import 'package:wallet_owner_app/features/users/domain/repositories/users_repository.dart';
-import 'package:wallet_owner_app/features/users/presentation/pages/users_page.dart';
+import 'package:ta2feela_app/features/branches/data/repositories/mock_branches_repository.dart';
+import 'package:ta2feela_app/features/branches/domain/repositories/branches_repository.dart';
+import 'package:ta2feela_app/features/users/data/repositories/mock_users_repository.dart';
+import 'package:ta2feela_app/features/users/domain/repositories/users_repository.dart';
+import 'package:ta2feela_app/features/users/presentation/pages/users_page.dart';
 
 void main() {
   testWidgets('create user dialog cancels safely', (tester) async {

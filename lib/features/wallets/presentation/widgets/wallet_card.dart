@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/formatters/app_date_formatter.dart';
 import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_card_action_button.dart';
@@ -39,6 +40,13 @@ class WalletCard extends StatelessWidget {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadii.lg),
         border: Border.all(color: AppColors.border),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0F17202A),
+            blurRadius: 18,
+            offset: Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,10 +105,15 @@ class WalletCard extends StatelessWidget {
           _ProfitSection(
             walletProfitLabel: l10n.walletProfitLabel,
             cashProfitLabel: l10n.walletCashProfit,
-            totalLabel: l10n.walletTotalLabel,
+            totalLabel: l10n.totalProfitLabel,
             walletProfit: wallet.walletProfit,
             cashProfit: wallet.cashProfit,
             totalProfit: totalProfit,
+            noCollectionYetLabel: l10n.noCollectionYet,
+            lastCollectionWithDate: l10n.lastCollectionWithDate,
+            lastCollectionWithDateByName: l10n.lastCollectionWithDateByName,
+            collectedAt: wallet.collectedAt,
+            collectedByName: wallet.collectedByName,
             collectProfitLabel: l10n.collectProfit,
             onCollectProfit: onCollectProfit,
           ),
@@ -297,6 +310,11 @@ class _ProfitSection extends StatelessWidget {
     required this.walletProfit,
     required this.cashProfit,
     required this.totalProfit,
+    required this.noCollectionYetLabel,
+    required this.lastCollectionWithDate,
+    required this.lastCollectionWithDateByName,
+    required this.collectedAt,
+    required this.collectedByName,
     required this.collectProfitLabel,
     this.onCollectProfit,
   });
@@ -307,144 +325,185 @@ class _ProfitSection extends StatelessWidget {
   final double walletProfit;
   final double cashProfit;
   final double totalProfit;
+  final String noCollectionYetLabel;
+  final String Function(String date) lastCollectionWithDate;
+  final String Function(String date, String name) lastCollectionWithDateByName;
+  final DateTime? collectedAt;
+  final String? collectedByName;
   final String collectProfitLabel;
   final VoidCallback? onCollectProfit;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+    final locale = Localizations.localeOf(context).languageCode;
+    final formattedDate = collectedAt == null
+        ? null
+        : AppDateFormatter.smart(collectedAt!, locale: locale);
+    final collectorName = collectedByName?.trim();
+    final footerText = switch ((formattedDate, collectorName)) {
+      (null, _) => noCollectionYetLabel,
+      (final date?, final name?) when name.isNotEmpty =>
+        lastCollectionWithDateByName(date, name),
+      (final date?, _) => lastCollectionWithDate(date),
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (onCollectProfit != null)
-          AppCardActionButton(
-            label: collectProfitLabel,
-            tooltip: collectProfitLabel,
-            icon: Icons.payments_outlined,
-            foregroundColor: AppColors.success,
-            backgroundColor: AppColors.successSoft,
-            onPressed: onCollectProfit,
-          ),
-        const Spacer(),
-        _ProfitValuesColumn(
-          walletProfit: walletProfit,
-          cashProfit: cashProfit,
-          totalProfit: totalProfit,
+        Row(
+          children: [
+            Expanded(
+              child: _ProfitMetricTile(
+                label: walletProfitLabel,
+                value: walletProfit,
+                icon: Icons.account_balance_wallet_outlined,
+                iconColor: AppColors.primary,
+                backgroundColor: AppColors.primarySoft,
+                borderColor: AppColors.border,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: _ProfitMetricTile(
+                label: cashProfitLabel,
+                value: cashProfit,
+                icon: Icons.payments_outlined,
+                iconColor: AppColors.success,
+                backgroundColor: AppColors.successSoft,
+                borderColor: AppColors.border,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 32),
-        Expanded(
-          child: _ProfitLabelsColumn(
-            walletProfitLabel: walletProfitLabel,
-            cashProfitLabel: cashProfitLabel,
-            totalLabel: totalLabel,
-          ),
+        const SizedBox(height: AppSpacing.sm),
+        _ProfitMetricTile(
+          label: totalLabel,
+          value: totalProfit,
+          icon: Icons.trending_up_rounded,
+          iconColor: AppColors.primary,
+          backgroundColor: AppColors.primarySoft,
+          borderColor: const Color(0x331459C2),
+          isHighlighted: true,
+        ),
+        const SizedBox(height: AppSpacing.md),
+        const Divider(height: 1),
+        const SizedBox(height: AppSpacing.sm),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: _ProfitCollectionInfo(value: footerText),
+            ),
+            if (onCollectProfit != null) ...[
+              const SizedBox(width: AppSpacing.sm),
+              AppCardActionButton(
+                label: collectProfitLabel,
+                tooltip: collectProfitLabel,
+                icon: Icons.payments_outlined,
+                foregroundColor: AppColors.success,
+                backgroundColor: AppColors.successSoft,
+                onPressed: onCollectProfit,
+              ),
+            ],
+          ],
         ),
       ],
     );
   }
 }
 
-class _ProfitValuesColumn extends StatelessWidget {
-  const _ProfitValuesColumn({
-    required this.walletProfit,
-    required this.cashProfit,
-    required this.totalProfit,
+class _ProfitMetricTile extends StatelessWidget {
+  const _ProfitMetricTile({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.iconColor,
+    required this.backgroundColor,
+    required this.borderColor,
+    this.isHighlighted = false,
   });
 
-  final double walletProfit;
-  final double cashProfit;
-  final double totalProfit;
+  final String label;
+  final double value;
+  final IconData icon;
+  final Color iconColor;
+  final Color backgroundColor;
+  final Color borderColor;
+  final bool isHighlighted;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          formatCurrency(walletProfit),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.end,
-          style: Theme.of(
-            context,
-          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          formatCurrency(cashProfit),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.end,
-          style: Theme.of(
-            context,
-          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          formatCurrency(totalProfit),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.end,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: AppColors.textPrimary,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(AppRadii.md),
+        border: Border.all(color: borderColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: AppColors.surface.withValues(alpha: 0.82),
+                  borderRadius: BorderRadius.circular(AppRadii.sm),
+                ),
+                child: Icon(icon, size: 18, color: iconColor),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ),
-      ],
+          const SizedBox(height: AppSpacing.sm),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              formatCurrency(value),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: isHighlighted ? AppColors.primary : AppColors.textPrimary,
+                fontWeight: FontWeight.w800,
+                height: 1.1,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _ProfitLabelsColumn extends StatelessWidget {
-  const _ProfitLabelsColumn({
-    required this.walletProfitLabel,
-    required this.cashProfitLabel,
-    required this.totalLabel,
-  });
+class _ProfitCollectionInfo extends StatelessWidget {
+  const _ProfitCollectionInfo({required this.value});
 
-  final String walletProfitLabel;
-  final String cashProfitLabel;
-  final String totalLabel;
+  final String value;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          walletProfitLabel,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.end,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: AppColors.textSecondary,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          cashProfitLabel,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.end,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: AppColors.textSecondary,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          totalLabel,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.end,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
+    return Text(
+      value,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      textAlign: TextAlign.start,
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+        color: AppColors.textPrimary,
+        fontWeight: FontWeight.w600,
+      ),
     );
   }
 }

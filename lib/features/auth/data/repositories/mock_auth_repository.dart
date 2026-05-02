@@ -38,10 +38,14 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<String?> forgotPassword({required String username}) async {
+    return null;
+  }
+
+  @override
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,
-    required String confirmPassword,
   }) async {}
 
   @override

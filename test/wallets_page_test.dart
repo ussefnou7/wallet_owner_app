@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wallet_owner_app/features/auth/domain/entities/session.dart';
-import 'package:wallet_owner_app/features/auth/domain/repositories/auth_repository.dart';
-import 'package:wallet_owner_app/features/auth/presentation/controllers/auth_controller.dart';
-import 'package:wallet_owner_app/features/branches/data/repositories/mock_branches_repository.dart';
-import 'package:wallet_owner_app/features/branches/domain/repositories/branches_repository.dart';
-import 'package:wallet_owner_app/features/wallets/data/repositories/mock_wallets_repository.dart';
-import 'package:wallet_owner_app/features/wallets/domain/repositories/wallets_repository.dart';
-import 'package:wallet_owner_app/features/wallets/presentation/controllers/wallets_controller.dart';
-import 'package:wallet_owner_app/features/wallets/presentation/pages/wallets_page.dart';
+import 'package:ta2feela_app/features/auth/domain/entities/session.dart';
+import 'package:ta2feela_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:ta2feela_app/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:ta2feela_app/features/branches/data/repositories/mock_branches_repository.dart';
+import 'package:ta2feela_app/features/branches/domain/repositories/branches_repository.dart';
+import 'package:ta2feela_app/features/wallets/data/repositories/mock_wallets_repository.dart';
+import 'package:ta2feela_app/features/wallets/domain/repositories/wallets_repository.dart';
+import 'package:ta2feela_app/features/wallets/presentation/controllers/wallets_controller.dart';
+import 'package:ta2feela_app/features/wallets/presentation/pages/wallets_page.dart';
 
 void main() {
   testWidgets('owner can open collect profit sheet from wallet card', (
@@ -149,10 +149,14 @@ class _FakeAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<String?> forgotPassword({required String username}) async {
+    return null;
+  }
+
+  @override
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,
-    required String confirmPassword,
   }) async {}
 
   @override

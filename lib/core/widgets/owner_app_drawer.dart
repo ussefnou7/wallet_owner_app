@@ -15,6 +15,7 @@ import '../constants/app_dimensions.dart';
 import '../constants/app_radii.dart';
 import '../constants/app_spacing.dart';
 import '../localization/app_l10n.dart';
+import 'app_drawer_version_label.dart';
 
 class OwnerAppDrawer extends ConsumerWidget {
   const OwnerAppDrawer({required this.currentRoute, super.key});
@@ -143,6 +144,7 @@ class OwnerAppDrawer extends ConsumerWidget {
                 ],
               ),
             ),
+            const AppDrawerVersionLabel(),
             const Divider(height: 1),
             Padding(
               padding: const EdgeInsets.all(AppSpacing.md),

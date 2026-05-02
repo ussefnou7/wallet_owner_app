@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wallet_owner_app/core/errors/app_exception.dart';
-import 'package:wallet_owner_app/core/localization/locale_controller.dart';
-import 'package:wallet_owner_app/features/auth/domain/entities/session.dart';
-import 'package:wallet_owner_app/features/auth/domain/repositories/auth_repository.dart';
-import 'package:wallet_owner_app/features/auth/presentation/controllers/auth_controller.dart';
-import 'package:wallet_owner_app/features/auth/presentation/pages/login_page.dart';
-import 'package:wallet_owner_app/l10n/generated/app_localizations.dart';
+import 'package:ta2feela_app/core/errors/app_exception.dart';
+import 'package:ta2feela_app/core/localization/locale_controller.dart';
+import 'package:ta2feela_app/features/auth/domain/entities/session.dart';
+import 'package:ta2feela_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:ta2feela_app/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:ta2feela_app/features/auth/presentation/pages/login_page.dart';
+import 'package:ta2feela_app/l10n/generated/app_localizations.dart';
 
 void main() {
   testWidgets('login 401 structured error shows localized inline message', (
@@ -80,10 +80,14 @@ class _FakeAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<String?> forgotPassword({required String username}) async {
+    return null;
+  }
+
+  @override
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,
-    required String confirmPassword,
   }) async {}
 
   @override

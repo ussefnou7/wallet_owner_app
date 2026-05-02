@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @appName.
   ///
   /// In en, this message translates to:
-  /// **'Wallet Owner'**
+  /// **'Ta2feela'**
   String get appName;
 
   /// No description provided for @language.
@@ -533,7 +533,7 @@ abstract class AppLocalizations {
   /// No description provided for @portfolioOverviewSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Track balance movement and wallet activity across your owner account.'**
+  /// **'Track balance movement and wallet activity across your account.'**
   String get portfolioOverviewSubtitle;
 
   /// No description provided for @latestTransactions.
@@ -811,6 +811,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Total'**
   String get walletTotalLabel;
+
+  /// No description provided for @totalProfitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total profit'**
+  String get totalProfitLabel;
+
+  /// No description provided for @noCollectionYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No collection yet'**
+  String get noCollectionYet;
+
+  /// No description provided for @lastCollectionWithDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Last collection: {date}'**
+  String lastCollectionWithDate(String date);
+
+  /// No description provided for @lastCollectionWithDateByName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last collection: {date} by {name}'**
+  String lastCollectionWithDateByName(String date, String name);
 
   /// No description provided for @collectProfit.
   ///
@@ -1187,13 +1211,13 @@ abstract class AppLocalizations {
   /// No description provided for @ownerSettings.
   ///
   /// In en, this message translates to:
-  /// **'Owner Settings'**
+  /// **'Settings'**
   String get ownerSettings;
 
   /// No description provided for @ownerSettingsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Manage your owner profile, subscription details, preferences, and account security from one place.'**
+  /// **'Manage your profile, subscription details, preferences, and account security from one place.'**
   String get ownerSettingsSubtitle;
 
   /// No description provided for @account.
@@ -1205,13 +1229,13 @@ abstract class AppLocalizations {
   /// No description provided for @accountSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Current owner identity and workspace assignment.'**
+  /// **'Current account identity and workspace assignment.'**
   String get accountSubtitle;
 
   /// No description provided for @ownerName.
   ///
   /// In en, this message translates to:
-  /// **'Owner name'**
+  /// **'Name'**
   String get ownerName;
 
   /// No description provided for @email.
@@ -1235,7 +1259,7 @@ abstract class AppLocalizations {
   /// No description provided for @ownerWorkspaceFallback.
   ///
   /// In en, this message translates to:
-  /// **'Owner workspace'**
+  /// **'Workspace'**
   String get ownerWorkspaceFallback;
 
   /// No description provided for @workspaceSubscription.
@@ -1331,13 +1355,13 @@ abstract class AppLocalizations {
   /// No description provided for @notificationsEnabledSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Enabled for mock owner alerts'**
+  /// **'Enabled for app alerts'**
   String get notificationsEnabledSubtitle;
 
   /// No description provided for @notificationsDisabledSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Disabled for mock owner alerts'**
+  /// **'Disabled for app alerts'**
   String get notificationsDisabledSubtitle;
 
   /// No description provided for @theme.
@@ -1363,6 +1387,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'App version'**
   String get appVersion;
+
+  /// No description provided for @versionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get versionLabel;
+
+  /// No description provided for @legalInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal & Information'**
+  String get legalInformation;
+
+  /// No description provided for @legalInformationSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Read simple information about Ta2feela, privacy, and platform terms.'**
+  String get legalInformationSubtitle;
+
+  /// No description provided for @aboutTa2feela.
+  ///
+  /// In en, this message translates to:
+  /// **'About Ta2feela'**
+  String get aboutTa2feela;
+
+  /// No description provided for @aboutTa2feelaSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn what Ta2feela helps you manage and where to get support.'**
+  String get aboutTa2feelaSubtitle;
+
+  /// No description provided for @aboutOverviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get aboutOverviewTitle;
+
+  /// No description provided for @aboutOverviewBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ta2feela is a wallet management app for tracking wallets, transactions, branches, users, profits, and daily or monthly consumption. It helps teams keep account activity organized in one place.'**
+  String get aboutOverviewBody;
+
+  /// No description provided for @aboutMissionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What you can manage'**
+  String get aboutMissionTitle;
+
+  /// No description provided for @aboutMissionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'With Ta2feela, you can review wallet balances, record transaction activity, follow branch and user assignments, monitor profits, and check consumption details across your workspace.'**
+  String get aboutMissionBody;
+
+  /// No description provided for @aboutContactTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Version & Support'**
+  String get aboutContactTitle;
+
+  /// No description provided for @aboutContactBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ta2feela support is available through the in-app Support page when you need help. Current app version: {version}. Support contact placeholder: support@ta2feela.example.'**
+  String aboutContactBody(String version);
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
+
+  /// No description provided for @privacyPolicySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn what data Ta2feela may use and why it is needed.'**
+  String get privacyPolicySubtitle;
+
+  /// No description provided for @privacyCollectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Data we may collect'**
+  String get privacyCollectionTitle;
+
+  /// No description provided for @privacyCollectionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ta2feela may collect account and usage data such as username, role, wallet data, transaction data, branch and user assignment data, support tickets, and technical logs needed to operate the service.'**
+  String get privacyCollectionBody;
+
+  /// No description provided for @privacyUsageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why data is used'**
+  String get privacyUsageTitle;
+
+  /// No description provided for @privacyUsageBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This data may be used for authentication, wallet management, reporting, support, security, and service improvement so the app can work reliably for each tenant.'**
+  String get privacyUsageBody;
+
+  /// No description provided for @privacySecurityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Access, sharing, and support'**
+  String get privacySecurityTitle;
+
+  /// No description provided for @privacySecurityBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ta2feela does not sell your data. Access to data is role-based and tenant-scoped. Support contact placeholder: support@ta2feela.example.'**
+  String get privacySecurityBody;
+
+  /// No description provided for @termsAndConditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms & Conditions'**
+  String get termsAndConditions;
+
+  /// No description provided for @termsAndConditionsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the simple rules for using the Ta2feela platform.'**
+  String get termsAndConditionsSubtitle;
+
+  /// No description provided for @termsAcceptanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Acceptance of terms'**
+  String get termsAcceptanceTitle;
+
+  /// No description provided for @termsAcceptanceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'By continuing to use Ta2feela, you accept these terms. You must keep your account credentials secure and protect access to your account.'**
+  String get termsAcceptanceBody;
+
+  /// No description provided for @termsUsageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Using the service'**
+  String get termsUsageTitle;
+
+  /// No description provided for @termsUsageBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You must enter accurate wallet and transaction data when using Ta2feela. Unauthorized access, misuse, or attempts to use another tenant\'s data are prohibited. The service may sometimes be unavailable during maintenance.'**
+  String get termsUsageBody;
+
+  /// No description provided for @termsResponsibilityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account responsibilities'**
+  String get termsResponsibilityTitle;
+
+  /// No description provided for @termsResponsibilityBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ta2feela is not responsible for losses caused by incorrect data entry, misuse, or unauthorized account activity. Each user is responsible for using the app properly within their assigned access.'**
+  String get termsResponsibilityBody;
 
   /// No description provided for @security.
   ///
@@ -1460,6 +1646,60 @@ abstract class AppLocalizations {
   /// **'Password changed successfully.'**
   String get passwordChangedSuccessfully;
 
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPassword;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your account details to submit a password reset request.'**
+  String get forgotPasswordSubtitle;
+
+  /// No description provided for @submitResetRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit request'**
+  String get submitResetRequest;
+
+  /// No description provided for @resetRequestSubmittedFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'If the account exists, a reset request has been submitted.'**
+  String get resetRequestSubmittedFallback;
+
+  /// No description provided for @backToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to login'**
+  String get backToLogin;
+
+  /// No description provided for @usernameOrEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Username or email'**
+  String get usernameOrEmail;
+
+  /// No description provided for @usernameOrEmailRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your username or email'**
+  String get usernameOrEmailRequired;
+
+  /// No description provided for @unableToSubmitResetRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to submit reset request'**
+  String get unableToSubmitResetRequest;
+
   /// No description provided for @changePasswordComingSoon.
   ///
   /// In en, this message translates to:
@@ -1481,7 +1721,7 @@ abstract class AppLocalizations {
   /// No description provided for @logoutSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Sign out from the current owner session.'**
+  /// **'Sign out from the current session.'**
   String get logoutSubtitle;
 
   /// No description provided for @notificationsComingSoon.
@@ -1871,7 +2111,7 @@ abstract class AppLocalizations {
   /// No description provided for @signInSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Use your owner account to access wallet controls and reporting.'**
+  /// **'Use your account to access wallet controls and reporting.'**
   String get signInSubtitle;
 
   /// No description provided for @username.
@@ -1943,7 +2183,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginHeroSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Mobile access for owner-level wallet oversight, transaction recording, and reporting.'**
+  /// **'Mobile access for wallet oversight, transaction recording, and reporting.'**
   String get loginHeroSubtitle;
 
   /// No description provided for @loadingWorkspace.
@@ -2129,7 +2369,7 @@ abstract class AppLocalizations {
   /// No description provided for @userDirectorySubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Monitor owner and user accounts, branch assignment, and activity status.'**
+  /// **'Monitor account access, branch assignment, and activity status.'**
   String get userDirectorySubtitle;
 
   /// No description provided for @searchUsers.
@@ -2396,11 +2636,23 @@ abstract class AppLocalizations {
   /// **'Max Branches'**
   String get maxBranches;
 
-  /// No description provided for @planPrice.
+  /// No description provided for @currencyEgp.
   ///
   /// In en, this message translates to:
-  /// **'{price} EGP'**
-  String planPrice(num price);
+  /// **'EGP'**
+  String get currencyEgp;
+
+  /// No description provided for @monthlyBillingPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'month'**
+  String get monthlyBillingPeriod;
+
+  /// No description provided for @planPricePerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{currency} {price} / {period}'**
+  String planPricePerMonth(String currency, String price, String period);
 
   /// No description provided for @enterpriseUpgradeComingSoon.
   ///
@@ -2564,11 +2816,23 @@ abstract class AppLocalizations {
   /// **'Subject'**
   String get subject;
 
+  /// No description provided for @supportMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get supportMessage;
+
   /// No description provided for @subjectRequired.
   ///
   /// In en, this message translates to:
   /// **'Subject is required'**
   String get subjectRequired;
+
+  /// No description provided for @supportMessageRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Message is required'**
+  String get supportMessageRequired;
 
   /// No description provided for @createdAt.
   ///

@@ -1,6 +1,6 @@
 {
   "@@locale": "ar",
-  "appName": "إدارة المحافظ",
+  "appName": "تفعيلة",
   "language": "اللغة",
   "english": "الإنجليزية",
   "arabic": "العربية",
@@ -72,7 +72,7 @@
   "disabled": "معطلة",
   "notAvailable": "غير متاح",
   "portfolioOverview": "نظرة عامة على المحفظة",
-  "portfolioOverviewSubtitle": "تابع حركة الرصيد ونشاط المحافظ في حساب المالك.",
+  "portfolioOverviewSubtitle": "تابع حركة الرصيد ونشاط المحافظ في حسابك.",
   "latestTransactions": "آخر العمليات",
   "latestTransactionsSubtitle": "أحدث العمليات المسجلة على المحافظ",
   "totalCredits": "إجمالي الإيداع",
@@ -119,6 +119,27 @@
   "walletProfitLabel": "الربح على المحفظة",
   "walletCashProfit": "الربح النقدي",
   "walletTotalLabel": "الإجمالي",
+  "totalProfitLabel": "إجمالي الربح",
+  "noCollectionYet": "لا يوجد تحصيل بعد",
+  "lastCollectionWithDate": "آخر تحصيل: {date}",
+  "@lastCollectionWithDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "lastCollectionWithDateByName": "آخر تحصيل: {date} بواسطة {name}",
+  "@lastCollectionWithDateByName": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "collectProfit": "تحصيل الأرباح",
   "currentWalletProfit": "أرباح المحفظة الحالية",
   "currentCashProfit": "أرباح الكاش الحالية",
@@ -181,15 +202,15 @@
   "loadingWalletOptions": "جارٍ تحميل خيارات المحافظ...",
   "unableToLoadWalletOptions": "تعذر تحميل خيارات المحافظ.",
   "savedTransactionForWallet": "تم حفظ معاملة {type} لمحفظة {walletName}.",
-  "ownerSettings": "إعدادات المالك",
-  "ownerSettingsSubtitle": "أدر ملف المالك، تفاصيل الاشتراك، التفضيلات، وأمان الحساب من مكان واحد.",
+  "ownerSettings": "الإعدادات",
+  "ownerSettingsSubtitle": "أدر ملفك الشخصي، تفاصيل الاشتراك، التفضيلات، وأمان الحساب من مكان واحد.",
   "account": "الحساب",
-  "accountSubtitle": "هوية المالك الحالية وتعيين مساحة العمل.",
-  "ownerName": "اسم المالك",
+  "accountSubtitle": "هوية الحساب الحالية وتعيين مساحة العمل.",
+  "ownerName": "الاسم",
   "email": "البريد الإلكتروني",
   "role": "الدور",
   "workspace": "مساحة العمل",
-  "ownerWorkspaceFallback": "مساحة عمل المالك",
+  "ownerWorkspaceFallback": "مساحة العمل",
   "workspaceSubscription": "مساحة العمل والاشتراك",
   "workspaceSubscriptionSubtitle": "نظرة عامة للقراءة فقط على اشتراك مساحة العمل.",
   "loadingWorkspaceSubscription": "جارٍ تحميل اشتراك مساحة العمل...",
@@ -205,12 +226,46 @@
   "requestRenewalSubtitle": "أرسل طلب تجديد أو ترقية.",
   "preferences": "التفضيلات",
   "preferencesSubtitle": "اضبط اللغة والإشعارات والمظهر ومعلومات التطبيق.",
-  "notificationsEnabledSubtitle": "مفعلة لتنبيهات المالك التجريبية",
-  "notificationsDisabledSubtitle": "معطلة لتنبيهات المالك التجريبية",
+  "notificationsEnabledSubtitle": "مفعلة لتنبيهات التطبيق",
+  "notificationsDisabledSubtitle": "معطلة لتنبيهات التطبيق",
   "theme": "المظهر",
   "systemDefault": "إعدادات النظام",
   "themeComingSoon": "ستتم إضافة إعدادات المظهر بعد تخطيط تكامل الخادم.",
   "appVersion": "إصدار التطبيق",
+  "versionLabel": "الإصدار",
+  "legalInformation": "معلومات وقانونيات",
+  "legalInformationSubtitle": "اطلع على معلومات بسيطة عن تفعيلة والخصوصية وشروط استخدام المنصة.",
+  "aboutTa2feela": "عن تفعيلة",
+  "aboutTa2feelaSubtitle": "تعرف على ما تساعدك تفعيلة على إدارته وكيفية الوصول إلى الدعم.",
+  "aboutOverviewTitle": "نبذة عامة",
+  "aboutOverviewBody": "تفعيلة تطبيق لإدارة المحافظ يساعد على متابعة المحافظ، والمعاملات، والفروع، والمستخدمين، والأرباح، والاستهلاك اليومي أو الشهري. يهدف إلى تنظيم نشاط الحساب في مكان واحد.",
+  "aboutMissionTitle": "ما الذي يمكنك إدارته",
+  "aboutMissionBody": "من خلال تفعيلة يمكنك مراجعة أرصدة المحافظ، وتسجيل حركة المعاملات، ومتابعة ربط الفروع والمستخدمين، ومراقبة الأرباح، والاطلاع على تفاصيل الاستهلاك داخل مساحة العمل.",
+  "aboutContactTitle": "الإصدار والدعم",
+  "aboutContactBody": "يتوفر دعم تفعيلة من خلال صفحة الدعم داخل التطبيق عند الحاجة للمساعدة. إصدار التطبيق الحالي: {version}. جهة تواصل الدعم المؤقتة: support@ta2feela.example.",
+  "@aboutContactBody": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "privacyPolicy": "سياسة الخصوصية",
+  "privacyPolicySubtitle": "تعرف على البيانات التي قد تستخدمها تفعيلة ولماذا تحتاج إليها.",
+  "privacyCollectionTitle": "البيانات التي قد نجمعها",
+  "privacyCollectionBody": "قد تجمع تفعيلة بيانات الحساب والاستخدام مثل اسم المستخدم، والدور، وبيانات المحافظ، وبيانات المعاملات، وبيانات ربط الفروع والمستخدمين، وتذاكر الدعم، والسجلات التقنية اللازمة لتشغيل الخدمة.",
+  "privacyUsageTitle": "لماذا يتم استخدام البيانات",
+  "privacyUsageBody": "قد تستخدم هذه البيانات لأغراض تسجيل الدخول، وإدارة المحافظ، وإعداد التقارير، والدعم، والأمان، وتحسين الخدمة حتى يعمل التطبيق بشكل موثوق لكل مستأجر.",
+  "privacySecurityTitle": "الوصول والمشاركة والدعم",
+  "privacySecurityBody": "لا تبيع تفعيلة بياناتك. الوصول إلى البيانات يعتمد على الدور ومحدود بنطاق المستأجر. جهة تواصل الدعم المؤقتة: support@ta2feela.example.",
+  "termsAndConditions": "الشروط والأحكام",
+  "termsAndConditionsSubtitle": "اطلع على القواعد البسيطة لاستخدام منصة تفعيلة.",
+  "termsAcceptanceTitle": "قبول الشروط",
+  "termsAcceptanceBody": "استمرارك في استخدام تفعيلة يعني قبولك لهذه الشروط. يجب عليك الحفاظ على سرية بيانات الدخول وتأمين الوصول إلى حسابك.",
+  "termsUsageTitle": "استخدام الخدمة",
+  "termsUsageBody": "يجب إدخال بيانات المحافظ والمعاملات بشكل صحيح عند استخدام تفعيلة. يُمنع الوصول غير المصرح به أو إساءة الاستخدام أو محاولة استخدام بيانات مستأجر آخر. قد تتوقف الخدمة مؤقتًا أثناء الصيانة.",
+  "termsResponsibilityTitle": "مسؤوليات الحساب",
+  "termsResponsibilityBody": "لا تتحمل تفعيلة المسؤولية عن الخسائر الناتجة عن إدخال بيانات غير صحيح أو إساءة الاستخدام أو النشاط غير المصرح به على الحساب. كل مستخدم مسؤول عن استخدام التطبيق ضمن الصلاحيات المخصصة له.",
   "security": "الأمان",
   "securitySubtitle": "حدّث كلمة المرور وأدر الوصول إلى هذا الحساب.",
   "securitySession": "الأمان والجلسة",
@@ -227,10 +282,19 @@
   "confirmPasswordRequired": "يرجى تأكيد كلمة المرور الجديدة",
   "confirmPasswordMismatch": "كلمتا المرور غير متطابقتين",
   "passwordChangedSuccessfully": "تم تغيير كلمة المرور بنجاح.",
+  "forgotPassword": "نسيت كلمة المرور؟",
+  "forgotPasswordTitle": "استعادة كلمة المرور",
+  "forgotPasswordSubtitle": "ادخل بيانات حسابك لإرسال طلب استعادة كلمة المرور",
+  "submitResetRequest": "إرسال الطلب",
+  "resetRequestSubmittedFallback": "إذا كان الحساب موجودًا، تم إرسال طلب استعادة كلمة المرور.",
+  "backToLogin": "العودة لتسجيل الدخول",
+  "usernameOrEmail": "اسم المستخدم أو البريد الإلكتروني",
+  "usernameOrEmailRequired": "برجاء إدخال اسم المستخدم أو البريد الإلكتروني",
+  "unableToSubmitResetRequest": "تعذر إرسال طلب استعادة كلمة المرور",
   "changePasswordComingSoon": "سيتم ربط إدارة كلمة المرور في مرحلة لاحقة.",
   "session": "الجلسة",
   "signedInAs": "تم تسجيل الدخول باسم {value}",
-  "logoutSubtitle": "تسجيل الخروج من جلسة المالك الحالية.",
+  "logoutSubtitle": "تسجيل الخروج من الجلسة الحالية.",
   "notificationsComingSoon": "ستتوفر الإشعارات قريبًا.",
   "notificationsTitle": "الإشعارات",
   "notificationsImportantSection": "مهم",
@@ -295,7 +359,7 @@
   "netAmount": "الصافي",
   "pageSummary": "الصفحة {page} من {totalPages} - {totalElements} عنصر",
   "signIn": "تسجيل الدخول",
-  "signInSubtitle": "استخدم حساب المالك للوصول إلى أدوات المحافظ والتقارير.",
+  "signInSubtitle": "استخدم حسابك للوصول إلى أدوات المحافظ والتقارير.",
   "username": "اسم المستخدم",
   "password": "كلمة المرور",
   "enterPassword": "أدخل كلمة المرور",
@@ -307,7 +371,7 @@
   "usernameRequired": "اسم المستخدم مطلوب",
   "passwordRequired": "كلمة المرور مطلوبة",
   "passwordTooShort": "كلمة المرور قصيرة جدًا",
-  "loginHeroSubtitle": "وصول عبر الجوال لمتابعة المحافظ وتسجيل المعاملات والتقارير على مستوى المالك.",
+  "loginHeroSubtitle": "وصول عبر الجوال لمتابعة المحافظ وتسجيل المعاملات والتقارير.",
   "loadingWorkspace": "جارٍ تحميل مساحة العمل...",
   "unsupportedAccountRole": "دور الحساب غير مدعوم",
   "unsupportedAccountRoleMessage": "يدعم هذا التطبيق حسابات OWNER و USER. الدور الحالي: {role}.",
@@ -339,7 +403,7 @@
   "usersCount": "{count} مستخدمين",
   "walletsCount": "{count} محافظ",
   "userDirectory": "دليل المستخدمين",
-  "userDirectorySubtitle": "راقب حسابات المالكين والمستخدمين وتعيين الفروع وحالة النشاط.",
+  "userDirectorySubtitle": "راقب الحسابات وتعيين الفروع وحالة النشاط.",
   "searchUsers": "بحث في المستخدمين",
   "searchUsersHint": "ابحث بالاسم أو البريد الإلكتروني أو الفرع",
   "allRoles": "كل الأدوار",
@@ -384,11 +448,19 @@
   "maxUsers": "الحد الأقصى للمستخدمين",
   "maxWallets": "الحد الأقصى للمحافظ",
   "maxBranches": "الحد الأقصى للفروع",
-  "planPrice": "{price} جنيه",
-  "@planPrice": {
+  "currencyEgp": "جنيه",
+  "monthlyBillingPeriod": "شهريًا",
+  "planPricePerMonth": "{price} {currency} / {period}",
+  "@planPricePerMonth": {
     "placeholders": {
+      "currency": {
+        "type": "String"
+      },
       "price": {
-        "type": "num"
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
       }
     }
   },
@@ -419,7 +491,9 @@
   "unableToSubmitSupportRequest": "تعذر إرسال طلب الدعم",
   "tryAgain": "حاول مرة أخرى",
   "subject": "الموضوع",
+  "supportMessage": "الرسالة",
   "subjectRequired": "الموضوع مطلوب",
+  "supportMessageRequired": "الرسالة مطلوبة",
   "createdAt": "تاريخ الإنشاء",
   "descriptionRequired": "الوصف مطلوب",
   "priority": "الأولوية",

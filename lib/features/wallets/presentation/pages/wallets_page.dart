@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
-import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/errors/app_exception.dart';
 import '../../../../core/errors/error_message_mapper.dart';
@@ -58,7 +57,6 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
     final canCollectProfit =
         canManageWallets && (authState.session?.isOwner ?? false);
     final l10n = appL10n(context);
-    final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,11 +124,7 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
                   icon: Icons.account_balance_wallet_outlined,
                 )
               : ListView.separated(
-                  padding: EdgeInsets.only(
-                    bottom:
-                        bottomInset +
-                        AppDimensions.floatingBottomNavContentPadding,
-                  ),
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                   itemCount: filteredWallets.length,
                   separatorBuilder: (context, index) =>
                       const SizedBox(height: AppSpacing.md),
@@ -747,9 +741,7 @@ class _EditWalletDialogState extends ConsumerState<_EditWalletDialog> {
                         child: AppTextField(
                           controller: _monthlyLimitController,
                           label: l10n.monthlyLimitLabel,
-                          prefixIcon: const Icon(
-                            Icons.calendar_month_outlined,
-                          ),
+                          prefixIcon: const Icon(Icons.calendar_month_outlined),
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
                           ),

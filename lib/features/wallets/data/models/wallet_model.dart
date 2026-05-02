@@ -26,6 +26,9 @@ class WalletModel extends Wallet {
     super.updatedAt,
     required super.transactionCount,
     super.branchName,
+    super.collectedAt,
+    super.collectedByName,
+    super.lastProfitCollectionAt,
   });
 
   factory WalletModel.fromJson(Map<String, dynamic> json) {
@@ -60,6 +63,11 @@ class WalletModel extends Wallet {
       createdAt: _dateTimeFromJson(json['createdAt']),
       updatedAt: _dateTimeFromJson(json['updatedAt']),
       transactionCount: json['transactionCount'] as int? ?? 0,
+      collectedAt: _dateTimeFromJson(json['collectedAt']),
+      collectedByName: _stringFromJson(json['collectedByName']),
+      lastProfitCollectionAt: _dateTimeFromJson(
+        json['lastProfitCollectionAt'],
+      ),
       branchName:
           json['branchName'] as String? ??
           (branch is Map<String, dynamic> ? branch['name'] as String? : null),
@@ -145,6 +153,17 @@ double _doubleFromJson(Object? value) {
   }
 
   return 0;
+}
+
+String? _stringFromJson(Object? value) {
+  if (value is String) {
+    final trimmed = value.trim();
+    if (trimmed.isNotEmpty) {
+      return trimmed;
+    }
+  }
+
+  return null;
 }
 
 DateTime? _dateTimeFromJson(Object? value) {

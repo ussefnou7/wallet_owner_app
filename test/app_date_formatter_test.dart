@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:wallet_owner_app/core/formatters/app_date_formatter.dart';
+import 'package:ta2feela_app/core/formatters/app_date_formatter.dart';
 
 void main() {
   setUpAll(() async {
@@ -338,12 +338,6 @@ void main() {
         final en = AppDateFormatter.timeOnly(date, locale: 'en');
         final unknown = AppDateFormatter.timeOnly(date, locale: 'fr');
         expect(en, unknown);
-      });
-
-      test('Null locale defaults to English', () {
-        final date = DateTime(2026, 5, 1, 1, 20);
-        // This would fail at compile time since locale is required,
-        // but the _normalizeLocale function handles it internally
       });
 
       test('Empty locale defaults to English', () {

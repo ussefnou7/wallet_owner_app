@@ -2,8 +2,8 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wallet_owner_app/core/network/auth_interceptor.dart';
-import 'package:wallet_owner_app/core/network/network_constants.dart';
+import 'package:ta2feela_app/core/network/auth_interceptor.dart';
+import 'package:ta2feela_app/core/network/network_constants.dart';
 
 void main() {
   test('does not attach Authorization header to login endpoint', () async {

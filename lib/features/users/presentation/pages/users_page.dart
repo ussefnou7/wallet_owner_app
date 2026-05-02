@@ -61,7 +61,6 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     final searchQuery = ref.watch(usersSearchQueryProvider);
     final roleFilter = ref.watch(usersRoleFilterProvider);
     final l10n = appL10n(context);
-    final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return AppPageScaffold(
       title: l10n.users,
@@ -154,11 +153,6 @@ class _UsersPageState extends ConsumerState<UsersPage> {
 
                 return ListView.separated(
                   itemCount: filteredUsers.length,
-                  padding: EdgeInsets.only(
-                    bottom:
-                        bottomInset +
-                        AppDimensions.floatingBottomNavContentPadding,
-                  ),
                   separatorBuilder: (context, index) =>
                       const SizedBox(height: AppSpacing.md),
                   itemBuilder: (context, index) {

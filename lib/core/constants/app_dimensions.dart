@@ -7,11 +7,17 @@ abstract final class AppDimensions {
   static const double compactContentMaxWidth = 420;
   static const double buttonHeight = 52;
   static const double navigationBarHeight = 72;
-  static const double ownerBottomNavReservedHeight = 120;
+  static const double floatingBottomNavHeight = 76;
+  static const double floatingBottomNavOffset = 10;
+  static const double floatingBottomNavExtraSpacing = AppSpacing.lg;
+  static const double ownerBottomNavReservedHeight =
+      floatingBottomNavHeight +
+      floatingBottomNavOffset +
+      floatingBottomNavExtraSpacing;
   static const double floatingBottomNavReservedHeight =
       ownerBottomNavReservedHeight;
   static const double floatingBottomNavContentPadding =
-      ownerBottomNavReservedHeight;
+      floatingBottomNavReservedHeight;
   static const double iconSm = 18;
   static const double iconMd = 22;
   static const double iconLg = 28;

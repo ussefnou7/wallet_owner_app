@@ -43,9 +43,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final l10n = appL10n(context);
 
     if (session == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final workspaceName = session.tenantDisplayName.trim();
@@ -66,133 +64,161 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       embedded: true,
       maxWidth: AppDimensions.contentMaxWidth,
       child: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.only(
-            bottom:
-                MediaQuery.paddingOf(context).bottom +
-                kBottomNavigationBarHeight +
-                AppSpacing.xl,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppSectionHeader(
-                title: l10n.ownerSettings,
-                subtitle: l10n.ownerSettingsSubtitle,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AppSectionHeader(
+              title: l10n.ownerSettings,
+              subtitle: l10n.ownerSettingsSubtitle,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            SettingsProfileCard(
+              name: session.displayName,
+              roleLabel: _localizedRoleLabel(session, l10n),
+              tenantName: workspaceName.isEmpty ? null : workspaceName,
+              workspaceLabel: l10n.workspace,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            SettingsSectionCard(
+              title: l10n.subscriptionAndPlans,
+              subtitle: l10n.subscriptionAndPlansSubtitle,
+              child: Column(
+                children: [
+                  SettingsActionTile(
+                    key: const Key('browse_plans_tile'),
+                    title: l10n.browsePlans,
+                    subtitle: l10n.browsePlansSubtitle,
+                    leading: const Icon(Icons.workspace_premium_outlined),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => context.push(AppRoutes.plans),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  SettingsActionTile(
+                    key: const Key('request_renewal_tile'),
+                    title: l10n.requestRenewal,
+                    subtitle: l10n.requestRenewalSubtitle,
+                    leading: const Icon(Icons.autorenew_rounded),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => context.push(AppRoutes.requestRenewal),
+                  ),
+                ],
               ),
-              const SizedBox(height: AppSpacing.md),
-              SettingsProfileCard(
-                name: session.displayName,
-                roleLabel: _localizedRoleLabel(session, l10n),
-                tenantName: workspaceName.isEmpty ? null : workspaceName,
-                workspaceLabel: l10n.workspace,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              SettingsSectionCard(
-                title: l10n.subscriptionAndPlans,
-                subtitle: l10n.subscriptionAndPlansSubtitle,
-                child: Column(
-                  children: [
-                    SettingsActionTile(
-                      title: l10n.browsePlans,
-                      subtitle: l10n.browsePlansSubtitle,
-                      leading: const Icon(Icons.workspace_premium_outlined),
-                      trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: () => context.go(AppRoutes.plans),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    SettingsActionTile(
-                      title: l10n.requestRenewal,
-                      subtitle: l10n.requestRenewalSubtitle,
-                      leading: const Icon(Icons.autorenew_rounded),
-                      trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: () => context.go(AppRoutes.requestRenewal),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              SettingsSectionCard(
-                title: l10n.preferences,
-                subtitle: l10n.preferencesSubtitle,
-                child: Column(
-                  children: [
-                    SettingsActionTile(
-                      title: l10n.notifications,
-                      subtitle: _notificationsEnabled
-                          ? l10n.notificationsEnabledSubtitle
-                          : l10n.notificationsDisabledSubtitle,
-                      leading: const Icon(Icons.notifications_outlined),
-                      trailing: Switch.adaptive(
-                        value: _notificationsEnabled,
-                        onChanged: (value) {
-                          setState(() => _notificationsEnabled = value);
-                        },
-                      ),
-                      onTap: () {
-                        setState(
-                          () => _notificationsEnabled = !_notificationsEnabled,
-                        );
+            ),
+            const SizedBox(height: AppSpacing.md),
+            SettingsSectionCard(
+              title: l10n.preferences,
+              subtitle: l10n.preferencesSubtitle,
+              child: Column(
+                children: [
+                  SettingsActionTile(
+                    title: l10n.notifications,
+                    subtitle: _notificationsEnabled
+                        ? l10n.notificationsEnabledSubtitle
+                        : l10n.notificationsDisabledSubtitle,
+                    leading: const Icon(Icons.notifications_outlined),
+                    trailing: Switch.adaptive(
+                      value: _notificationsEnabled,
+                      onChanged: (value) {
+                        setState(() => _notificationsEnabled = value);
                       },
                     ),
-                    const SizedBox(height: AppSpacing.sm),
-                    SettingsActionTile(
-                      title: l10n.theme,
-                      subtitle: l10n.systemDefault,
-                      leading: const Icon(Icons.palette_outlined),
-                      trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: () => _showPlaceholderMessage(
-                        context,
-                        l10n.themeComingSoon,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    SettingsActionTile(
-                      title: l10n.language,
-                      subtitle: '${l10n.english} / العربية',
-                      leading: const Icon(Icons.language_rounded),
-                      trailing: const LanguageSwitcher(),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    SettingsActionTile(
-                      title: l10n.appVersion,
-                      subtitle: '1.0.0+1',
-                      leading: const Icon(Icons.info_outline_rounded),
-                    ),
-                  ],
-                ),
+                    onTap: () {
+                      setState(
+                        () => _notificationsEnabled = !_notificationsEnabled,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  SettingsActionTile(
+                    title: l10n.theme,
+                    subtitle: l10n.systemDefault,
+                    leading: const Icon(Icons.palette_outlined),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () =>
+                        _showPlaceholderMessage(context, l10n.themeComingSoon),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  SettingsActionTile(
+                    title: l10n.language,
+                    subtitle: '${l10n.english} / العربية',
+                    leading: const Icon(Icons.language_rounded),
+                    trailing: const LanguageSwitcher(),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  SettingsActionTile(
+                    title: l10n.appVersion,
+                    subtitle: '1.0.0+1',
+                    leading: const Icon(Icons.info_outline_rounded),
+                  ),
+                ],
               ),
-              const SizedBox(height: AppSpacing.md),
-              SettingsSectionCard(
-                title: l10n.security,
-                subtitle: l10n.securitySubtitle,
-                child: Column(
-                  children: [
-                    SettingsActionTile(
-                      title: l10n.changePassword,
-                      subtitle: l10n.changePasswordSubtitle,
-                      leading: const Icon(Icons.lock_outline_rounded),
-                      trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: () => _showChangePasswordSheet(context),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    SettingsActionTile(
-                      key: const Key('logout_button'),
-                      title: l10n.logout,
-                      subtitle: l10n.logoutSubtitle,
-                      leading: const Icon(Icons.logout_rounded),
-                      trailing: const Icon(
-                        Icons.chevron_right_rounded,
-                        color: AppColors.danger,
-                      ),
-                      foregroundColor: AppColors.danger,
-                      onTap: _signOut,
-                    ),
-                  ],
-                ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            SettingsSectionCard(
+              title: l10n.legalInformation,
+              subtitle: l10n.legalInformationSubtitle,
+              child: Column(
+                children: [
+                  SettingsActionTile(
+                    key: const Key('about_page_tile'),
+                    title: l10n.aboutTa2feela,
+                    subtitle: l10n.aboutTa2feelaSubtitle,
+                    leading: const Icon(Icons.info_outline_rounded),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => context.push(AppRoutes.about),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  SettingsActionTile(
+                    key: const Key('privacy_policy_page_tile'),
+                    title: l10n.privacyPolicy,
+                    subtitle: l10n.privacyPolicySubtitle,
+                    leading: const Icon(Icons.privacy_tip_outlined),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => context.push(AppRoutes.privacyPolicy),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  SettingsActionTile(
+                    key: const Key('terms_and_conditions_page_tile'),
+                    title: l10n.termsAndConditions,
+                    subtitle: l10n.termsAndConditionsSubtitle,
+                    leading: const Icon(Icons.gavel_rounded),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => context.push(AppRoutes.termsAndConditions),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            SettingsSectionCard(
+              title: l10n.security,
+              subtitle: l10n.securitySubtitle,
+              child: Column(
+                children: [
+                  SettingsActionTile(
+                    key: const Key('change_password_tile'),
+                    title: l10n.changePassword,
+                    subtitle: l10n.changePasswordSubtitle,
+                    leading: const Icon(Icons.lock_outline_rounded),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => _showChangePasswordSheet(context),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  SettingsActionTile(
+                    key: const Key('logout_button'),
+                    title: l10n.logout,
+                    subtitle: l10n.logoutSubtitle,
+                    leading: const Icon(Icons.logout_rounded),
+                    trailing: const Icon(
+                      Icons.chevron_right_rounded,
+                      color: AppColors.danger,
+                    ),
+                    foregroundColor: AppColors.danger,
+                    onTap: _signOut,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -222,16 +248,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             bottom: MediaQuery.viewInsetsOf(sheetContext).bottom,
           ),
           child: _ChangePasswordSheet(
-            onSubmit: ({
-              required currentPassword,
-              required newPassword,
-              required confirmPassword,
-            }) {
+            onSubmit: ({required currentPassword, required newPassword}) {
               return ref.read(authRepositoryProvider).changePassword(
-                    currentPassword: currentPassword,
-                    newPassword: newPassword,
-                    confirmPassword: confirmPassword,
-                  );
+                currentPassword: currentPassword,
+                newPassword: newPassword,
+              );
             },
           ),
         );
@@ -270,8 +291,8 @@ class _ChangePasswordSheet extends StatefulWidget {
   final Future<void> Function({
     required String currentPassword,
     required String newPassword,
-    required String confirmPassword,
-  }) onSubmit;
+  })
+  onSubmit;
 
   @override
   State<_ChangePasswordSheet> createState() => _ChangePasswordSheetState();
@@ -319,14 +340,36 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                l10n.changePassword,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                l10n.changePasswordSheetSubtitle,
-                style: Theme.of(context).textTheme.bodyMedium,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  IconButton(
+                    icon: const BackButtonIcon(),
+                    tooltip: MaterialLocalizations.of(
+                      context,
+                    ).backButtonTooltip,
+                    onPressed: _isSubmitting
+                        ? null
+                        : () => Navigator.of(context).pop(),
+                  ),
+                  const SizedBox(width: AppSpacing.xs),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.changePassword,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          l10n.changePasswordSheetSubtitle,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: AppSpacing.md),
               TextFormField(
@@ -420,24 +463,21 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
       await widget.onSubmit(
         currentPassword: _currentPasswordController.text.trim(),
         newPassword: _newPasswordController.text.trim(),
-        confirmPassword: _confirmPasswordController.text.trim(),
       );
       if (!mounted) {
         return;
       }
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.passwordChangedSuccessfully)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.passwordChangedSuccessfully)));
     } catch (error) {
       if (!mounted) {
         return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            ErrorMessageMapper.getLocalizedMessage(context, error),
-          ),
+          content: Text(ErrorMessageMapper.getLocalizedMessage(context, error)),
         ),
       );
     } finally {

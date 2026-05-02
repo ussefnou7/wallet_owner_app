@@ -1,11 +1,11 @@
 {
-    "name": "wallet_owner_app",
-    "short_name": "wallet_owner_app",
+    "name": "Ta2feela",
+    "short_name": "Ta2feela",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Ta2feela mobile app.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

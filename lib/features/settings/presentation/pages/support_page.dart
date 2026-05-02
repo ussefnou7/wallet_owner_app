@@ -16,6 +16,7 @@ import '../../../../core/widgets/app_loading_view.dart';
 import '../../../../core/widgets/app_page_scaffold.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_status_badge.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../domain/entities/support_ticket_item.dart';
 import '../controllers/support_tickets_controller.dart';
 
@@ -26,6 +27,10 @@ class SupportPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = appL10n(context);
     final ticketsState = ref.watch(supportTicketsControllerProvider);
+    final session = ref.watch(authControllerProvider).session;
+    final createSupportRoute = session?.isUser == true
+        ? AppRoutes.userCreateSupport
+        : AppRoutes.ownerCreateSupport;
 
     return AppPageScaffold(
       title: l10n.supportTickets,
@@ -54,14 +59,13 @@ class SupportPage extends ConsumerWidget {
                     buttonKey: const Key('support_new_ticket_button'),
                     label: l10n.newTicket,
                     icon: const Icon(Icons.add_rounded),
-                    onPressed: () => context.push(AppRoutes.ownerCreateSupport),
+                    onPressed: () => context.push(createSupportRoute),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 if (tickets.isEmpty)
                   _SupportTicketsEmptyState(
-                    onCreatePressed: () =>
-                        context.push(AppRoutes.ownerCreateSupport),
+                    onCreatePressed: () => context.push(createSupportRoute),
                   )
                 else
                   Column(
@@ -91,7 +95,6 @@ class _SupportTicketsErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = appL10n(context);
-    final locale = Localizations.localeOf(context).languageCode;
 
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.md),

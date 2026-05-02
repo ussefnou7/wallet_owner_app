@@ -1,4 +1,4 @@
-package com.example.wallet_owner_app
+package com.ta2feela.app
 
 import io.flutter.embedding.android.FlutterActivity
 

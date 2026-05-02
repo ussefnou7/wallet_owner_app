@@ -63,7 +63,6 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
     final appliedFilters = ref.watch(reportsAppliedFiltersProvider);
     final walletsState = ref.watch(walletsControllerProvider);
     final l10n = appL10n(context);
-    final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return AppPageScaffold(
       title: l10n.reports,
@@ -81,10 +80,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
       embedded: true,
       maxWidth: AppDimensions.contentMaxWidth,
       child: ListView(
-        padding: EdgeInsets.only(
-          top: AppSpacing.md,
-          bottom: bottomInset + AppDimensions.floatingBottomNavContentPadding,
-        ),
+        padding: const EdgeInsets.only(top: AppSpacing.md),
         children: [
           AppSectionHeader(
             title: l10n.reports,

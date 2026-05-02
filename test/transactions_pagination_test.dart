@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wallet_owner_app/core/errors/app_exception.dart';
-import 'package:wallet_owner_app/core/localization/locale_controller.dart';
-import 'package:wallet_owner_app/core/network/models/paged_response.dart';
-import 'package:wallet_owner_app/features/transactions/data/models/transaction_record_model.dart';
-import 'package:wallet_owner_app/features/transactions/domain/entities/transaction_draft.dart';
-import 'package:wallet_owner_app/features/transactions/domain/entities/transaction_record.dart';
-import 'package:wallet_owner_app/features/transactions/domain/entities/transaction_submission_result.dart';
-import 'package:wallet_owner_app/features/transactions/domain/repositories/transactions_repository.dart';
-import 'package:wallet_owner_app/features/transactions/presentation/controllers/transactions_controller.dart';
-import 'package:wallet_owner_app/features/transactions/presentation/pages/transactions_page.dart';
-import 'package:wallet_owner_app/l10n/generated/app_localizations.dart';
+import 'package:ta2feela_app/core/errors/app_exception.dart';
+import 'package:ta2feela_app/core/localization/locale_controller.dart';
+import 'package:ta2feela_app/core/network/models/paged_response.dart';
+import 'package:ta2feela_app/features/transactions/data/models/transaction_record_model.dart';
+import 'package:ta2feela_app/features/transactions/domain/entities/transaction_draft.dart';
+import 'package:ta2feela_app/features/transactions/domain/entities/transaction_record.dart';
+import 'package:ta2feela_app/features/transactions/domain/entities/transaction_submission_result.dart';
+import 'package:ta2feela_app/features/transactions/domain/repositories/transactions_repository.dart';
+import 'package:ta2feela_app/features/transactions/presentation/controllers/transactions_controller.dart';
+import 'package:ta2feela_app/features/transactions/presentation/pages/transactions_page.dart';
+import 'package:ta2feela_app/l10n/generated/app_localizations.dart';
 
 void main() {
   test('parses paginated transaction response and cash boolean', () {

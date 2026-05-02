@@ -5,6 +5,8 @@ import '../../../../core/network/api_exception_mapper.dart';
 import '../../../../core/network/api_response_extractor.dart';
 import '../../../../core/network/api_result.dart';
 import '../../../../core/network/network_constants.dart';
+import '../models/forgot_password_request_model.dart';
+import '../models/forgot_password_response_model.dart';
 import '../models/login_request_model.dart';
 import '../models/login_response_model.dart';
 
@@ -20,10 +22,13 @@ final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
 abstract interface class AuthRemoteDataSource {
   Future<ApiResult<LoginResponseModel>> login(LoginRequestModel request);
 
+  Future<ApiResult<ForgotPasswordResponseModel>> forgotPassword(
+    ForgotPasswordRequestModel request,
+  );
+
   Future<ApiResult<void>> changePassword({
     required String currentPassword,
     required String newPassword,
-    required String confirmPassword,
   });
 }
 
@@ -53,19 +58,31 @@ class DioAuthRemoteDataSource implements AuthRemoteDataSource {
   }
 
   @override
+  Future<ApiResult<ForgotPasswordResponseModel>> forgotPassword(
+    ForgotPasswordRequestModel request,
+  ) async {
+    try {
+      final response = await _apiClient.post<Map<String, dynamic>>(
+        NetworkConstants.authForgotPasswordPath,
+        data: request.toJson(),
+      );
+
+      ApiResponseExtractor.validateNotEmpty(response.data);
+      return ApiSuccess(ForgotPasswordResponseModel.fromJson(response.data!));
+    } catch (error) {
+      return ApiError(_exceptionMapper.map(error));
+    }
+  }
+
+  @override
   Future<ApiResult<void>> changePassword({
     required String currentPassword,
     required String newPassword,
-    required String confirmPassword,
   }) async {
     try {
       await _apiClient.patch<void>(
         NetworkConstants.mePasswordPath,
-        data: {
-          'currentPassword': currentPassword,
-          'newPassword': newPassword,
-          'confirmPassword': confirmPassword,
-        },
+        data: {'oldPassword': currentPassword, 'newPassword': newPassword},
       );
       return const ApiSuccess(null);
     } catch (error) {

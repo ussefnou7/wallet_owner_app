@@ -16,12 +16,17 @@ abstract final class AppRoutes {
   static const ownerSupport = '/owner/support';
   static const ownerCreateSupport = '/owner/support/new';
   static const ownerSettings = '/owner/settings';
+  static const ownerAbout = '/owner/settings/about';
+  static const ownerPrivacyPolicy = '/owner/settings/privacy-policy';
+  static const ownerTermsAndConditions = '/owner/settings/terms-and-conditions';
   static const ownerNotifications = '/owner/notifications';
 
   static const userDashboard = '/user/dashboard';
   static const userWallets = '/user/wallets';
   static const userTransactions = '/user/transactions';
   static const userCreateTransaction = '/user/transactions/create';
+  static const userSupport = '/user/support';
+  static const userCreateSupport = '/user/support/new';
 
   static const dashboard = ownerDashboard;
   static const wallets = ownerWallets;
@@ -36,5 +41,8 @@ abstract final class AppRoutes {
   static const support = ownerSupport;
   static const createSupport = ownerCreateSupport;
   static const settings = ownerSettings;
+  static const about = ownerAbout;
+  static const privacyPolicy = ownerPrivacyPolicy;
+  static const termsAndConditions = ownerTermsAndConditions;
   static const notificationsCenter = ownerNotifications;
 }

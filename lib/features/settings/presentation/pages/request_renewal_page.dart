@@ -7,14 +7,15 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/formatters/app_date_formatter.dart';
+import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_buttons.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading_view.dart';
 import '../../../../core/widgets/app_page_scaffold.dart';
+import '../../../../core/widgets/app_route_back_button.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_status_badge.dart';
 import '../../domain/entities/renewal_request_item.dart';
@@ -32,54 +33,68 @@ class RequestRenewalPage extends ConsumerWidget {
       title: l10n.renewalRequests,
       embedded: true,
       maxWidth: AppDimensions.contentMaxWidth,
-      child: requestsState.when(
-        loading: () => AppLoadingView(message: '${l10n.loading}...'),
-        error: (error, stackTrace) => _RenewalRequestsErrorState(
-          onRetry: () =>
-              ref.read(renewalRequestsControllerProvider.notifier).reload(),
-        ),
-        data: (requests) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppSectionHeader(
-                  title: l10n.renewalRequests,
-                  subtitle: l10n.renewalRequestSubtitle,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                SizedBox(
-                  width: double.infinity,
-                  child: AppPrimaryButton(
-                    buttonKey: const Key('renewal_new_request_button'),
-                    label: l10n.newRequest,
-                    icon: const Icon(Icons.add_rounded),
-                    onPressed: () =>
-                        context.push(AppRoutes.ownerCreateRenewalRequest),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                if (requests.isEmpty)
-                  _RenewalRequestsEmptyState(
-                    onCreatePressed: () =>
-                        context.push(AppRoutes.ownerCreateRenewalRequest),
-                  )
-                else
-                  Column(
-                    key: const Key('renewal_request_card'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const AppRouteBackButton(fallbackRoute: AppRoutes.settings),
+          const SizedBox(height: AppSpacing.sm),
+          Expanded(
+            child: requestsState.when(
+              loading: () => AppLoadingView(message: '${l10n.loading}...'),
+              error: (error, stackTrace) => _RenewalRequestsErrorState(
+                onRetry: () => ref
+                    .read(renewalRequestsControllerProvider.notifier)
+                    .reload(),
+              ),
+              data: (requests) {
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      for (var index = 0; index < requests.length; index++) ...[
-                        _RenewalRequestCard(request: requests[index]),
-                        if (index != requests.length - 1)
-                          const SizedBox(height: AppSpacing.md),
-                      ],
+                      AppSectionHeader(
+                        title: l10n.renewalRequests,
+                        subtitle: l10n.renewalRequestSubtitle,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      SizedBox(
+                        width: double.infinity,
+                        child: AppPrimaryButton(
+                          buttonKey: const Key('renewal_new_request_button'),
+                          label: l10n.newRequest,
+                          icon: const Icon(Icons.add_rounded),
+                          onPressed: () =>
+                              context.push(AppRoutes.ownerCreateRenewalRequest),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      if (requests.isEmpty)
+                        _RenewalRequestsEmptyState(
+                          onCreatePressed: () =>
+                              context.push(AppRoutes.ownerCreateRenewalRequest),
+                        )
+                      else
+                        Column(
+                          key: const Key('renewal_request_card'),
+                          children: [
+                            for (
+                              var index = 0;
+                              index < requests.length;
+                              index++
+                            ) ...[
+                              _RenewalRequestCard(request: requests[index]),
+                              if (index != requests.length - 1)
+                                const SizedBox(height: AppSpacing.md),
+                            ],
+                          ],
+                        ),
                     ],
                   ),
-              ],
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
@@ -93,7 +108,6 @@ class _RenewalRequestsErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = appL10n(context);
-    final locale = Localizations.localeOf(context).languageCode;
 
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -123,7 +137,6 @@ class _RenewalRequestsEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = appL10n(context);
-    final locale = Localizations.localeOf(context).languageCode;
 
     return Column(
       children: [

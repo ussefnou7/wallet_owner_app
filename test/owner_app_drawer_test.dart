@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:wallet_owner_app/app/router/app_routes.dart';
-import 'package:wallet_owner_app/core/widgets/owner_app_drawer.dart';
-import 'package:wallet_owner_app/features/auth/domain/entities/session.dart';
-import 'package:wallet_owner_app/features/auth/domain/repositories/auth_repository.dart';
-import 'package:wallet_owner_app/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:ta2feela_app/app/router/app_routes.dart';
+import 'package:ta2feela_app/core/providers/app_version_provider.dart';
+import 'package:ta2feela_app/core/widgets/owner_app_drawer.dart';
+import 'package:ta2feela_app/features/auth/domain/entities/session.dart';
+import 'package:ta2feela_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:ta2feela_app/features/auth/presentation/controllers/auth_controller.dart';
 
 void main() {
   testWidgets('renders owner identity from current session', (tester) async {
@@ -28,6 +29,7 @@ void main() {
               ),
             ),
           ),
+          appVersionProvider.overrideWith((ref) async => '9.8.7'),
         ],
         child: const MaterialApp(
           home: Scaffold(
@@ -42,6 +44,7 @@ void main() {
     expect(find.text('Owner User'), findsOneWidget);
     expect(find.text('@owner@example.com'), findsOneWidget);
     expect(find.text('OWNER'), findsOneWidget);
+    expect(find.text('Version 9.8.7'), findsOneWidget);
   });
 }
 
@@ -55,10 +58,14 @@ class _FakeAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<String?> forgotPassword({required String username}) async {
+    return null;
+  }
+
+  @override
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,
-    required String confirmPassword,
   }) async {}
 
   @override

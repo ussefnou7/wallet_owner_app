@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wallet_owner_app/features/settings/domain/entities/renewal_request.dart';
-import 'package:wallet_owner_app/features/settings/domain/entities/renewal_request_item.dart';
-import 'package:wallet_owner_app/features/settings/domain/entities/renewal_request_payload.dart';
-import 'package:wallet_owner_app/features/settings/domain/entities/renewal_request_result.dart';
-import 'package:wallet_owner_app/features/settings/domain/repositories/renewal_requests_repository.dart';
-import 'package:wallet_owner_app/features/settings/presentation/pages/create_renewal_request_page.dart';
-import 'package:wallet_owner_app/features/settings/presentation/pages/request_renewal_page.dart';
+import 'package:ta2feela_app/features/settings/domain/entities/renewal_request.dart';
+import 'package:ta2feela_app/features/settings/domain/entities/renewal_request_item.dart';
+import 'package:ta2feela_app/features/settings/domain/entities/renewal_request_payload.dart';
+import 'package:ta2feela_app/features/settings/domain/entities/renewal_request_result.dart';
+import 'package:ta2feela_app/features/settings/domain/repositories/renewal_requests_repository.dart';
+import 'package:ta2feela_app/features/settings/presentation/pages/create_renewal_request_page.dart';
+import 'package:ta2feela_app/features/settings/presentation/pages/request_renewal_page.dart';
 
 void main() {
   testWidgets('list page shows empty state and new request button', (

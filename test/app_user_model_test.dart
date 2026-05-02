@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wallet_owner_app/features/users/data/models/app_user_model.dart';
+import 'package:ta2feela_app/features/users/data/models/app_user_model.dart';
 
 void main() {
   test('maps active flag from backend active field', () {

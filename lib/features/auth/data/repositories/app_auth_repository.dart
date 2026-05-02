@@ -1,5 +1,6 @@
 import '../../domain/entities/session.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../models/forgot_password_request_model.dart';
 import '../models/login_request_model.dart';
 import '../services/auth_remote_data_source.dart';
 import '../services/session_local_data_source.dart';
@@ -38,15 +39,24 @@ class AppAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<String?> forgotPassword({required String username}) async {
+    final request = ForgotPasswordRequestModel(username: username);
+    final result = await _remoteDataSource.forgotPassword(request);
+
+    return result.when(
+      success: (response) async => response.responseMessage,
+      failure: (failure) => throw failure,
+    );
+  }
+
+  @override
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,
-    required String confirmPassword,
   }) async {
     final result = await _remoteDataSource.changePassword(
       currentPassword: currentPassword,
       newPassword: newPassword,
-      confirmPassword: confirmPassword,
     );
 
     return result.when(

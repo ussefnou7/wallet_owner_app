@@ -14,6 +14,9 @@ class MockWalletsRepository implements WalletsRepository {
       branchName: 'Head Office',
       walletProfit: 8400,
       cashProfit: 2150,
+      collectedAt: DateTime(2026, 4, 28, 14, 30),
+      collectedByName: 'Ussef',
+      lastProfitCollectionAt: DateTime(2026, 4, 28, 14, 30),
     ),
     const WalletModel(
       id: 'wallet-2',
@@ -25,6 +28,8 @@ class MockWalletsRepository implements WalletsRepository {
       branchName: 'Nasr City',
       walletProfit: 1700,
       cashProfit: 650,
+      collectedAt: DateTime(2026, 5, 1, 10, 15),
+      lastProfitCollectionAt: DateTime(2026, 5, 1, 10, 15),
     ),
     const WalletModel(
       id: 'wallet-3',
@@ -48,6 +53,9 @@ class MockWalletsRepository implements WalletsRepository {
       branchName: 'Maadi',
       walletProfit: 4900,
       cashProfit: 1200,
+      collectedAt: DateTime(2026, 4, 18, 18, 45),
+      collectedByName: 'Aya Hassan',
+      lastProfitCollectionAt: DateTime(2026, 4, 18, 18, 45),
     ),
   ];
 
@@ -111,6 +119,9 @@ class MockWalletsRepository implements WalletsRepository {
       status: active ? WalletStatus.active : WalletStatus.inactive,
       transactionCount: wallet.transactionCount,
       branchName: wallet.branchName,
+      collectedAt: wallet.collectedAt,
+      collectedByName: wallet.collectedByName,
+      lastProfitCollectionAt: wallet.lastProfitCollectionAt,
       walletProfit: wallet.walletProfit,
       cashProfit: wallet.cashProfit,
       dailySpent: wallet.dailySpent,
@@ -158,6 +169,9 @@ class MockWalletsRepository implements WalletsRepository {
       monthlySpent: wallet.monthlySpent,
       dailyPercent: wallet.dailyPercent,
       monthlyPercent: wallet.monthlyPercent,
+      collectedAt: DateTime.now(),
+      collectedByName: 'Current User',
+      lastProfitCollectionAt: DateTime.now(),
     );
     _wallets[index] = updated;
     return updated;

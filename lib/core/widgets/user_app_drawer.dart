@@ -15,9 +15,12 @@ import '../constants/app_dimensions.dart';
 import '../constants/app_radii.dart';
 import '../constants/app_spacing.dart';
 import '../localization/app_l10n.dart';
+import 'app_drawer_version_label.dart';
 
 class UserAppDrawer extends ConsumerWidget {
-  const UserAppDrawer({super.key});
+  const UserAppDrawer({required this.currentRoute, super.key});
+
+  final String currentRoute;
 
   void _invalidateCachedProviders(WidgetRef ref) {
     ref.invalidate(walletsControllerProvider);
@@ -39,6 +42,14 @@ class UserAppDrawer extends ConsumerWidget {
     final displayName = session?.displayName ?? 'User';
     final username = session?.username ?? 'user';
     final roleLabel = session?.roleLabel ?? 'USER';
+    final items = [
+      _UserDrawerItemData(
+        label: l10n.support,
+        route: AppRoutes.userSupport,
+        icon: Icons.support_agent_rounded,
+        key: const Key('user_support_nav_item'),
+      ),
+    ];
 
     return Drawer(
       child: SafeArea(
@@ -101,7 +112,19 @@ class UserAppDrawer extends ConsumerWidget {
                 ],
               ),
             ),
-            const Spacer(),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                children: [
+                  for (final item in items)
+                    _UserDrawerTile(
+                      data: item,
+                      selected: currentRoute == item.route,
+                    ),
+                ],
+              ),
+            ),
+            const AppDrawerVersionLabel(),
             const Divider(height: 1),
             Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
@@ -138,4 +161,55 @@ class UserAppDrawer extends ConsumerWidget {
       ),
     );
   }
+}
+
+class _UserDrawerTile extends StatelessWidget {
+  const _UserDrawerTile({required this.data, required this.selected});
+
+  final _UserDrawerItemData data;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+      child: ListTile(
+        key: data.key,
+        selected: selected,
+        selectedTileColor: AppColors.primarySoft,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.md),
+        ),
+        leading: Icon(
+          data.icon,
+          color: selected ? AppColors.primary : AppColors.textSecondary,
+        ),
+        title: Text(
+          data.label,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            color: selected ? AppColors.primary : AppColors.textPrimary,
+          ),
+        ),
+        trailing: const Icon(Icons.chevron_right_rounded, size: 18),
+        onTap: () {
+          Navigator.of(context).pop();
+          context.go(data.route);
+        },
+      ),
+    );
+  }
+}
+
+class _UserDrawerItemData {
+  const _UserDrawerItemData({
+    required this.label,
+    required this.route,
+    required this.icon,
+    this.key,
+  });
+
+  final String label;
+  final String route;
+  final IconData icon;
+  final Key? key;
 }

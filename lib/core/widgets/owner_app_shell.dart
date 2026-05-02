@@ -86,6 +86,7 @@ class _OwnerAppShellState extends ConsumerState<OwnerAppShell>
       navVariant: AppBottomNavVariant.owner,
       endDrawer: OwnerAppDrawer(currentRoute: widget.currentRoute),
       onDestinationSelected: context.go,
+      onBackPressed: _backActionForRoute(context, widget.currentRoute),
       maxWidth: contentMaxWidth,
       showNotifications: true,
       child: widget.child,
@@ -108,6 +109,20 @@ class _OwnerAppShellState extends ConsumerState<OwnerAppShell>
     _unreadCountTimer = null;
   }
 
+  VoidCallback? _backActionForRoute(BuildContext context, String route) {
+    final canPop = context.canPop();
+
+    if (_settingsDetailRoutes.contains(route)) {
+      return canPop ? context.pop : () => context.go(AppRoutes.settings);
+    }
+
+    if (canPop) {
+      return context.pop;
+    }
+
+    return null;
+  }
+
   static String _titleForRoute(BuildContext context, String route) {
     final l10n = appL10n(context);
     if (route == AppRoutes.ownerCreateRenewalRequest) {
@@ -118,6 +133,12 @@ class _OwnerAppShellState extends ConsumerState<OwnerAppShell>
     }
 
     switch (route) {
+      case AppRoutes.ownerAbout:
+        return l10n.aboutTa2feela;
+      case AppRoutes.ownerPrivacyPolicy:
+        return l10n.privacyPolicy;
+      case AppRoutes.ownerTermsAndConditions:
+        return l10n.termsAndConditions;
       case AppRoutes.ownerWallets:
         return l10n.wallets;
       case AppRoutes.ownerTransactions:
@@ -146,3 +167,11 @@ class _OwnerAppShellState extends ConsumerState<OwnerAppShell>
     }
   }
 }
+
+const _settingsDetailRoutes = {
+  AppRoutes.ownerAbout,
+  AppRoutes.ownerPrivacyPolicy,
+  AppRoutes.ownerTermsAndConditions,
+  AppRoutes.ownerPlans,
+  AppRoutes.ownerRequestRenewal,
+};
