@@ -49,4 +49,8 @@ class RenewalController extends StateNotifier<RenewalState> {
       return false;
     }
   }
+
+  void clearState() {
+    state = const RenewalState();
+  }
 }

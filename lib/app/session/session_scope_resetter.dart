@@ -1,10 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/branches/presentation/controllers/branches_controller.dart';
+import '../../features/dashboard/presentation/controllers/user_dashboard_controller.dart';
+import '../../features/dashboard/presentation/controllers/user_dashboard_recent_transactions_controller.dart';
 import '../../features/dashboard/presentation/providers/dashboard_provider.dart';
 import '../../features/notifications/presentation/providers/notifications_provider.dart';
 import '../../features/plans/presentation/controllers/plans_controller.dart';
-import '../../features/reports/presentation/controllers/reports_controller.dart';
 import '../../features/settings/presentation/controllers/renewal_controller.dart';
 import '../../features/settings/presentation/controllers/renewal_requests_controller.dart';
 import '../../features/settings/presentation/controllers/request_renewal_controller.dart';
@@ -15,41 +16,49 @@ import '../../features/transactions/presentation/controllers/transactions_contro
 import '../../features/users/presentation/controllers/users_controller.dart';
 import '../../features/wallets/presentation/controllers/wallets_controller.dart';
 
-void resetSessionScopedProviders(ProviderContainer container) {
-  container.invalidate(walletsSearchQueryProvider);
-  container.invalidate(walletTypesProvider);
-  container.invalidate(walletsControllerProvider);
-  container.invalidate(walletDetailsProvider);
+abstract final class SessionScopedCacheInvalidator {
+  static void invalidateContainer(ProviderContainer container) {
+    _invalidate(container.invalidate);
+  }
 
-  container.invalidate(transactionsSearchQueryProvider);
-  container.invalidate(transactionsFilterProvider);
-  container.invalidate(transactionsControllerProvider);
-  container.invalidate(transactionDetailsProvider);
-  container.invalidate(createTransactionControllerProvider);
+  static void invalidateRef(Ref ref) {
+    _invalidate(ref.invalidate);
+  }
 
-  container.invalidate(branchesSearchQueryProvider);
-  container.invalidate(branchesStatusFilterProvider);
-  container.invalidate(branchesControllerProvider);
+  static void _invalidate(void Function(ProviderOrFamily provider) invalidate) {
+    invalidate(walletsSearchQueryProvider);
+    invalidate(walletSortOptionProvider);
+    invalidate(walletTypesProvider);
+    invalidate(walletsControllerProvider);
+    invalidate(walletDetailsProvider);
 
-  container.invalidate(usersSearchQueryProvider);
-  container.invalidate(usersRoleFilterProvider);
-  container.invalidate(usersControllerProvider);
+    invalidate(transactionsSearchQueryProvider);
+    invalidate(transactionsControllerProvider);
+    invalidate(transactionDetailsProvider);
+    invalidate(createTransactionControllerProvider);
 
-  container.invalidate(dashboardOverviewProvider);
-  container.invalidate(userDashboardOverviewProvider);
-  container.invalidate(dashboardTransactionSummaryProvider);
-  container.invalidate(dashboardRecentTransactionsProvider);
+    invalidate(branchesSearchQueryProvider);
+    invalidate(branchesStatusFilterProvider);
+    invalidate(branchesControllerProvider);
 
-  container.invalidate(reportsSelectedTypeProvider);
-  container.invalidate(reportsAppliedFiltersProvider);
-  container.invalidate(reportsControllerProvider);
+    invalidate(usersSearchQueryProvider);
+    invalidate(usersRoleFilterProvider);
+    invalidate(usersControllerProvider);
 
-  container.invalidate(plansControllerProvider);
-  container.invalidate(notificationsProvider);
+    invalidate(dashboardOverviewProvider);
+    invalidate(userDashboardOverviewProvider);
+    invalidate(userDashboardControllerProvider);
+    invalidate(userDashboardRecentTransactionsControllerProvider);
+    invalidate(dashboardTransactionSummaryProvider);
+    invalidate(dashboardRecentTransactionsProvider);
 
-  container.invalidate(renewalRequestsControllerProvider);
-  container.invalidate(renewalControllerProvider);
-  container.invalidate(requestRenewalControllerProvider);
-  container.invalidate(supportTicketsControllerProvider);
-  container.invalidate(supportControllerProvider);
+    invalidate(plansControllerProvider);
+    invalidate(notificationsProvider);
+
+    invalidate(renewalRequestsControllerProvider);
+    invalidate(renewalControllerProvider);
+    invalidate(requestRenewalControllerProvider);
+    invalidate(supportTicketsControllerProvider);
+    invalidate(supportControllerProvider);
+  }
 }

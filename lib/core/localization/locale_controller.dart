@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'app_locale.dart';
 import 'locale_storage.dart';
 
 final localeControllerProvider =
@@ -17,7 +18,7 @@ final localeControllerProvider =
 
 class LocaleController extends StateNotifier<Locale> {
   LocaleController(this._storage)
-    : super(_storage?.readLocale() ?? const Locale('ar'));
+    : super(_storage?.readLocale() ?? arabicEgyptAppLocale);
 
   final LocaleStorage? _storage;
 
@@ -26,15 +27,17 @@ class LocaleController extends StateNotifier<Locale> {
       return;
     }
 
-    state = Locale(locale.languageCode);
+    state = normalizeAppLocale(locale);
     await _storage?.saveLocale(state);
   }
 
   Future<void> toggleLocale() {
-    return setLocale(Locale(state.languageCode == 'ar' ? 'en' : 'ar'));
+    return setLocale(
+      state.languageCode == 'ar' ? englishAppLocale : arabicEgyptAppLocale,
+    );
   }
 
   bool _isSupported(Locale locale) {
-    return locale.languageCode == 'en' || locale.languageCode == 'ar';
+    return isSupportedAppLocale(locale);
   }
 }

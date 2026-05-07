@@ -14,6 +14,11 @@ class LoginResponseModel {
     required this.displayName,
     this.tenantName,
     this.tokenExpiresAt,
+    this.subscriptionStatus,
+    this.subscriptionExpireDate,
+    this.planName,
+    this.planId,
+    this.renewalRequestStatus,
   });
 
   final String accessToken;
@@ -26,6 +31,11 @@ class LoginResponseModel {
   final String displayName;
   final String? tenantName;
   final DateTime? tokenExpiresAt;
+  final String? subscriptionStatus;
+  final DateTime? subscriptionExpireDate;
+  final String? planName;
+  final String? planId;
+  final String? renewalRequestStatus;
 
   factory LoginResponseModel.fromJson(Map<String, dynamic> json) {
     final payload = _unwrapPayload(json);
@@ -83,6 +93,15 @@ class LoginResponseModel {
       userId: resolvedUserId,
       displayName: resolvedDisplayName,
       tokenExpiresAt: resolvedExpiry,
+      subscriptionStatus: _readString(payload, const ['subscriptionStatus']),
+      subscriptionExpireDate: _readDateTime(
+        payload['subscriptionExpireDate'] ?? payload['expireDate'],
+      ),
+      planName: _readString(payload, const ['planName']),
+      planId: _readString(payload, const ['planId']),
+      renewalRequestStatus: _readString(payload, const [
+        'renewalRequestStatus',
+      ]),
     );
   }
 
@@ -98,6 +117,11 @@ class LoginResponseModel {
       userId: userId,
       displayName: displayName,
       tokenExpiresAt: tokenExpiresAt,
+      subscriptionStatus: subscriptionStatus,
+      subscriptionExpireDate: subscriptionExpireDate,
+      planName: planName,
+      planId: planId,
+      renewalRequestStatus: renewalRequestStatus,
     );
   }
 
@@ -124,6 +148,14 @@ class LoginResponseModel {
         }
       }
     }
+    return null;
+  }
+
+  static DateTime? _readDateTime(Object? value) {
+    if (value is String && value.trim().isNotEmpty) {
+      return DateTime.tryParse(value);
+    }
+
     return null;
   }
 }

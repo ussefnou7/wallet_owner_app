@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../domain/entities/branch.dart';
 import '../../domain/repositories/branches_repository.dart';
 
@@ -50,6 +51,11 @@ final filteredBranchesProvider = Provider<List<Branch>>((ref) {
 class BranchesController extends AsyncNotifier<List<Branch>> {
   @override
   Future<List<Branch>> build() async {
+    final session = ref.watch(authenticatedSessionProvider);
+    if (session == null) {
+      return const [];
+    }
+
     final repository = ref.watch(branchesRepositoryProvider);
     return repository.getBranches();
   }
@@ -63,6 +69,11 @@ class BranchesController extends AsyncNotifier<List<Branch>> {
   }
 
   Future<void> reload() async {
+    if (!_hasAuthenticatedSession) {
+      state = const AsyncData([]);
+      return;
+    }
+
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       final repository = ref.read(branchesRepositoryProvider);
@@ -71,18 +82,30 @@ class BranchesController extends AsyncNotifier<List<Branch>> {
   }
 
   Future<void> createBranch(String name) async {
+    if (!_hasAuthenticatedSession) {
+      return;
+    }
+
     final repository = ref.read(branchesRepositoryProvider);
     await repository.createBranch(name);
     await reload();
   }
 
   Future<void> updateBranch(String branchId, String name, bool active) async {
+    if (!_hasAuthenticatedSession) {
+      return;
+    }
+
     final repository = ref.read(branchesRepositoryProvider);
     await repository.updateBranch(branchId, name, active);
     await reload();
   }
 
   Future<void> deleteBranch(String branchId) async {
+    if (!_hasAuthenticatedSession) {
+      return;
+    }
+
     final repository = ref.read(branchesRepositoryProvider);
     await repository.deleteBranch(branchId);
     await reload();
@@ -94,5 +117,9 @@ class BranchesController extends AsyncNotifier<List<Branch>> {
 
   void updateStatusFilter(BranchStatusFilter value) {
     ref.read(branchesStatusFilterProvider.notifier).state = value;
+  }
+
+  bool get _hasAuthenticatedSession {
+    return ref.read(authenticatedSessionProvider) != null;
   }
 }

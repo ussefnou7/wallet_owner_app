@@ -164,5 +164,13 @@ class _FakeAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<Session> refreshSession({Session? currentSession}) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> saveSession(Session session) async {}
+
+  @override
   Future<void> logout() async {}
 }

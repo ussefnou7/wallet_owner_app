@@ -1,5 +1,6 @@
 import '../../../../core/network/api_result.dart';
 import '../../domain/entities/wallet.dart';
+import '../../domain/entities/wallet_option.dart';
 import '../../domain/repositories/wallets_repository.dart';
 import '../models/wallet_model.dart';
 import '../services/wallets_remote_data_source.dart';
@@ -13,6 +14,16 @@ class AppWalletsRepository implements WalletsRepository {
   @override
   Future<List<Wallet>> getWallets() {
     return _remoteDataSource.getWallets().then(_unwrap);
+  }
+
+  @override
+  Future<List<Wallet>> getWalletsByBranch(String branchId) {
+    return _remoteDataSource.getWalletsByBranch(branchId).then(_unwrap);
+  }
+
+  @override
+  Future<List<WalletOption>> getWalletOptions({String? branchId}) {
+    return _remoteDataSource.getWalletOptions(branchId: branchId).then(_unwrap);
   }
 
   @override

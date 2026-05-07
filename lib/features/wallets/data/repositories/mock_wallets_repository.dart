@@ -1,11 +1,14 @@
 import '../../domain/entities/wallet.dart';
+import '../../domain/entities/wallet_option.dart';
 import '../../domain/repositories/wallets_repository.dart';
 import '../models/wallet_model.dart';
+import '../services/wallet_options_query_builder.dart';
 
 class MockWalletsRepository implements WalletsRepository {
   final List<WalletModel> _wallets = [
-    const WalletModel(
+    WalletModel(
       id: 'wallet-1',
+      branchId: 'branch-1',
       name: 'Main Wallet',
       code: 'MW-001',
       balance: 154200,
@@ -18,8 +21,9 @@ class MockWalletsRepository implements WalletsRepository {
       collectedByName: 'Ussef',
       lastProfitCollectionAt: DateTime(2026, 4, 28, 14, 30),
     ),
-    const WalletModel(
+    WalletModel(
       id: 'wallet-2',
+      branchId: 'branch-2',
       name: 'Branch Wallet',
       code: 'BW-014',
       balance: 38420,
@@ -31,8 +35,9 @@ class MockWalletsRepository implements WalletsRepository {
       collectedAt: DateTime(2026, 5, 1, 10, 15),
       lastProfitCollectionAt: DateTime(2026, 5, 1, 10, 15),
     ),
-    const WalletModel(
+    WalletModel(
       id: 'wallet-3',
+      branchId: 'branch-3',
       name: 'Delivery Wallet',
       code: 'DW-007',
       balance: 12980,
@@ -43,8 +48,9 @@ class MockWalletsRepository implements WalletsRepository {
       walletProfit: 0,
       cashProfit: 210,
     ),
-    const WalletModel(
+    WalletModel(
       id: 'wallet-4',
+      branchId: 'branch-4',
       name: 'VIP Customer Wallet',
       code: 'VW-021',
       balance: 89500,
@@ -63,6 +69,33 @@ class MockWalletsRepository implements WalletsRepository {
   Future<List<Wallet>> getWallets() async {
     await Future<void>.delayed(const Duration(milliseconds: 500));
     return _wallets;
+  }
+
+  @override
+  Future<List<Wallet>> getWalletsByBranch(String branchId) async {
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    return _wallets.where((wallet) => wallet.branchId == branchId).toList();
+  }
+
+  @override
+  Future<List<WalletOption>> getWalletOptions({String? branchId}) async {
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+
+    // Normalize branchId using the same validation as the real implementation
+    final normalizedBranchId = WalletOptionsQueryBuilder.normalize(branchId);
+
+    final filtered = normalizedBranchId != null
+        ? _wallets.where((wallet) => wallet.branchId == normalizedBranchId).toList()
+        : _wallets;
+
+    return filtered
+        .map((wallet) => WalletOption(
+          id: wallet.id,
+          name: wallet.name,
+          number: wallet.number ?? '',
+          branchId: wallet.branchId ?? '',
+        ))
+        .toList();
   }
 
   @override

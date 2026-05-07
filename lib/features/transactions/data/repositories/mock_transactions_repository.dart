@@ -2,6 +2,7 @@ import '../../../../core/network/models/paged_response.dart';
 import '../../domain/entities/transaction_draft.dart';
 import '../../domain/entities/transaction_record.dart';
 import '../../domain/entities/transaction_submission_result.dart';
+import '../../domain/entities/transactions_filter_state.dart';
 import '../../domain/repositories/transactions_repository.dart';
 import '../models/transaction_record_model.dart';
 
@@ -14,7 +15,8 @@ class MockTransactionsRepository implements TransactionsRepository {
       type: TransactionEntryType.credit,
       amount: 1250,
       date: DateTime(2026, 4, 18, 9, 30),
-      createdBy: 'Owner User',
+      createdBy: 'owner-1',
+      createdByUsername: 'Owner User',
       status: TransactionRecordStatus.recorded,
       note: 'Walk-in deposit adjustment',
     ),
@@ -25,7 +27,8 @@ class MockTransactionsRepository implements TransactionsRepository {
       type: TransactionEntryType.debit,
       amount: 420,
       date: DateTime(2026, 4, 17, 17, 15),
-      createdBy: 'Owner User',
+      createdBy: 'owner-1',
+      createdByUsername: 'Owner User',
       status: TransactionRecordStatus.recorded,
       note: 'Courier settlement payout',
     ),
@@ -36,7 +39,8 @@ class MockTransactionsRepository implements TransactionsRepository {
       type: TransactionEntryType.credit,
       amount: 780,
       date: DateTime(2026, 4, 17, 13, 05),
-      createdBy: 'Mariam Hassan',
+      createdBy: 'user-2',
+      createdByUsername: 'Mariam Hassan',
       status: TransactionRecordStatus.pendingReview,
       note: 'VIP client transfer confirmation',
     ),
@@ -47,7 +51,8 @@ class MockTransactionsRepository implements TransactionsRepository {
       type: TransactionEntryType.debit,
       amount: 160,
       date: DateTime(2026, 4, 16, 11, 40),
-      createdBy: 'Owner User',
+      createdBy: 'owner-1',
+      createdByUsername: 'Owner User',
       status: TransactionRecordStatus.recorded,
       note: 'Delivery reimbursement',
     ),
@@ -55,45 +60,47 @@ class MockTransactionsRepository implements TransactionsRepository {
 
   @override
   Future<PagedResponse<TransactionRecord>> getTransactions({
-    String? walletId,
-    TransactionEntryType? type,
-    DateTime? dateFrom,
-    DateTime? dateTo,
-    int page = 0,
-    int size = 20,
+    required TransactionsFilterState filter,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 450));
     final transactions = _transactions.where((transaction) {
-      if (walletId != null && transaction.walletId != walletId) {
+      if (filter.walletId != null && transaction.walletId != filter.walletId) {
         return false;
       }
-      if (type != null &&
-          type != TransactionEntryType.unknown &&
-          transaction.type != type) {
+      if (filter.type != null &&
+          filter.type != TransactionEntryType.unknown &&
+          transaction.type != filter.type) {
         return false;
       }
-      if (dateFrom != null && transaction.date.isBefore(dateFrom)) {
+      if (filter.createdBy != null &&
+          filter.createdBy!.isNotEmpty &&
+          transaction.createdBy != filter.createdBy) {
         return false;
       }
-      if (dateTo != null && transaction.date.isAfter(dateTo)) {
+      if (filter.dateFrom != null && transaction.date.isBefore(filter.dateFrom!)) {
+        return false;
+      }
+      if (filter.dateTo != null && transaction.date.isAfter(filter.dateTo!)) {
         return false;
       }
       return true;
     }).toList();
     transactions.sort((a, b) => b.date.compareTo(a.date));
-    final start = page * size;
-    final end = (start + size).clamp(0, transactions.length);
+    final start = filter.page * filter.size;
+    final end = (start + filter.size).clamp(0, transactions.length);
     final content = start >= transactions.length
         ? const <TransactionRecord>[]
         : transactions.sublist(start, end);
     final totalElements = transactions.length;
-    final totalPages = totalElements == 0 ? 0 : (totalElements / size).ceil();
+    final totalPages = totalElements == 0
+        ? 0
+        : (totalElements / filter.size).ceil();
     final hasNext = end < totalElements;
 
     return PagedResponse<TransactionRecord>(
       content: content,
-      page: page,
-      size: size,
+      page: filter.page,
+      size: filter.size,
       totalElements: totalElements,
       totalPages: totalPages,
       last: !hasNext,
@@ -132,7 +139,8 @@ class MockTransactionsRepository implements TransactionsRepository {
         date: draft.occurredAt,
         occurredAt: draft.occurredAt,
         createdAt: createdAt,
-        createdBy: 'Owner User',
+        createdBy: 'owner-1',
+        createdByUsername: 'Owner User',
         status: TransactionRecordStatus.recorded,
         note: draft.description?.trim().isEmpty ?? true
             ? null

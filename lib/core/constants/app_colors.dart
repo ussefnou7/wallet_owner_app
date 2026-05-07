@@ -19,4 +19,8 @@ abstract final class AppColors {
   static const Color warningSoft = Color(0xFFFFF7E1);
   static const Color successSoft = Color(0xFFEAF7EF);
   static const Color shadow = Color(0xFF17202A);
+  static const Color dashboardHeroStart = Color(0xFF2D5E9A);
+  static const Color dashboardHeroMid = Color(0xFF4A74AB);
+  static const Color dashboardHeroEnd = Color(0xFF6F81B5);
+  static const Color dashboardHeroGlow = Color(0xFFD7E4FF);
 }

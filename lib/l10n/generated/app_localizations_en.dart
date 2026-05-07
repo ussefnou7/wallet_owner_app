@@ -18,7 +18,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get english => 'English';
 
   @override
-  String get arabic => 'Arabic';
+  String get arabic => 'عربي';
 
   @override
   String get dashboard => 'Dashboard';
@@ -52,6 +52,65 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardDebits => 'Total Debits';
 
   @override
+  String get dashboardProfitSnapshot => 'Profit Snapshot';
+
+  @override
+  String get dashboardCollectedProfit => 'Collected Profit';
+
+  @override
+  String get dashboardUncollectedProfit => 'Uncollected Profit';
+
+  @override
+  String get dashboardTransactionVolume => 'Volume';
+
+  @override
+  String get dashboardWalletHealth => 'Wallet Health';
+
+  @override
+  String get dashboardActiveBalance => 'Active Balance';
+
+  @override
+  String get dashboardNearDailyLimit => 'Near Daily Limit';
+
+  @override
+  String get dashboardNearMonthlyLimit => 'Near Monthly Limit';
+
+  @override
+  String get dashboardLimitReached => 'Limit Reached';
+
+  @override
+  String get dashboardDailyLimitReached => 'Daily limit reached';
+
+  @override
+  String get dashboardMonthlyLimitReached => 'Monthly limit reached';
+
+  @override
+  String dashboardReviewWalletsNeedingAttention(int count) {
+    return 'Review $count wallets needing attention';
+  }
+
+  @override
+  String get dashboardAllWalletsHealthy => 'All wallets are healthy';
+
+  @override
+  String get dashboardHealthStatusGood => 'Good';
+
+  @override
+  String get dashboardHealthStatusWarning => 'Warning';
+
+  @override
+  String get dashboardHealthStatusCritical => 'Critical';
+
+  @override
+  String get dashboardSeverityWarning => 'Warning';
+
+  @override
+  String get dashboardSeverityCritical => 'Critical';
+
+  @override
+  String get dashboardSeverityInfo => 'Info';
+
+  @override
   String get recentTransactions => 'Recent Transactions';
 
   @override
@@ -81,7 +140,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plans => 'Plans';
 
   @override
+  String get subscriptionExpiredTitle => 'Subscription expired';
+
+  @override
+  String get organizationSubscriptionExpiredTitle =>
+      'Organization subscription expired';
+
+  @override
+  String get subscriptionExpiredMessageOwner =>
+      'Your organization\'s subscription has expired. Renew the plan to restore access to business features.';
+
+  @override
+  String get subscriptionExpiredMessageUser =>
+      'Your organization\'s subscription has expired. Please contact the account owner to renew it.';
+
+  @override
+  String get subscriptionExpiredDateLabel => 'Expired on';
+
+  @override
+  String get subscriptionPlanLabel => 'Current plan';
+
+  @override
   String get requestRenewal => 'Request Renewal';
+
+  @override
+  String get renewalRequestSent =>
+      'Renewal request sent successfully. Your request is pending review.';
+
+  @override
+  String get renewalRequestPending =>
+      'A renewal request is already pending review.';
+
+  @override
+  String get renewalRequestFailed => 'Unable to submit renewal request.';
+
+  @override
+  String get recheckStatus => 'Recheck status';
+
+  @override
+  String get subscriptionStillExpired =>
+      'The subscription is still expired or pending review.';
+
+  @override
+  String get subscriptionReactivated =>
+      'The subscription is active again. Redirecting you now.';
+
+  @override
+  String get contactAccountOwner =>
+      'Please contact the account owner for renewal help.';
+
+  @override
+  String get backToExpiredSubscription => 'Back to expired subscription';
 
   @override
   String get totalBalance => 'Total Balance';
@@ -186,6 +295,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get overview => 'Overview';
 
   @override
+  String get profit => 'Profit';
+
+  @override
   String get welcome => 'Welcome';
 
   @override
@@ -238,10 +350,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String get latestTransactionsSubtitle => 'Latest recorded wallet activity';
 
   @override
+  String get lastTransactions => 'Last Transactions';
+
+  @override
   String get totalCredits => 'Total Credits';
 
   @override
   String get totalDebits => 'Total Debits';
+
+  @override
+  String get transactionVolume => 'Transaction Volume';
+
+  @override
+  String get transactionsCount => 'Transactions Count';
+
+  @override
+  String get totalProfit => 'Total Profit';
+
+  @override
+  String get walletStatus => 'Wallet Status';
+
+  @override
+  String get walletConsumptions => 'Wallet Consumptions';
+
+  @override
+  String get walletConsumptionsEmptyMessage =>
+      'Wallet consumption details will appear here.';
+
+  @override
+  String get totalWalletProfit => 'Total Wallet Profit';
+
+  @override
+  String get totalCashProfit => 'Total Cash Profit';
+
+  @override
+  String get nearLimitWallets => 'Near Limit Wallets';
 
   @override
   String get viewAll => 'View all';
@@ -267,6 +410,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchWalletsHint => 'Search by name, code, or branch';
+
+  @override
+  String get sortWallets => 'Sort wallets';
+
+  @override
+  String get walletSortDefaultOrder => 'Default';
+
+  @override
+  String get walletSortNearLimitFirst => 'Near limit first';
+
+  @override
+  String get walletSortHighestDailyUsage => 'Highest daily usage';
+
+  @override
+  String get walletSortHighestMonthlyUsage => 'Highest monthly usage';
+
+  @override
+  String get walletSortHighestLimit => 'Highest limit';
 
   @override
   String get loadingWallets => 'Loading wallets...';
@@ -464,7 +625,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchTransactions => 'Search transactions';
 
   @override
-  String get searchTransactionsHint => 'Search by wallet, note, or created by';
+  String get searchTransactionsHint =>
+      'Search loaded transactions by wallet, note, or created by';
 
   @override
   String get refreshTransactions => 'Refresh transactions';
@@ -958,7 +1120,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Run backend-driven reports with dynamic filters and generic rendering.';
 
   @override
+  String get reportsProductionSubtitle =>
+      'Review financial movement, transaction activity, and profit performance with focused production reports.';
+
+  @override
   String get selectReport => 'Select Report';
+
+  @override
+  String get selectReportSubtitle => 'Choose the report you want to review.';
 
   @override
   String get filters => 'Filters';
@@ -968,10 +1137,29 @@ class AppLocalizationsEn extends AppLocalizations {
       'Only filters supported by the selected report are shown.';
 
   @override
+  String get reportFiltersSubtitle =>
+      'Refine the selected report by date, branch, wallet, and other supported filters.';
+
+  @override
   String get loadingReports => 'Loading reports....';
 
   @override
   String get unableToLoadReports => 'Unable to load reports right now.';
+
+  @override
+  String get loadingTransactionsSummaryReport =>
+      'Loading transactions summary...';
+
+  @override
+  String get unableToLoadTransactionsSummaryReport =>
+      'Unable to load transactions summary right now.';
+
+  @override
+  String get loadingProfitSummaryReport => 'Loading profit summary...';
+
+  @override
+  String get unableToLoadProfitSummaryReport =>
+      'Unable to load profit summary right now.';
 
   @override
   String get applyFilters => 'Apply Filters';
@@ -1006,20 +1194,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get period => 'Period';
 
   @override
-  String get reportTypeTransactionSummary => 'Transaction Summary';
+  String get reportTypeTransactionSummary => 'Financial Summary';
 
   @override
-  String get reportTypeTransactionDetails => 'Transaction Details';
+  String get reportTypeTransactionSummaryDescription =>
+      'Track total credits, debits, net movement, and transaction count.';
+
+  @override
+  String get reportTypeTransactionDetails => 'Transaction Log';
+
+  @override
+  String get reportTypeTransactionDetailsDescription =>
+      'Review detailed transactions by date, wallet, branch, and creator.';
 
   @override
   String get reportTypeWalletConsumption => 'Wallet Consumption';
 
   @override
-  String get reportTypeProfitSummary => 'Profit Summary';
+  String get reportTypeProfitSummary => 'Profit Report';
+
+  @override
+  String get reportTypeProfitSummaryDescription =>
+      'Review wallet profit, cash profit, and total profit in one view.';
 
   @override
   String get reportTypeTransactionTimeAggregation =>
       'Transaction Time Aggregation';
+
+  @override
+  String get noWalletsInBranch => 'No wallets in this branch';
 
   @override
   String get reportsFieldsTotalCredits => 'Total Credits';
@@ -1071,6 +1274,100 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportsFieldsNearMonthlyLimit => 'Near Monthly Limit';
+
+  @override
+  String get creditCount => 'Credit Count';
+
+  @override
+  String get debitCount => 'Debit Count';
+
+  @override
+  String get activeUsers => 'Active Users';
+
+  @override
+  String get totalProfits => 'Total Profits';
+
+  @override
+  String get totalCollectedProfit => 'Total Collected Profit';
+
+  @override
+  String get totalUncollectedProfit => 'Total Uncollected Profit';
+
+  @override
+  String get totalAmount => 'Total Amount';
+
+  @override
+  String get totalUserProfit => 'Total User Profit';
+
+  @override
+  String get walletBalance => 'Wallet Balance';
+
+  @override
+  String get branchWalletsBalance => 'Branch Wallets Balance';
+
+  @override
+  String get highestTransactionTitle => 'Highest Transaction';
+
+  @override
+  String get walletsWithCurrentProfit => 'Wallets With Current Profit';
+
+  @override
+  String get totalActiveWallets => 'Total Active Wallets';
+
+  @override
+  String get profitSummaryBusinessNote =>
+      'Collected in selected period + current uncollected';
+
+  @override
+  String get usersPerformanceSectionTitle => 'Users Performance';
+
+  @override
+  String get userProfit => 'User Profit';
+
+  @override
+  String get loadingUserPerformanceReport => 'Loading user performance...';
+
+  @override
+  String get unableToLoadUserPerformanceReport =>
+      'Unable to load user performance right now.';
+
+  @override
+  String get noUserPerformanceResultsTitle => 'No users found';
+
+  @override
+  String get noUserPerformanceResultsMessage =>
+      'No users matched the current report filters.';
+
+  @override
+  String get allTypes => 'All Types';
+
+  @override
+  String get loadMore => 'Load More';
+
+  @override
+  String get endOfResults => 'End of results';
+
+  @override
+  String get loadingTransactionDetailsReport =>
+      'Loading transaction details...';
+
+  @override
+  String get unableToLoadTransactionDetailsReport =>
+      'Unable to load transaction details right now.';
+
+  @override
+  String get noTransactionsFound => 'No transactions found';
+
+  @override
+  String get noTransactionsMatchedCurrentFilters =>
+      'No transactions matched the current filters.';
+
+  @override
+  String get noHighestTransactionTitle => 'No highest transaction';
+
+  @override
+  String get noHighestTransactionMessage =>
+      'No transaction matched the current filters.';
 
   @override
   String get totalTransactions => 'Total Transactions';
@@ -1579,4 +1876,55 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get password_optional_hint =>
       'Leave empty if you don\'t want to change it';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get thisMonth => 'This Month';
+
+  @override
+  String get thisYear => 'This Year';
+
+  @override
+  String get custom => 'Custom';
+
+  @override
+  String get reportsHomeTitle => 'Production reports';
+
+  @override
+  String get reportsHomeSubtitle =>
+      'Choose a report to review financial movement, profit totals, and user activity with focused reporting flows.';
+
+  @override
+  String get transactionsSummaryReportTitle => 'Transactions Summary';
+
+  @override
+  String get transactionsSummaryReportDescription =>
+      'Overview of credits, debits, transaction counts, balance scope, and highest transaction.';
+
+  @override
+  String get profitSummaryReportTitle => 'Profit Summary';
+
+  @override
+  String get profitSummaryReportDescription =>
+      'Track collected, uncollected, balance, and profit totals.';
+
+  @override
+  String get userPerformanceReportTitle => 'User Performance';
+
+  @override
+  String get userPerformanceReportDescription =>
+      'Analyze user activity, transaction totals, and generated user profit.';
+
+  @override
+  String get transactionDetailsReportTitle => 'Transaction Details';
+
+  @override
+  String get transactionDetailsReportDescription =>
+      'Search, filter, and review detailed wallet transactions.';
+
+  @override
+  String get reportsPlaceholderMessage =>
+      'This report screen will be implemented in a later phase.';
 }

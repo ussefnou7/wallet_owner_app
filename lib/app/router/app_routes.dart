@@ -2,12 +2,20 @@ abstract final class AppRoutes {
   static const splash = '/';
   static const login = '/login';
   static const unauthorizedRole = '/unauthorized-role';
+  static const subscriptionExpired = '/subscription-expired';
+  static const subscriptionRenewalRequest =
+      '/subscription-expired/request-renewal';
 
   static const ownerDashboard = '/owner/dashboard';
   static const ownerWallets = '/owner/wallets';
   static const ownerTransactions = '/owner/transactions';
   static const ownerCreateTransaction = '/owner/transactions/create';
-  static const ownerReports = '/owner/reports';
+  static const ownerReports = '/reports';
+  static const reportsRoot = ownerReports;
+  static const transactionsSummaryReport = '$reportsRoot/transactions-summary';
+  static const profitSummaryReport = '$reportsRoot/profit-summary';
+  static const userPerformanceReport = '$reportsRoot/user-performance';
+  static const transactionDetailsReport = '$reportsRoot/transaction-details';
   static const ownerUsers = '/owner/users';
   static const ownerBranches = '/owner/branches';
   static const ownerPlans = '/owner/plans';
@@ -45,4 +53,8 @@ abstract final class AppRoutes {
   static const privacyPolicy = ownerPrivacyPolicy;
   static const termsAndConditions = ownerTermsAndConditions;
   static const notificationsCenter = ownerNotifications;
+
+  static bool isReportsRoute(String location) {
+    return location == reportsRoot || location.startsWith('$reportsRoot/');
+  }
 }

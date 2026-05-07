@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../storage/app_secure_storage.dart';
+import 'app_locale.dart';
 
 const appLanguageKey = 'app_language';
 
@@ -18,15 +19,13 @@ class LocaleStorage {
   final SharedPreferences _sharedPreferences;
 
   Locale readLocale() {
-    final languageCode = _sharedPreferences.getString(appLanguageKey);
-    return Locale(_isSupported(languageCode) ? languageCode! : 'ar');
+    return parseStoredAppLocale(_sharedPreferences.getString(appLanguageKey));
   }
 
   Future<void> saveLocale(Locale locale) {
-    return _sharedPreferences.setString(appLanguageKey, locale.languageCode);
-  }
-
-  bool _isSupported(String? languageCode) {
-    return languageCode == 'en' || languageCode == 'ar';
+    return _sharedPreferences.setString(
+      appLanguageKey,
+      toStoredAppLocaleCode(locale),
+    );
   }
 }

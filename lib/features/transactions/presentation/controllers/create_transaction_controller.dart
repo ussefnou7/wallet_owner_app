@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/app_exception.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../domain/entities/transaction_draft.dart';
 import '../../domain/entities/transaction_submission_result.dart';
 import '../../domain/repositories/transactions_repository.dart';
@@ -9,6 +10,7 @@ final createTransactionControllerProvider =
     StateNotifierProvider<CreateTransactionController, CreateTransactionState>((
       ref,
     ) {
+      ref.watch(sessionScopeKeyProvider);
       final repository = ref.watch(transactionsRepositoryProvider);
       return CreateTransactionController(repository);
     });

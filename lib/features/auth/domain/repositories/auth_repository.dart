@@ -13,6 +13,10 @@ abstract interface class AuthRepository {
 
   Future<Session> login({required String username, required String password});
 
+  Future<Session> refreshSession({Session? currentSession});
+
+  Future<void> saveSession(Session session);
+
   Future<String?> forgotPassword({required String username});
 
   Future<void> changePassword({

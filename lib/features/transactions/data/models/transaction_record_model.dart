@@ -7,6 +7,8 @@ class TransactionRecordModel extends TransactionRecord {
     super.tenantId,
     required super.walletId,
     required super.walletName,
+    super.branchId,
+    super.branchName,
     super.externalTransactionId,
     required super.type,
     required super.amount,
@@ -34,6 +36,9 @@ class TransactionRecordModel extends TransactionRecord {
       tenantId: json['tenantId'] as String?,
       walletId: json['walletId'] as String,
       walletName: json['walletName'] as String? ?? json['walletId'] as String,
+      branchId: _stringOrNull(json['branchId']),
+      branchName:
+          _stringOrNull(json['branchName']) ?? _stringOrNull(json['branchId']),
       externalTransactionId: json['externalTransactionId'] as String?,
       type: _transactionTypeFromJson(json['type'] as String?),
       amount: _doubleFromJson(json['amount']),
@@ -46,10 +51,7 @@ class TransactionRecordModel extends TransactionRecord {
       occurredAt: occurredAt,
       createdAt: createdAt,
       updatedAt: updatedAt,
-      createdBy:
-          _stringOrNull(json['createdByUsername']) ??
-          _stringOrNull(json['createdBy']) ??
-          '',
+      createdBy: _stringOrNull(json['createdBy']) ?? '',
       createdByUsername: _stringOrNull(json['createdByUsername']),
       status: json['status'] is String
           ? _statusFromJson(json['status'] as String)

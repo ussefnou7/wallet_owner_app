@@ -25,6 +25,9 @@ class AppException extends Equatable implements Exception {
 
   bool get isForbidden => status == 403 || code == 'FORBIDDEN';
 
+  bool get isSubscriptionExpired =>
+      code.trim().toUpperCase() == 'SUBSCRIPTION_EXPIRED';
+
   bool get requiresSessionInvalidation =>
       _sessionInvalidationCodes.contains(code.toUpperCase());
 

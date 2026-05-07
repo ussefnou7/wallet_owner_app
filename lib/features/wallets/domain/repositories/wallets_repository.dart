@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../entities/wallet.dart';
+import '../entities/wallet_option.dart';
 
 final walletsRepositoryProvider = Provider<WalletsRepository>((ref) {
   throw UnimplementedError(
@@ -11,7 +12,11 @@ final walletsRepositoryProvider = Provider<WalletsRepository>((ref) {
 abstract interface class WalletsRepository {
   Future<List<Wallet>> getWallets();
 
+  Future<List<Wallet>> getWalletsByBranch(String branchId);
+
   Future<Wallet> getWalletById(String walletId);
+
+  Future<List<WalletOption>> getWalletOptions({String? branchId});
 
   Future<Wallet> createWallet({
     required String name,

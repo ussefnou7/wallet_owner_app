@@ -7,6 +7,8 @@ import '../../../../core/network/api_result.dart';
 import '../../../../core/network/network_constants.dart';
 import '../../domain/entities/dashboard_overview.dart';
 import '../../domain/entities/dashboard_transaction_summary.dart';
+import '../../domain/entities/owner_dashboard_overview.dart';
+import '../../domain/entities/user_dashboard_overview.dart';
 
 final dashboardRemoteDataSourceProvider = Provider<DashboardRemoteDataSource>((
   ref,
@@ -21,6 +23,14 @@ final dashboardRemoteDataSourceProvider = Provider<DashboardRemoteDataSource>((
 
 abstract interface class DashboardRemoteDataSource {
   Future<ApiResult<DashboardOverview>> getOverview();
+
+  Future<ApiResult<OwnerDashboardOverview>> getOwnerOverview({
+    required DashboardOverviewPeriod period,
+  });
+
+  Future<ApiResult<UserDashboardOverview>> getUserOverview({
+    required DashboardOverviewPeriod period,
+  });
 
   Future<ApiResult<DashboardTransactionSummary>> getTransactionSummary({
     required DateTime fromDate,
@@ -43,9 +53,46 @@ class DioDashboardRemoteDataSource implements DashboardRemoteDataSource {
     try {
       final response = await _apiClient.get<Object?>(
         NetworkConstants.reportsDashboardOverviewPath,
+        queryParameters: {'period': DashboardOverviewPeriod.daily.apiValue},
       );
       final data = _extractObjectData(response.data);
-      return ApiSuccess(_mapOverview(data));
+      final ownerOverview = _mapOwnerOverview(
+        data,
+        requestedPeriod: DashboardOverviewPeriod.daily,
+      );
+      return ApiSuccess(_mapLegacyOverview(ownerOverview));
+    } catch (error) {
+      return ApiError(_exceptionMapper.map(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<OwnerDashboardOverview>> getOwnerOverview({
+    required DashboardOverviewPeriod period,
+  }) async {
+    try {
+      final response = await _apiClient.get<Object?>(
+        NetworkConstants.reportsDashboardOverviewPath,
+        queryParameters: {'period': period.apiValue},
+      );
+      final data = _extractObjectData(response.data);
+      return ApiSuccess(_mapOwnerOverview(data, requestedPeriod: period));
+    } catch (error) {
+      return ApiError(_exceptionMapper.map(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<UserDashboardOverview>> getUserOverview({
+    required DashboardOverviewPeriod period,
+  }) async {
+    try {
+      final response = await _apiClient.get<Object?>(
+        NetworkConstants.reportsUserDashboardPath,
+        queryParameters: {'period': period.apiValue},
+      );
+      final data = _extractObjectData(response.data);
+      return ApiSuccess(_mapUserOverview(data, requestedPeriod: period));
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));
     }
@@ -78,75 +125,133 @@ class DioDashboardRemoteDataSource implements DashboardRemoteDataSource {
     }
   }
 
-  DashboardOverview _mapOverview(Map<String, dynamic> data) {
-    final totalBalance = _pickFirstDouble(data, const [
-      'totalBalance',
-      'balance',
-      'currentBalance',
-      'netBalance',
-    ]);
-    final activeWallets = _pickFirstInt(data, const [
-      'activeWallets',
-      'walletCount',
-      'totalWallets',
-    ]);
-    final totalCredits = _pickFirstDouble(data, const ['totalCredits']);
-    final totalDebits = _pickFirstDouble(data, const ['totalDebits']);
-    final netAmount = _pickFirstDouble(data, const ['netAmount']);
-    final transactionCount = _pickFirstInt(data, const ['transactionCount']);
-    final hiddenKeys = <String>{
-      'totalBalance',
-      'balance',
-      'currentBalance',
-      'netBalance',
-      'activeWallets',
-      'walletCount',
-      'totalWallets',
-      'totalCredits',
-      'totalDebits',
-      'netAmount',
-      'transactionCount',
-      'title',
-      'titleKey',
-      'subtitle',
-      'description',
-      'content',
-      'items',
-      'results',
-      'data',
-      'result',
-      'item',
-    };
+  OwnerDashboardOverview _mapOwnerOverview(
+    Map<String, dynamic> data, {
+    required DashboardOverviewPeriod requestedPeriod,
+  }) {
+    final profitSnapshot = _readObject(data['profitSnapshot']);
+    final walletHealth = _readObject(data['walletHealth']);
+    final attentionItems =
+        (walletHealth['attentionItems'] as List?)
+            ?.whereType<Map>()
+            .map(_normalizeMap)
+            .map(_mapAttentionItem)
+            .toList(growable: false) ??
+        const <DashboardWalletAttentionItem>[];
+    final responsePeriod = data['period'];
 
-    final metrics = <DashboardOverviewMetric>[];
-    for (final entry in data.entries) {
-      if (hiddenKeys.contains(entry.key)) {
-        continue;
-      }
-      final value = _normalizeMetricValue(entry.value);
-      if (value == null) {
-        continue;
-      }
-      metrics.add(
-        DashboardOverviewMetric(
-          key: entry.key,
-          label: _humanizeKey(entry.key),
-          value: value,
-          displayType: _metricDisplayType(entry.key, value),
+    return OwnerDashboardOverview(
+      period: responsePeriod is String && responsePeriod.trim().isNotEmpty
+          ? DashboardOverviewPeriodX.fromApiValue(responsePeriod)
+          : requestedPeriod,
+      profitSnapshot: DashboardProfitSnapshot(
+        totalProfit: _asDouble(profitSnapshot['totalProfit']),
+        totalCollectedProfit: _asDouble(profitSnapshot['totalCollectedProfit']),
+        totalUncollectedProfit: _asDouble(
+          profitSnapshot['totalUncollectedProfit'],
         ),
-      );
-    }
+        totalTransactions: _asInt(profitSnapshot['totalTransactions']),
+        totalTransactionVolume: _asDouble(
+          profitSnapshot['totalTransactionVolume'],
+        ),
+      ),
+      walletHealth: DashboardWalletHealth(
+        totalWallets: _asInt(walletHealth['totalWallets']),
+        activeWallets: _asInt(walletHealth['activeWallets']),
+        inactiveWallets: _asInt(walletHealth['inactiveWallets']),
+        activeWalletsBalance: _asDouble(walletHealth['activeWalletsBalance']),
+        nearDailyLimitCount: _asInt(walletHealth['nearDailyLimitCount']),
+        nearMonthlyLimitCount: _asInt(walletHealth['nearMonthlyLimitCount']),
+        limitReachedCount: _asInt(walletHealth['limitReachedCount']),
+        walletsNeedAttentionCount: _asInt(
+          walletHealth['walletsNeedAttentionCount'],
+        ),
+        healthStatus: DashboardHealthStatusX.fromApiValue(
+          walletHealth['healthStatus'] as String?,
+        ),
+        attentionItems: attentionItems,
+      ),
+    );
+  }
 
-    metrics.sort((first, second) => first.label.compareTo(second.label));
-
+  DashboardOverview _mapLegacyOverview(OwnerDashboardOverview overview) {
     return DashboardOverview(
-      totalBalance: totalBalance,
-      activeWallets: activeWallets,
-      totalCredits: totalCredits,
-      totalDebits: totalDebits,
-      netAmount: netAmount,
-      transactionCount: transactionCount,
-      metrics: metrics,
+      totalBalance: overview.walletHealth.activeWalletsBalance,
+      activeWallets: overview.walletHealth.activeWallets,
+      totalCredits: overview.profitSnapshot.totalCollectedProfit,
+      totalDebits: overview.profitSnapshot.totalUncollectedProfit,
+      netAmount: overview.profitSnapshot.totalProfit,
+      transactionCount: overview.profitSnapshot.totalTransactions,
+      metrics: [
+        DashboardOverviewMetric(
+          key: 'totalTransactionVolume',
+          label: 'Total Transaction Volume',
+          value: overview.profitSnapshot.totalTransactionVolume,
+          displayType: DashboardMetricDisplayType.amount,
+        ),
+        DashboardOverviewMetric(
+          key: 'inactiveWallets',
+          label: 'Inactive Wallets',
+          value: overview.walletHealth.inactiveWallets,
+          displayType: DashboardMetricDisplayType.count,
+        ),
+        DashboardOverviewMetric(
+          key: 'walletsNeedAttentionCount',
+          label: 'Wallets Needing Attention',
+          value: overview.walletHealth.walletsNeedAttentionCount,
+          displayType: DashboardMetricDisplayType.count,
+        ),
+      ],
+    );
+  }
+
+  UserDashboardOverview _mapUserOverview(
+    Map<String, dynamic> data, {
+    required DashboardOverviewPeriod requestedPeriod,
+  }) {
+    final myActivity = _readObject(data['myActivity']);
+    final branchWallets = _readObject(data['branchWallets']);
+    final walletConsumptions =
+        (data['walletConsumptions'] as List?)
+            ?.whereType<Map>()
+            .map(_normalizeMap)
+            .map(_mapWalletConsumption)
+            .toList(growable: false) ??
+        const <UserDashboardWalletConsumption>[];
+    final responsePeriod = data['period'];
+
+    return UserDashboardOverview(
+      period: responsePeriod is String && responsePeriod.trim().isNotEmpty
+          ? DashboardOverviewPeriodX.fromApiValue(responsePeriod)
+          : requestedPeriod,
+      myActivity: UserDashboardActivity(
+        totalCredits: _asDouble(myActivity['totalCredits']),
+        totalDebits: _asDouble(myActivity['totalDebits']),
+        transactionsVolume: _asDouble(myActivity['transactionsVolume']),
+        transactionsCount: _asInt(myActivity['transactionsCount']),
+        totalProfit: _asDouble(myActivity['totalProfit']),
+      ),
+      branchWallets: UserDashboardBranchWallets(
+        walletsCount: _asInt(branchWallets['walletsCount']),
+        totalBalance: _asDouble(branchWallets['totalBalance']),
+        totalWalletProfit: _asDouble(branchWallets['totalWalletProfit']),
+        totalCashProfit: _asDouble(branchWallets['totalCashProfit']),
+        totalProfit: _asDouble(branchWallets['totalProfit']),
+        nearLimitWalletsCount: _asInt(branchWallets['nearLimitWalletsCount']),
+      ),
+      walletConsumptions: walletConsumptions,
+    );
+  }
+
+  UserDashboardWalletConsumption _mapWalletConsumption(
+    Map<String, dynamic> item,
+  ) {
+    return UserDashboardWalletConsumption(
+      walletId: '${item['walletId'] ?? ''}',
+      walletName: '${item['walletName'] ?? ''}',
+      branchName: _asNullableString(item['branchName']),
+      dailyPercent: _asDouble(item['dailyPercent']),
+      monthlyPercent: _asDouble(item['monthlyPercent']),
     );
   }
 
@@ -165,6 +270,30 @@ class DioDashboardRemoteDataSource implements DashboardRemoteDataSource {
     throw const AppException(
       code: 'UNKNOWN_ERROR',
       message: 'Unexpected dashboard report response structure.',
+    );
+  }
+
+  Map<String, dynamic> _readObject(Object? value) {
+    if (value is Map<String, dynamic>) {
+      return value;
+    }
+    if (value is Map) {
+      return _normalizeMap(value);
+    }
+    return const <String, dynamic>{};
+  }
+
+  DashboardWalletAttentionItem _mapAttentionItem(Map<String, dynamic> item) {
+    return DashboardWalletAttentionItem(
+      walletId: '${item['walletId'] ?? ''}',
+      walletName: '${item['walletName'] ?? ''}',
+      branchName: _asNullableString(item['branchName']),
+      type: '${item['type'] ?? ''}',
+      severity: DashboardAttentionSeverityX.fromApiValue(
+        item['severity'] as String?,
+      ),
+      currentPercent: _asDouble(item['currentPercent']),
+      message: '${item['message'] ?? ''}',
     );
   }
 
@@ -188,84 +317,15 @@ class DioDashboardRemoteDataSource implements DashboardRemoteDataSource {
     return 0;
   }
 
-  double _pickFirstDouble(Map<String, dynamic> data, List<String> keys) {
-    for (final key in keys) {
-      if (data.containsKey(key)) {
-        return _asDouble(data[key]);
-      }
-    }
-    return 0;
-  }
-
-  int _pickFirstInt(Map<String, dynamic> data, List<String> keys) {
-    for (final key in keys) {
-      if (data.containsKey(key)) {
-        return _asInt(data[key]);
-      }
-    }
-    return 0;
-  }
-
-  Object? _normalizeMetricValue(Object? value) {
-    if (value == null) {
-      return null;
-    }
-    if (value is num || value is bool) {
-      return value;
-    }
+  String? _asNullableString(Object? value) {
     if (value is String) {
       final trimmed = value.trim();
-      if (trimmed.isEmpty) {
-        return null;
-      }
-      return trimmed;
+      return trimmed.isEmpty ? null : trimmed;
     }
     return null;
   }
 
-  DashboardMetricDisplayType _metricDisplayType(String key, Object value) {
-    final normalizedKey = key.toLowerCase();
-    if (value is bool) {
-      return DashboardMetricDisplayType.boolean;
-    }
-    if (normalizedKey.contains('percent') || normalizedKey.endsWith('rate')) {
-      return DashboardMetricDisplayType.percent;
-    }
-    if (value is num) {
-      if (normalizedKey.contains('count') ||
-          normalizedKey.startsWith('total') &&
-              normalizedKey.contains('transaction') ||
-          normalizedKey.contains('wallets')) {
-        return DashboardMetricDisplayType.count;
-      }
-      return DashboardMetricDisplayType.amount;
-    }
-    return DashboardMetricDisplayType.text;
-  }
-
-  String _humanizeKey(String key) {
-    final buffer = StringBuffer();
-    for (var index = 0; index < key.length; index++) {
-      final character = key[index];
-      final isSeparator = character == '_' || character == '-';
-      if (isSeparator) {
-        buffer.write(' ');
-        continue;
-      }
-      final isUppercase =
-          character.toUpperCase() == character &&
-          character.toLowerCase() != character;
-      if (index > 0 && isUppercase && key[index - 1] != ' ') {
-        buffer.write(' ');
-      }
-      buffer.write(character);
-    }
-    final words = buffer
-        .toString()
-        .split(RegExp(r'\s+'))
-        .where((word) => word.isNotEmpty)
-        .map((word) => '${word[0].toUpperCase()}${word.substring(1)}')
-        .toList();
-    return words.join(' ');
+  Map<String, dynamic> _normalizeMap(Map<dynamic, dynamic> map) {
+    return map.map((key, value) => MapEntry('$key', value));
   }
 }

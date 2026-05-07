@@ -10,6 +10,8 @@ class TransactionRecord extends Equatable {
     this.tenantId,
     required this.walletId,
     required this.walletName,
+    this.branchId,
+    this.branchName,
     this.externalTransactionId,
     required this.type,
     required this.amount,
@@ -30,6 +32,8 @@ class TransactionRecord extends Equatable {
   final String? tenantId;
   final String walletId;
   final String walletName;
+  final String? branchId;
+  final String? branchName;
   final String? externalTransactionId;
   final TransactionEntryType type;
   final double amount;
@@ -51,6 +55,8 @@ class TransactionRecord extends Equatable {
     tenantId,
     walletId,
     walletName,
+    branchId,
+    branchName,
     externalTransactionId,
     type,
     amount,

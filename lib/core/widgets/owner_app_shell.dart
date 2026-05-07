@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router/app_routes.dart';
+import '../../features/auth/presentation/controllers/auth_controller.dart';
 import '../../features/notifications/presentation/providers/notifications_provider.dart';
 import '../constants/app_dimensions.dart';
 import '../localization/app_l10n.dart';
@@ -74,6 +75,7 @@ class _OwnerAppShellState extends ConsumerState<OwnerAppShell>
 
   @override
   Widget build(BuildContext context) {
+    final isReportsRoute = AppRoutes.isReportsRoute(widget.currentRoute);
     final contentMaxWidth =
         widget.currentRoute == AppRoutes.createTransaction ||
             widget.currentRoute == AppRoutes.ownerCreateSupport
@@ -82,7 +84,9 @@ class _OwnerAppShellState extends ConsumerState<OwnerAppShell>
 
     return AppShellScaffold(
       title: _titleForRoute(context, widget.currentRoute),
-      currentRoute: widget.currentRoute,
+      currentRoute: isReportsRoute
+          ? AppRoutes.ownerReports
+          : widget.currentRoute,
       navVariant: AppBottomNavVariant.owner,
       endDrawer: OwnerAppDrawer(currentRoute: widget.currentRoute),
       onDestinationSelected: context.go,
@@ -94,6 +98,11 @@ class _OwnerAppShellState extends ConsumerState<OwnerAppShell>
   }
 
   void _refreshUnreadCount() {
+    if (ref.read(authenticatedSessionProvider) == null) {
+      _cancelUnreadCountTimer();
+      return;
+    }
+
     unawaited(ref.read(notificationsProvider.notifier).loadUnreadCount());
   }
 
@@ -116,6 +125,10 @@ class _OwnerAppShellState extends ConsumerState<OwnerAppShell>
       return canPop ? context.pop : () => context.go(AppRoutes.settings);
     }
 
+    if (AppRoutes.isReportsRoute(route) && route != AppRoutes.ownerReports) {
+      return canPop ? context.pop : () => context.go(AppRoutes.ownerReports);
+    }
+
     if (canPop) {
       return context.pop;
     }
@@ -130,6 +143,19 @@ class _OwnerAppShellState extends ConsumerState<OwnerAppShell>
     }
     if (route == AppRoutes.ownerCreateSupport) {
       return l10n.newTicket;
+    }
+
+    if (route == AppRoutes.transactionsSummaryReport) {
+      return l10n.transactionsSummaryReportTitle;
+    }
+    if (route == AppRoutes.profitSummaryReport) {
+      return l10n.profitSummaryReportTitle;
+    }
+    if (route == AppRoutes.userPerformanceReport) {
+      return l10n.userPerformanceReportTitle;
+    }
+    if (route == AppRoutes.transactionDetailsReport) {
+      return l10n.transactionDetailsReportTitle;
     }
 
     switch (route) {

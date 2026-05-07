@@ -186,6 +186,11 @@ class _FakeAuthRemoteDataSource implements AuthRemoteDataSource {
   }
 
   @override
+  Future<ApiResult<Session>> getCurrentSession(Session currentSession) async {
+    return ApiSuccess(currentSession);
+  }
+
+  @override
   Future<ApiResult<ForgotPasswordResponseModel>> forgotPassword(
     ForgotPasswordRequestModel request,
   ) async {
@@ -230,6 +235,11 @@ class _RecordingAuthRemoteDataSource implements AuthRemoteDataSource {
   @override
   Future<ApiResult<LoginResponseModel>> login(LoginRequestModel request) async {
     throw UnimplementedError();
+  }
+
+  @override
+  Future<ApiResult<Session>> getCurrentSession(Session currentSession) async {
+    return ApiSuccess(currentSession);
   }
 }
 

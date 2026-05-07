@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/errors/app_exception.dart';
 import '../../../../core/errors/error_message_mapper.dart';
 import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_buttons.dart';
@@ -15,9 +18,17 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../domain/entities/renewal_request_payload.dart';
 import '../controllers/renewal_controller.dart';
 import '../controllers/renewal_requests_controller.dart';
+import '../../../subscription/presentation/controllers/subscription_expired_controller.dart';
 
 class CreateRenewalRequestPage extends ConsumerStatefulWidget {
-  const CreateRenewalRequestPage({super.key});
+  const CreateRenewalRequestPage({
+    this.standalone = false,
+    this.fallbackRoute = AppRoutes.ownerRequestRenewal,
+    super.key,
+  });
+
+  final bool standalone;
+  final String fallbackRoute;
 
   @override
   ConsumerState<CreateRenewalRequestPage> createState() =>
@@ -30,6 +41,12 @@ class _CreateRenewalRequestPageState
   final _phoneController = TextEditingController();
   final _amountController = TextEditingController();
   final _periodController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    ref.read(renewalControllerProvider.notifier).clearState();
+  }
 
   @override
   void dispose() {
@@ -46,7 +63,21 @@ class _CreateRenewalRequestPageState
 
     return AppPageScaffold(
       title: l10n.newRequest,
-      embedded: true,
+      leading: widget.standalone
+          ? IconButton(
+              tooltip: l10n.backToExpiredSubscription,
+              icon: const BackButtonIcon(),
+              onPressed: () {
+                if (context.canPop()) {
+                  context.pop();
+                  return;
+                }
+
+                context.go(widget.fallbackRoute);
+              },
+            )
+          : null,
+      embedded: !widget.standalone,
       maxWidth: AppDimensions.compactContentMaxWidth,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -140,7 +171,7 @@ class _CreateRenewalRequestPageState
                         message: ErrorMessageMapper.getLocalizedMessage(
                           context,
                           state.error,
-                          fallbackMessage: l10n.unableToSubmitRenewalRequest,
+                          fallbackMessage: l10n.renewalRequestFailed,
                         ),
                         compact: true,
                       ),
@@ -178,19 +209,44 @@ class _CreateRenewalRequestPageState
         .read(renewalControllerProvider.notifier)
         .createRenewalRequest(payload);
 
-    if (!success || !mounted) {
+    if (!mounted) {
       return;
     }
 
-    await ref.read(renewalRequestsControllerProvider.notifier).reload();
-    if (!mounted) {
+    if (!success) {
+      final error = ref.read(renewalControllerProvider).error;
+      if (widget.standalone && _isPendingError(error)) {
+        Navigator.of(context).pop(renewalPendingNavigationResult);
+      }
       return;
+    }
+
+    if (!widget.standalone) {
+      await ref.read(renewalRequestsControllerProvider.notifier).reload();
+      if (!mounted) {
+        return;
+      }
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(appL10n(context).renewalRequestSubmitted)),
     );
+
+    if (widget.standalone) {
+      context.pop(renewalSentNavigationResult);
+      return;
+    }
+
     await Navigator.of(context).maybePop();
+  }
+
+  bool _isPendingError(Object? error) {
+    if (error is! AppException) {
+      return false;
+    }
+
+    final code = error.code.trim().toUpperCase();
+    return code == 'RENEWAL_REQUEST_ALREADY_PENDING' || code == 'DATA_CONFLICT';
   }
 }
 

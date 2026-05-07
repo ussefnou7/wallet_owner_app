@@ -17,12 +17,6 @@ import '../../../../l10n/generated/app_localizations.dart';
 import '../../../auth/domain/entities/session.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
-import '../../../branches/presentation/controllers/branches_controller.dart';
-import '../../../dashboard/presentation/providers/dashboard_provider.dart';
-import '../../../reports/presentation/controllers/reports_controller.dart';
-import '../../../transactions/presentation/controllers/transactions_controller.dart';
-import '../../../users/presentation/controllers/users_controller.dart';
-import '../../../wallets/presentation/controllers/wallets_controller.dart';
 import '../widgets/settings_action_tile.dart';
 import '../widgets/settings_profile_card.dart';
 import '../widgets/settings_section_card.dart';
@@ -47,6 +41,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
 
     final workspaceName = session.tenantDisplayName.trim();
+    final bottomContentPadding =
+        MediaQuery.paddingOf(context).bottom +
+        AppDimensions.floatingBottomNavReservedHeight;
 
     return AppPageScaffold(
       title: l10n.settings,
@@ -64,6 +61,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       embedded: true,
       maxWidth: AppDimensions.contentMaxWidth,
       child: SingleChildScrollView(
+        padding: EdgeInsets.only(bottom: bottomContentPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -140,7 +138,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   const SizedBox(height: AppSpacing.sm),
                   SettingsActionTile(
                     title: l10n.language,
-                    subtitle: '${l10n.english} / العربية',
+                    subtitle: '${l10n.english} / ${l10n.arabic}',
                     leading: const Icon(Icons.language_rounded),
                     trailing: const LanguageSwitcher(),
                   ),
@@ -249,10 +247,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           ),
           child: _ChangePasswordSheet(
             onSubmit: ({required currentPassword, required newPassword}) {
-              return ref.read(authRepositoryProvider).changePassword(
-                currentPassword: currentPassword,
-                newPassword: newPassword,
-              );
+              return ref
+                  .read(authRepositoryProvider)
+                  .changePassword(
+                    currentPassword: currentPassword,
+                    newPassword: newPassword,
+                  );
             },
           ),
         );
@@ -262,26 +262,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   Future<void> _signOut() async {
     await ref.read(authControllerProvider.notifier).signOut();
-    _invalidateCachedProviders();
 
     if (!mounted) {
       return;
     }
 
     context.go(AppRoutes.login);
-  }
-
-  void _invalidateCachedProviders() {
-    ref.invalidate(walletsControllerProvider);
-    ref.invalidate(transactionsControllerProvider);
-    ref.invalidate(branchesControllerProvider);
-    ref.invalidate(usersControllerProvider);
-    ref.invalidate(dashboardOverviewProvider);
-    ref.invalidate(dashboardTransactionSummaryProvider);
-    ref.invalidate(dashboardRecentTransactionsProvider);
-    ref.invalidate(reportsControllerProvider);
-    ref.invalidate(reportsSelectedTypeProvider);
-    ref.invalidate(reportsAppliedFiltersProvider);
   }
 }
 

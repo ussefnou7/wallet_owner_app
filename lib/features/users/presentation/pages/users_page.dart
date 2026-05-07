@@ -36,6 +36,7 @@ class UsersPage extends ConsumerStatefulWidget {
 
 class _UsersPageState extends ConsumerState<UsersPage> {
   late final TextEditingController _searchController;
+  final Set<String> _unassigningUserIds = <String>{};
 
   @override
   void initState() {
@@ -61,6 +62,9 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     final searchQuery = ref.watch(usersSearchQueryProvider);
     final roleFilter = ref.watch(usersRoleFilterProvider);
     final l10n = appL10n(context);
+    final bottomContentPadding =
+        MediaQuery.paddingOf(context).bottom +
+        AppDimensions.floatingBottomNavReservedHeight;
 
     return AppPageScaffold(
       title: l10n.users,
@@ -152,6 +156,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                 }
 
                 return ListView.separated(
+                  padding: EdgeInsets.only(bottom: bottomContentPadding),
                   itemCount: filteredUsers.length,
                   separatorBuilder: (context, index) =>
                       const SizedBox(height: AppSpacing.md),
@@ -165,6 +170,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                           _showAssignBranchDialog(context, user),
                       onUnassignBranch: () =>
                           _confirmUnassignBranch(context, user),
+                      isUnassigning: _unassigningUserIds.contains(user.id),
                     );
                   },
                 );
@@ -298,10 +304,15 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       return;
     }
 
+    setState(() {
+      _unassigningUserIds.add(user.id);
+    });
+
     try {
       await ref
           .read(usersControllerProvider.notifier)
           .unassignUserFromBranch(user.id);
+      await ref.read(branchesControllerProvider.notifier).reload();
       if (!context.mounted) {
         return;
       }
@@ -313,6 +324,12 @@ class _UsersPageState extends ConsumerState<UsersPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(ErrorMessageMapper.getMessage(error))),
         );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _unassigningUserIds.remove(user.id);
+        });
       }
     }
   }

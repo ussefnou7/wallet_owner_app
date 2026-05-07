@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/app_exception.dart';
@@ -7,6 +8,8 @@ import '../../../../core/network/api_response_extractor.dart';
 import '../../../../core/network/api_result.dart';
 import '../../../../core/network/network_constants.dart';
 import '../models/wallet_model.dart';
+import '../models/wallet_option_model.dart';
+import 'wallet_options_query_builder.dart';
 
 final walletsRemoteDataSourceProvider = Provider<WalletsRemoteDataSource>((
   ref,
@@ -22,7 +25,11 @@ final walletsRemoteDataSourceProvider = Provider<WalletsRemoteDataSource>((
 abstract interface class WalletsRemoteDataSource {
   Future<ApiResult<List<WalletModel>>> getWallets();
 
+  Future<ApiResult<List<WalletModel>>> getWalletsByBranch(String branchId);
+
   Future<ApiResult<WalletModel>> getWalletById(String walletId);
+
+  Future<ApiResult<List<WalletOptionModel>>> getWalletOptions({String? branchId});
 
   Future<ApiResult<WalletModel>> createWallet(CreateWalletRequestModel request);
 
@@ -62,6 +69,47 @@ class DioWalletsRemoteDataSource implements WalletsRemoteDataSource {
       ).map(WalletModel.fromJson).toList();
       return ApiSuccess(wallets);
     } catch (error) {
+      return ApiError(_exceptionMapper.map(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<List<WalletModel>>> getWalletsByBranch(String branchId) async {
+    try {
+      final response = await _apiClient.get<Object?>(
+        NetworkConstants.walletsByBranchPath(branchId),
+      );
+      final wallets = ApiResponseExtractor.extractList(
+        response.data,
+      ).map(WalletModel.fromJson).toList();
+      return ApiSuccess(wallets);
+    } catch (error) {
+      return ApiError(_exceptionMapper.map(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<List<WalletOptionModel>>> getWalletOptions({String? branchId}) async {
+    try {
+      debugPrint('[WalletOptions] Request: branchId=$branchId');
+
+      // Build safe query parameters
+      final queryParams = WalletOptionsQueryBuilder.build(branchId);
+
+      // Make request with query parameters
+      final response = await _apiClient.get<Object?>(
+        NetworkConstants.walletOptionsPath,
+        queryParameters: queryParams,
+      );
+
+      final options = ApiResponseExtractor.extractList(
+        response.data,
+      ).map(WalletOptionModel.fromJson).toList();
+
+      debugPrint('[WalletOptions] Success: received ${options.length} wallets');
+      return ApiSuccess(options);
+    } catch (error) {
+      debugPrint('[WalletOptions] Error: $error');
       return ApiError(_exceptionMapper.map(error));
     }
   }

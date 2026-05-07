@@ -8,6 +8,7 @@ class AppUser extends Equatable {
     required this.username,
     required this.role,
     required this.tenantName,
+    this.backendRole = '',
     this.tenantId,
     this.branchId,
     this.branchName,
@@ -18,10 +19,20 @@ class AppUser extends Equatable {
   final String username;
   final UserRole role;
   final String tenantName;
+  final String backendRole;
   final String? tenantId;
   final String? branchId;
   final String? branchName;
   final bool active;
+
+  bool get isOwner => role == UserRole.owner;
+
+  bool get isUser => role == UserRole.user;
+
+  bool get isSystemAdmin => backendRole.trim().toUpperCase() == 'SYSTEM_ADMIN';
+
+  String get roleLabel =>
+      backendRole.trim().isEmpty ? role.name.toUpperCase() : backendRole;
 
   @override
   List<Object?> get props => [
@@ -29,6 +40,7 @@ class AppUser extends Equatable {
     username,
     role,
     tenantName,
+    backendRole,
     tenantId,
     branchId,
     branchName,

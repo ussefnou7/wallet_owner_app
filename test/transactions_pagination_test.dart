@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,6 +10,7 @@ import 'package:ta2feela_app/features/transactions/data/models/transaction_recor
 import 'package:ta2feela_app/features/transactions/domain/entities/transaction_draft.dart';
 import 'package:ta2feela_app/features/transactions/domain/entities/transaction_record.dart';
 import 'package:ta2feela_app/features/transactions/domain/entities/transaction_submission_result.dart';
+import 'package:ta2feela_app/features/transactions/domain/entities/transactions_filter_state.dart';
 import 'package:ta2feela_app/features/transactions/domain/repositories/transactions_repository.dart';
 import 'package:ta2feela_app/features/transactions/presentation/controllers/transactions_controller.dart';
 import 'package:ta2feela_app/features/transactions/presentation/pages/transactions_page.dart';
@@ -32,6 +35,7 @@ void main() {
           'occurredAt': '2026-04-30T12:00:00',
           'createdAt': '2026-04-30T12:01:00',
           'updatedAt': '2026-04-30T12:01:00',
+          'createdBy': 'user-1',
           'createdByUsername': 'owner-user',
         },
       ],
@@ -51,7 +55,8 @@ void main() {
     expect(response.last, isFalse);
     expect(response.hasNext, isTrue);
     expect(response.content.first.cash, isFalse);
-    expect(response.content.first.createdBy, 'owner-user');
+    expect(response.content.first.createdBy, 'user-1');
+    expect(response.content.first.createdByUsername, 'owner-user');
   });
 
   test(
@@ -154,6 +159,37 @@ void main() {
     expect(state.hasNext, isFalse);
   });
 
+  test('load more is ignored when first page reports no next page', () async {
+    final repository = _FakeTransactionsRepository();
+    repository.seedPage(
+      page: 0,
+      response: _pageResponse(
+        page: 0,
+        hasNext: false,
+        items: [_transaction('txn-1')],
+      ),
+    );
+
+    final container = ProviderContainer(
+      overrides: [transactionsRepositoryProvider.overrideWithValue(repository)],
+    );
+    addTearDown(container.dispose);
+
+    container.read(transactionsControllerProvider);
+    await _pumpQueue();
+    await container.read(transactionsControllerProvider.notifier).loadMore();
+
+    expect(repository.requests, hasLength(1));
+    expect(
+      repository.requests.single,
+      const _TransactionsRequest(
+        page: 0,
+        size: 20,
+        filter: TransactionFilterType.all,
+      ),
+    );
+  });
+
   test('filter change resets pagination to page 0', () async {
     final repository = _FakeTransactionsRepository();
     repository.seedPage(
@@ -194,11 +230,11 @@ void main() {
     await container.read(transactionsControllerProvider.notifier).loadMore();
     await container
         .read(transactionsControllerProvider.notifier)
-        .updateFilter(TransactionFilterType.credit);
+        .updateFilterType(TransactionFilterType.credit);
 
     final state = container.read(transactionsControllerProvider);
     expect(state.currentPage, 0);
-    expect(state.activeFilter, TransactionFilterType.credit);
+    expect(state.activeFilterType, TransactionFilterType.credit);
     expect(state.transactions.map((t) => t.id), ['txn-3']);
     expect(
       repository.requests.last,
@@ -208,6 +244,129 @@ void main() {
         filter: TransactionFilterType.credit,
       ),
     );
+  });
+
+  test('selecting all after credit clears transaction type filter', () async {
+    final repository = _FakeTransactionsRepository();
+    repository.seedPage(
+      page: 0,
+      response: _pageResponse(
+        page: 0,
+        hasNext: false,
+        items: [_transaction('txn-all-initial')],
+      ),
+      filter: TransactionFilterType.all,
+    );
+    repository.seedPage(
+      page: 0,
+      response: _pageResponse(
+        page: 0,
+        hasNext: false,
+        items: [_transaction('txn-credit', type: TransactionEntryType.credit)],
+      ),
+      filter: TransactionFilterType.credit,
+    );
+
+    final container = ProviderContainer(
+      overrides: [transactionsRepositoryProvider.overrideWithValue(repository)],
+    );
+    addTearDown(container.dispose);
+
+    container.read(transactionsControllerProvider);
+    await _pumpQueue();
+    await container
+        .read(transactionsControllerProvider.notifier)
+        .updateFilterType(TransactionFilterType.credit);
+
+    repository.seedPage(
+      page: 0,
+      response: _pageResponse(
+        page: 0,
+        hasNext: false,
+        items: [_transaction('txn-all-returned')],
+      ),
+      filter: TransactionFilterType.all,
+    );
+
+    await container
+        .read(transactionsControllerProvider.notifier)
+        .updateFilterType(TransactionFilterType.all);
+
+    final state = container.read(transactionsControllerProvider);
+    expect(state.activeFilterType, TransactionFilterType.all);
+    expect(state.filter.type, isNull);
+    expect(state.transactions.map((t) => t.id), ['txn-all-returned']);
+    expect(
+      repository.requests.last,
+      const _TransactionsRequest(
+        page: 0,
+        size: 20,
+        filter: TransactionFilterType.all,
+      ),
+    );
+  });
+
+  test('latest quick filter request wins over stale in-flight response', () async {
+    final repository = _FakeTransactionsRepository();
+    repository.seedPage(
+      page: 0,
+      filter: TransactionFilterType.all,
+      response: _pageResponse(
+        page: 0,
+        hasNext: false,
+        items: [_transaction('txn-initial')],
+      ),
+    );
+    repository.prepareRequest(
+      page: 0,
+      filter: TransactionFilterType.credit,
+    );
+
+    final container = ProviderContainer(
+      overrides: [transactionsRepositoryProvider.overrideWithValue(repository)],
+    );
+    addTearDown(container.dispose);
+
+    container.read(transactionsControllerProvider);
+    await _pumpQueue();
+    repository.seedPage(
+      page: 0,
+      filter: TransactionFilterType.all,
+      response: _pageResponse(
+        page: 0,
+        hasNext: false,
+        items: [_transaction('txn-all')],
+      ),
+    );
+
+    unawaited(
+      container
+          .read(transactionsControllerProvider.notifier)
+          .updateFilterType(TransactionFilterType.credit),
+    );
+    await Future<void>.delayed(Duration.zero);
+    await container
+        .read(transactionsControllerProvider.notifier)
+        .updateFilterType(TransactionFilterType.all);
+
+    repository.completePreparedRequest(
+      page: 0,
+      filter: TransactionFilterType.credit,
+      response: _pageResponse(
+        page: 0,
+        hasNext: false,
+        items: [_transaction('txn-credit', type: TransactionEntryType.credit)],
+      ),
+    );
+
+    await _pumpQueue();
+
+    final state = container.read(transactionsControllerProvider);
+    expect(state.activeFilterType, TransactionFilterType.all);
+    expect(state.currentPage, 0);
+    expect(state.transactions.map((t) => t.id), ['txn-all']);
+    expect(state.isInitialLoading, isFalse);
+    expect(state.isLoadingMore, isFalse);
   });
 
   test('load more error preserves already loaded list', () async {
@@ -328,6 +487,8 @@ class _FakeTransactionsRepository implements TransactionsRepository {
   final Map<_TransactionsRequest, PagedResponse<TransactionRecord>> _responses =
       {};
   final Map<_TransactionsRequest, AppException> _errors = {};
+  final Map<_TransactionsRequest, Completer<PagedResponse<TransactionRecord>>>
+  _preparedResponses = {};
   final List<_TransactionsRequest> requests = [];
 
   void seedPage({
@@ -353,26 +514,54 @@ class _FakeTransactionsRepository implements TransactionsRepository {
         error;
   }
 
+  Completer<PagedResponse<TransactionRecord>> prepareRequest({
+    required int page,
+    required TransactionFilterType filter,
+    int size = 20,
+  }) {
+    final completer = Completer<PagedResponse<TransactionRecord>>();
+    _preparedResponses[_TransactionsRequest(
+      page: page,
+      size: size,
+      filter: filter,
+    )] = completer;
+    return completer;
+  }
+
+  void completePreparedRequest({
+    required int page,
+    required TransactionFilterType filter,
+    required PagedResponse<TransactionRecord> response,
+    int size = 20,
+  }) {
+    final request = _TransactionsRequest(page: page, size: size, filter: filter);
+    final completer = _preparedResponses.remove(request);
+    if (completer == null || completer.isCompleted) {
+      return;
+    }
+    completer.complete(response);
+  }
+
   @override
   Future<PagedResponse<TransactionRecord>> getTransactions({
-    String? walletId,
-    TransactionEntryType? type,
-    DateTime? dateFrom,
-    DateTime? dateTo,
-    int page = 0,
-    int size = 20,
+    required TransactionsFilterState filter,
   }) async {
-    final filter = switch (type) {
+    final transactionFilter = switch (filter.type) {
       TransactionEntryType.credit => TransactionFilterType.credit,
       TransactionEntryType.debit => TransactionFilterType.debit,
       _ => TransactionFilterType.all,
     };
     final request = _TransactionsRequest(
-      page: page,
-      size: size,
-      filter: filter,
+      page: filter.page,
+      size: filter.size,
+      filter: transactionFilter,
     );
     requests.add(request);
+
+    final preparedResponse = _preparedResponses[request];
+    if (preparedResponse != null) {
+      return preparedResponse.future;
+    }
 
     final error = _errors[request];
     if (error != null) {
@@ -382,8 +571,8 @@ class _FakeTransactionsRepository implements TransactionsRepository {
     return _responses[request] ??
         PagedResponse<TransactionRecord>(
           content: const [],
-          page: page,
-          size: size,
+          page: filter.page,
+          size: filter.size,
           totalElements: 0,
           totalPages: 0,
           last: true,

@@ -1,13 +1,32 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/app_exception.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../data/services/wallets_remote_data_source.dart';
 import '../../domain/entities/wallet.dart';
 import '../../domain/repositories/wallets_repository.dart';
 
 final walletsSearchQueryProvider = StateProvider<String>((ref) => '');
+final walletSortOptionProvider = StateProvider<WalletSortOption>(
+  (ref) => WalletSortOption.defaultOrder,
+);
 
-final walletTypesProvider = FutureProvider<List<String>>((ref) async {
+enum WalletSortOption {
+  defaultOrder,
+  nearLimitFirst,
+  highestDailyUsage,
+  highestMonthlyUsage,
+  highestLimit,
+}
+
+final walletTypesProvider = FutureProvider.autoDispose<List<String>>((
+  ref,
+) async {
+  final session = ref.watch(authenticatedSessionProvider);
+  if (session == null) {
+    return const <String>[];
+  }
+
   final remoteDataSource = ref.watch(walletsRemoteDataSourceProvider);
   final result = await remoteDataSource.getWalletTypes();
   return result.when(
@@ -18,6 +37,7 @@ final walletTypesProvider = FutureProvider<List<String>>((ref) async {
 
 final walletsControllerProvider =
     StateNotifierProvider<WalletsController, WalletListState>((ref) {
+      ref.watch(sessionScopeKeyProvider);
       final repository = ref.watch(walletsRepositoryProvider);
       return WalletsController(repository, ref);
     });
@@ -38,13 +58,52 @@ final filteredWalletsProvider = Provider<List<Wallet>>((ref) {
   }).toList();
 });
 
-final walletDetailsProvider = FutureProvider.family<Wallet, String>((
-  ref,
-  walletId,
-) {
-  final repository = ref.watch(walletsRepositoryProvider);
-  return repository.getWalletById(walletId);
+final sortedWalletsProvider = Provider<List<Wallet>>((ref) {
+  final wallets = ref.watch(filteredWalletsProvider);
+  final sortOption = ref.watch(walletSortOptionProvider);
+
+  if (sortOption == WalletSortOption.defaultOrder) {
+    return wallets;
+  }
+
+  final sortedWallets = List<Wallet>.from(wallets);
+  sortedWallets.sort((a, b) {
+    final comparison = switch (sortOption) {
+      WalletSortOption.defaultOrder => 0,
+      WalletSortOption.nearLimitFirst => _compareDescending(
+        _highestUsagePercent(b),
+        _highestUsagePercent(a),
+      ),
+      WalletSortOption.highestDailyUsage => _compareDescending(
+        b.dailyPercent,
+        a.dailyPercent,
+      ),
+      WalletSortOption.highestMonthlyUsage => _compareDescending(
+        b.monthlyPercent,
+        a.monthlyPercent,
+      ),
+      WalletSortOption.highestLimit => _compareDescending(
+        _highestLimitValue(b),
+        _highestLimitValue(a),
+      ),
+    };
+
+    if (comparison != 0) {
+      return comparison;
+    }
+
+    return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+  });
+  return sortedWallets;
 });
+
+final walletDetailsProvider = FutureProvider.autoDispose.family<Wallet, String>(
+  (ref, walletId) {
+    ref.watch(sessionScopeKeyProvider);
+    final repository = ref.watch(walletsRepositoryProvider);
+    return repository.getWalletById(walletId);
+  },
+);
 
 class WalletListState {
   const WalletListState({
@@ -90,13 +149,20 @@ class WalletListState {
 class WalletsController extends StateNotifier<WalletListState> {
   WalletsController(this._repository, this._ref)
     : super(const WalletListState()) {
-    _loadWallets();
+    if (_hasAuthenticatedSession) {
+      _loadWallets();
+    }
   }
 
   final WalletsRepository _repository;
   final Ref _ref;
 
   Future<void> _loadWallets() async {
+    if (!_hasAuthenticatedSession) {
+      state = const WalletListState();
+      return;
+    }
+
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final wallets = await _repository.getWallets();
@@ -120,6 +186,10 @@ class WalletsController extends StateNotifier<WalletListState> {
     required String type,
     required String tenantId,
   }) async {
+    if (!_hasAuthenticatedSession) {
+      return;
+    }
+
     state = state.copyWith(isCreating: true, clearError: true);
     try {
       await _repository.createWallet(
@@ -133,6 +203,7 @@ class WalletsController extends StateNotifier<WalletListState> {
         tenantId: tenantId,
       );
       await _loadWallets();
+      state = state.copyWith(isCreating: false, clearError: true);
     } on AppException catch (error) {
       state = state.copyWith(isCreating: false, error: error);
     }
@@ -145,6 +216,10 @@ class WalletsController extends StateNotifier<WalletListState> {
     required double dailyLimit,
     required double monthlyLimit,
   }) async {
+    if (!_hasAuthenticatedSession) {
+      return;
+    }
+
     state = state.copyWith(isUpdating: true, clearError: true);
     try {
       await _repository.updateWallet(
@@ -161,6 +236,10 @@ class WalletsController extends StateNotifier<WalletListState> {
   }
 
   Future<void> deleteWallet(String walletId) async {
+    if (!_hasAuthenticatedSession) {
+      return;
+    }
+
     state = state.copyWith(isDeleting: true, clearError: true);
     try {
       await _repository.deleteWallet(walletId);
@@ -176,6 +255,10 @@ class WalletsController extends StateNotifier<WalletListState> {
     required double cashProfitAmount,
     String? note,
   }) async {
+    if (!_hasAuthenticatedSession) {
+      return false;
+    }
+
     state = state.copyWith(isCollectingProfit: true, clearError: true);
     try {
       final updatedWallet = await _repository.collectProfit(
@@ -205,4 +288,28 @@ class WalletsController extends StateNotifier<WalletListState> {
   void updateQuery(String value) {
     _ref.read(walletsSearchQueryProvider.notifier).state = value;
   }
+
+  void updateSortOption(WalletSortOption value) {
+    _ref.read(walletSortOptionProvider.notifier).state = value;
+  }
+
+  bool get _hasAuthenticatedSession {
+    return _ref.read(authenticatedSessionProvider) != null;
+  }
+}
+
+double _highestUsagePercent(Wallet wallet) {
+  return wallet.dailyPercent > wallet.monthlyPercent
+      ? wallet.dailyPercent
+      : wallet.monthlyPercent;
+}
+
+double _highestLimitValue(Wallet wallet) {
+  return wallet.dailyLimit > wallet.monthlyLimit
+      ? wallet.dailyLimit
+      : wallet.monthlyLimit;
+}
+
+int _compareDescending(double left, double right) {
+  return left.compareTo(right);
 }

@@ -9,7 +9,7 @@ abstract final class AppDimensions {
   static const double navigationBarHeight = 72;
   static const double floatingBottomNavHeight = 76;
   static const double floatingBottomNavOffset = 10;
-  static const double floatingBottomNavExtraSpacing = AppSpacing.lg;
+  static const double floatingBottomNavExtraSpacing = AppSpacing.md;
   static const double ownerBottomNavReservedHeight =
       floatingBottomNavHeight +
       floatingBottomNavOffset +

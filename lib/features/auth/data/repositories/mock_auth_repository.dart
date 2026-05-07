@@ -38,6 +38,16 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<Session> refreshSession({Session? currentSession}) async {
+    return currentSession ?? (await _localDataSource.readSession())!;
+  }
+
+  @override
+  Future<void> saveSession(Session session) {
+    return _localDataSource.saveSession(session);
+  }
+
+  @override
   Future<String?> forgotPassword({required String username}) async {
     return null;
   }

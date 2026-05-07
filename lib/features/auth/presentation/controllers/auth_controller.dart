@@ -19,6 +19,24 @@ final authControllerProvider = StateNotifierProvider<AuthController, AuthState>(
   },
 );
 
+final authenticatedSessionProvider = Provider<Session?>((ref) {
+  final authState = ref.watch(authControllerProvider);
+  if (authState.status != AuthStatus.authenticated) {
+    return null;
+  }
+
+  return authState.session;
+});
+
+final sessionScopeKeyProvider = Provider<String?>((ref) {
+  final session = ref.watch(authenticatedSessionProvider);
+  if (session == null) {
+    return null;
+  }
+
+  return '${session.tenantId}:${session.userId}:${session.accessToken}';
+});
+
 enum AuthStatus { loading, authenticated, unauthenticated }
 
 class AuthState {
@@ -59,6 +77,7 @@ class AuthController extends StateNotifier<AuthState> {
   final Future<void> Function() _resetSessionScope;
   final StreamController<AuthState> _streamController;
   Future<void>? _pendingSessionInvalidation;
+  Future<void>? _pendingSubscriptionUpdate;
 
   @override
   Stream<AuthState> get stream => _streamController.stream;
@@ -96,6 +115,49 @@ class AuthController extends StateNotifier<AuthState> {
     await _performLogout();
   }
 
+  Future<Session?> refreshSession() async {
+    final currentSession = state.session;
+    if (currentSession == null) {
+      return null;
+    }
+
+    final refreshedSession = await _authRepository.refreshSession(
+      currentSession: currentSession,
+    );
+    state = AuthState.authenticated(refreshedSession);
+    return refreshedSession;
+  }
+
+  Future<void> handleSubscriptionExpired([AppException? exception]) {
+    final currentSession = state.session;
+    if (currentSession == null) {
+      return Future.value();
+    }
+
+    if (_pendingSubscriptionUpdate == null) {
+      final completer = Completer<void>();
+      _pendingSubscriptionUpdate = completer.future;
+      () async {
+        try {
+          final updatedSession = currentSession.copyWith(
+            subscriptionStatus: 'EXPIRED',
+          );
+          await _authRepository.saveSession(updatedSession);
+          state = AuthState.authenticated(updatedSession);
+          completer.complete();
+        } catch (error, stackTrace) {
+          completer.completeError(error, stackTrace);
+        } finally {
+          if (identical(_pendingSubscriptionUpdate, completer.future)) {
+            _pendingSubscriptionUpdate = null;
+          }
+        }
+      }();
+    }
+
+    return _pendingSubscriptionUpdate!;
+  }
+
   Future<void> handleSessionInvalidation(AppException exception) {
     if (state.status == AuthStatus.unauthenticated && state.session == null) {
       return Future.value();
@@ -126,10 +188,10 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   Future<void> _performLogout({AppException? exception}) async {
+    state = AuthState.unauthenticated(exception);
     try {
       await _authRepository.logout();
     } finally {
-      state = AuthState.unauthenticated(exception);
       await _resetSessionScope();
     }
   }

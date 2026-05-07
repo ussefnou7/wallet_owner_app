@@ -4,10 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_dimensions.dart';
+import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/errors/app_exception.dart';
 import '../../../../core/errors/error_message_mapper.dart';
 import '../../../../core/localization/app_l10n.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../core/widgets/app_empty_state.dart';
 import '../../../../core/widgets/app_error_state.dart';
 import '../../../../core/widgets/app_loading_view.dart';
@@ -50,13 +54,17 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
   @override
   Widget build(BuildContext context) {
     final walletState = ref.watch(walletsControllerProvider);
-    final filteredWallets = ref.watch(filteredWalletsProvider);
+    final filteredWallets = ref.watch(sortedWalletsProvider);
     final searchQuery = ref.watch(walletsSearchQueryProvider);
+    final sortOption = ref.watch(walletSortOptionProvider);
     final authState = ref.watch(authControllerProvider);
     final canManageWallets = !widget.readOnly;
     final canCollectProfit =
         canManageWallets && (authState.session?.isOwner ?? false);
     final l10n = appL10n(context);
+    final bottomContentPadding =
+        MediaQuery.paddingOf(context).bottom +
+        AppDimensions.floatingBottomNavReservedHeight;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,6 +117,16 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
               ),
           ],
         ),
+        const SizedBox(height: AppSpacing.sm),
+        Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: _WalletSortButton(
+            selectedOption: sortOption,
+            onSelected: ref
+                .read(walletsControllerProvider.notifier)
+                .updateSortOption,
+          ),
+        ),
         const SizedBox(height: AppSpacing.md),
         Expanded(
           child: walletState.isLoading
@@ -124,7 +142,7 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
                   icon: Icons.account_balance_wallet_outlined,
                 )
               : ListView.separated(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  padding: EdgeInsets.only(bottom: bottomContentPadding),
                   itemCount: filteredWallets.length,
                   separatorBuilder: (context, index) =>
                       const SizedBox(height: AppSpacing.md),
@@ -259,6 +277,76 @@ class _WalletsPageState extends ConsumerState<WalletsPage> {
   }
 }
 
+class _WalletSortButton extends StatelessWidget {
+  const _WalletSortButton({
+    required this.selectedOption,
+    required this.onSelected,
+  });
+
+  final WalletSortOption selectedOption;
+  final ValueChanged<WalletSortOption> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = appL10n(context);
+
+    return PopupMenuButton<WalletSortOption>(
+      initialValue: selectedOption,
+      tooltip: l10n.sortWallets,
+      onSelected: onSelected,
+      itemBuilder: (context) => [
+        for (final option in WalletSortOption.values)
+          PopupMenuItem<WalletSortOption>(
+            value: option,
+            child: Text(_sortOptionLabel(option, l10n)),
+          ),
+      ],
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppRadii.md),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.sort_rounded, size: 18),
+              const SizedBox(width: AppSpacing.xs),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 180),
+                child: Text(
+                  _sortOptionLabel(selectedOption, l10n),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              const Icon(Icons.keyboard_arrow_down_rounded, size: 18),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _sortOptionLabel(WalletSortOption option, AppLocalizations l10n) {
+    return switch (option) {
+      WalletSortOption.defaultOrder => l10n.walletSortDefaultOrder,
+      WalletSortOption.nearLimitFirst => l10n.walletSortNearLimitFirst,
+      WalletSortOption.highestDailyUsage => l10n.walletSortHighestDailyUsage,
+      WalletSortOption.highestMonthlyUsage =>
+        l10n.walletSortHighestMonthlyUsage,
+      WalletSortOption.highestLimit => l10n.walletSortHighestLimit,
+    };
+  }
+}
+
 class _CreateWalletDialog extends ConsumerStatefulWidget {
   const _CreateWalletDialog();
 
@@ -353,42 +441,34 @@ class _CreateWalletDialogState extends ConsumerState<_CreateWalletDialog> {
                     },
                   ),
                   const SizedBox(height: AppSpacing.md),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: AppTextField(
-                          controller: _dailyLimitController,
-                          label: l10n.dailyLimitLabel,
-                          prefixIcon: const Icon(Icons.today_outlined),
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          inputFormatters: [_decimalInputFormatter],
-                          validator: (value) => _validateLimitField(
-                            value,
-                            l10n.dailyLimitRequired,
-                            l10n.validLimitRequired,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: AppTextField(
-                          controller: _monthlyLimitController,
-                          label: l10n.monthlyLimitLabel,
-                          prefixIcon: const Icon(Icons.calendar_month_outlined),
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          inputFormatters: [_decimalInputFormatter],
-                          validator: (value) => _validateLimitField(
-                            value,
-                            l10n.monthlyLimitRequired,
-                            l10n.validLimitRequired,
-                          ),
-                        ),
-                      ),
-                    ],
+                  AppTextField(
+                    controller: _dailyLimitController,
+                    label: l10n.dailyLimitLabel,
+                    prefixIcon: const Icon(Icons.today_outlined),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    inputFormatters: [_decimalInputFormatter],
+                    validator: (value) => _validateLimitField(
+                      value,
+                      l10n.dailyLimitRequired,
+                      l10n.validLimitRequired,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  AppTextField(
+                    controller: _monthlyLimitController,
+                    label: l10n.monthlyLimitLabel,
+                    prefixIcon: const Icon(Icons.calendar_month_outlined),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    inputFormatters: [_decimalInputFormatter],
+                    validator: (value) => _validateLimitField(
+                      value,
+                      l10n.monthlyLimitRequired,
+                      l10n.validLimitRequired,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.md),
                   branchesAsync.when(
@@ -606,7 +686,21 @@ class _CreateWalletDialogState extends ConsumerState<_CreateWalletDialog> {
       return;
     }
 
+    _resetForm();
     _close(true);
+  }
+
+  void _resetForm() {
+    _formKey.currentState?.reset();
+    _nameController.clear();
+    _numberController.clear();
+    _balanceController.clear();
+    _dailyLimitController.clear();
+    _monthlyLimitController.clear();
+    _selectedBranchId = null;
+    _selectedType = null;
+    _isSubmitting = false;
+    _submitError = null;
   }
 }
 

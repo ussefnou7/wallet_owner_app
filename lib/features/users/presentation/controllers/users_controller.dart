@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../auth/domain/entities/session.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../domain/entities/app_user.dart';
 import '../../domain/repositories/users_repository.dart';
 
@@ -46,11 +47,21 @@ final filteredUsersProvider = Provider<List<AppUser>>((ref) {
 class UsersController extends AsyncNotifier<List<AppUser>> {
   @override
   Future<List<AppUser>> build() async {
+    final session = ref.watch(authenticatedSessionProvider);
+    if (session == null) {
+      return const [];
+    }
+
     final repository = ref.watch(usersRepositoryProvider);
     return repository.getUsers();
   }
 
   Future<void> reload() async {
+    if (!_hasAuthenticatedSession) {
+      state = const AsyncData([]);
+      return;
+    }
+
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       final repository = ref.read(usersRepositoryProvider);
@@ -59,6 +70,10 @@ class UsersController extends AsyncNotifier<List<AppUser>> {
   }
 
   Future<void> createUser(String username, String password) async {
+    if (!_hasAuthenticatedSession) {
+      return;
+    }
+
     final repository = ref.read(usersRepositoryProvider);
     await repository.createUser(username, password);
     await reload();
@@ -70,24 +85,40 @@ class UsersController extends AsyncNotifier<List<AppUser>> {
     String password,
     bool active,
   ) async {
+    if (!_hasAuthenticatedSession) {
+      return;
+    }
+
     final repository = ref.read(usersRepositoryProvider);
     await repository.updateUser(userId, username, password, active);
     await reload();
   }
 
   Future<void> deleteUser(String userId) async {
+    if (!_hasAuthenticatedSession) {
+      return;
+    }
+
     final repository = ref.read(usersRepositoryProvider);
     await repository.deleteUser(userId);
     await reload();
   }
 
   Future<void> assignUserToBranch(String userId, String branchId) async {
+    if (!_hasAuthenticatedSession) {
+      return;
+    }
+
     final repository = ref.read(usersRepositoryProvider);
     await repository.assignUserToBranch(userId, branchId);
     await reload();
   }
 
   Future<void> unassignUserFromBranch(String userId) async {
+    if (!_hasAuthenticatedSession) {
+      return;
+    }
+
     final repository = ref.read(usersRepositoryProvider);
     await repository.unassignUserFromBranch(userId);
     await reload();
@@ -99,5 +130,9 @@ class UsersController extends AsyncNotifier<List<AppUser>> {
 
   void updateRoleFilter(UserRoleFilter value) {
     ref.read(usersRoleFilterProvider.notifier).state = value;
+  }
+
+  bool get _hasAuthenticatedSession {
+    return ref.read(authenticatedSessionProvider) != null;
   }
 }

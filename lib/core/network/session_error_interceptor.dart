@@ -15,6 +15,7 @@ final sessionErrorInterceptorProvider = Provider<SessionErrorInterceptor>((
   return SessionErrorInterceptor(
     exceptionMapper: exceptionMapper,
     onSessionInvalidated: authController.handleSessionInvalidation,
+    onSubscriptionExpired: authController.handleSubscriptionExpired,
   );
 });
 
@@ -22,12 +23,17 @@ class SessionErrorInterceptor extends Interceptor {
   SessionErrorInterceptor({
     required ApiExceptionMapper exceptionMapper,
     required Future<void> Function(AppException exception) onSessionInvalidated,
+    required Future<void> Function(AppException exception)
+    onSubscriptionExpired,
   }) : _exceptionMapper = exceptionMapper,
-       _onSessionInvalidated = onSessionInvalidated;
+       _onSessionInvalidated = onSessionInvalidated,
+       _onSubscriptionExpired = onSubscriptionExpired;
 
   final ApiExceptionMapper _exceptionMapper;
   final Future<void> Function(AppException exception) _onSessionInvalidated;
+  final Future<void> Function(AppException exception) _onSubscriptionExpired;
   Future<void>? _activeSessionInvalidation;
+  Future<void>? _activeSubscriptionExpiredHandling;
 
   @override
   Future<void> onError(
@@ -36,7 +42,32 @@ class SessionErrorInterceptor extends Interceptor {
   ) async {
     final exception = _exceptionMapper.map(err);
 
-    if (exception.requiresSessionInvalidation) {
+    if (exception.isSubscriptionExpired) {
+      if (_activeSubscriptionExpiredHandling == null) {
+        final completer = Completer<void>();
+        _activeSubscriptionExpiredHandling = completer.future;
+        unawaited(() async {
+          try {
+            await _onSubscriptionExpired(exception);
+            completer.complete();
+          } catch (error, stackTrace) {
+            completer.completeError(error, stackTrace);
+          } finally {
+            if (identical(
+              _activeSubscriptionExpiredHandling,
+              completer.future,
+            )) {
+              _activeSubscriptionExpiredHandling = null;
+            }
+          }
+        }());
+      }
+      try {
+        await _activeSubscriptionExpiredHandling;
+      } catch (_) {
+        // Subscription state sync failed, but the original request error should still propagate.
+      }
+    } else if (exception.requiresSessionInvalidation) {
       if (_activeSessionInvalidation == null) {
         final completer = Completer<void>();
         _activeSessionInvalidation = completer.future;

@@ -3,7 +3,8 @@ import 'package:intl/intl.dart';
 /// Centralized date/time formatter supporting English and Arabic locales.
 ///
 /// All methods require explicit locale input and do NOT rely on `Intl.defaultLocale`.
-/// Supported locales: 'en', 'ar'. Any other locale defaults to 'en'.
+/// Supported locales: 'en', Arabic locales starting with 'ar'. Any other locale
+/// defaults to 'en'.
 ///
 /// Usage:
 /// ```dart
@@ -153,7 +154,7 @@ class AppDateFormatter {
 
   /// Normalizes locale code to supported locales.
   ///
-  /// Supported: 'en', 'ar'
+  /// Supported: 'en', Arabic locales that start with 'ar'
   /// Default fallback: 'en'
   static String _normalizeLocale(String? locale) {
     if (locale == null || locale.isEmpty) {
@@ -161,7 +162,7 @@ class AppDateFormatter {
     }
 
     final lang = locale.toLowerCase();
-    if (lang == 'ar' || lang.startsWith('ar_')) {
+    if (lang == 'ar' || lang.startsWith('ar_') || lang.startsWith('ar-')) {
       return 'ar';
     }
 

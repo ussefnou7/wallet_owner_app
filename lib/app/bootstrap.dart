@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/config/app_config.dart';
+import '../core/errors/app_exception.dart';
 import '../core/network/api_client.dart';
 import '../core/network/api_exception_mapper.dart';
 import '../core/network/auth_interceptor.dart';
@@ -26,9 +27,18 @@ import '../features/notifications/domain/repositories/notifications_repository.d
 import '../features/plans/data/repositories/app_plans_repository.dart';
 import '../features/plans/data/services/plans_remote_data_source.dart';
 import '../features/plans/domain/repositories/plans_repository.dart';
+import '../features/reports/data/repositories/app_profit_summary_repository.dart';
 import '../features/reports/data/repositories/app_reports_repository.dart';
+import '../features/reports/data/repositories/app_transaction_summary_repository.dart';
+import '../features/reports/data/repositories/app_user_performance_repository.dart';
+import '../features/reports/data/services/profit_summary_remote_data_source.dart';
 import '../features/reports/data/services/reports_remote_data_source.dart';
+import '../features/reports/data/services/transaction_summary_remote_data_source.dart';
+import '../features/reports/data/services/user_performance_remote_data_source.dart';
+import '../features/reports/domain/repositories/profit_summary_repository.dart';
 import '../features/reports/domain/repositories/reports_repository.dart';
+import '../features/reports/domain/repositories/transaction_summary_repository.dart';
+import '../features/reports/domain/repositories/user_performance_repository.dart';
 import '../features/settings/data/repositories/app_renewal_requests_repository.dart';
 import '../features/settings/data/repositories/app_support_repository.dart';
 import '../features/settings/data/services/renewal_remote_data_source.dart';
@@ -75,6 +85,18 @@ Future<ProviderContainer> bootstrap() async {
   Session? initialSession;
   try {
     initialSession = await authRepository.getCurrentSession();
+    if (initialSession != null) {
+      try {
+        initialSession = await authRepository.refreshSession(
+          currentSession: initialSession,
+        );
+      } on AppException catch (error) {
+        if (error.requiresSessionInvalidation) {
+          await authRepository.logout();
+          initialSession = null;
+        }
+      }
+    }
   } catch (_) {
     initialSession = null;
   }
@@ -83,12 +105,13 @@ Future<ProviderContainer> bootstrap() async {
     authRepository: authRepository,
     initialSession: initialSession,
     resetSessionScope: () async {
-      resetSessionScopedProviders(container);
+      SessionScopedCacheInvalidator.invalidateContainer(container);
     },
   );
   final sessionErrorInterceptor = SessionErrorInterceptor(
     exceptionMapper: apiExceptionMapper,
     onSessionInvalidated: authController.handleSessionInvalidation,
+    onSubscriptionExpired: authController.handleSubscriptionExpired,
   );
   final dioWithErrorHandler = createDio(
     config: config,
@@ -137,6 +160,28 @@ Future<ProviderContainer> bootstrap() async {
   );
   final reportsRepository = AppReportsRepository(
     remoteDataSource: reportsRemoteDataSource,
+  );
+  final transactionSummaryRemoteDataSource =
+      DioTransactionSummaryRemoteDataSource(
+        apiClient: apiClientWithErrorHandler,
+        exceptionMapper: apiExceptionMapper,
+      );
+  final transactionSummaryRepository = AppTransactionSummaryRepository(
+    remoteDataSource: transactionSummaryRemoteDataSource,
+  );
+  final profitSummaryRemoteDataSource = DioProfitSummaryRemoteDataSource(
+    apiClient: apiClientWithErrorHandler,
+    exceptionMapper: apiExceptionMapper,
+  );
+  final profitSummaryRepository = AppProfitSummaryRepository(
+    remoteDataSource: profitSummaryRemoteDataSource,
+  );
+  final userPerformanceRemoteDataSource = DioUserPerformanceRemoteDataSource(
+    apiClient: apiClientWithErrorHandler,
+    exceptionMapper: apiExceptionMapper,
+  );
+  final userPerformanceRepository = AppUserPerformanceRepository(
+    remoteDataSource: userPerformanceRemoteDataSource,
   );
   final notificationsRemoteDataSource = DioNotificationsRemoteDataSource(
     apiClient: apiClientWithErrorHandler,
@@ -203,6 +248,24 @@ Future<ProviderContainer> bootstrap() async {
         reportsRemoteDataSource,
       ),
       reportsRepositoryProvider.overrideWithValue(reportsRepository),
+      transactionSummaryRemoteDataSourceProvider.overrideWithValue(
+        transactionSummaryRemoteDataSource,
+      ),
+      transactionSummaryRepositoryProvider.overrideWithValue(
+        transactionSummaryRepository,
+      ),
+      profitSummaryRemoteDataSourceProvider.overrideWithValue(
+        profitSummaryRemoteDataSource,
+      ),
+      profitSummaryRepositoryProvider.overrideWithValue(
+        profitSummaryRepository,
+      ),
+      userPerformanceRemoteDataSourceProvider.overrideWithValue(
+        userPerformanceRemoteDataSource,
+      ),
+      userPerformanceRepositoryProvider.overrideWithValue(
+        userPerformanceRepository,
+      ),
       notificationsRemoteDataSourceProvider.overrideWithValue(
         notificationsRemoteDataSource,
       ),

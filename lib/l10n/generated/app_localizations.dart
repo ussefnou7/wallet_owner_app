@@ -95,6 +95,7 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('ar'),
+    Locale('ar', 'EG'),
     Locale('en'),
   ];
 
@@ -119,7 +120,7 @@ abstract class AppLocalizations {
   /// No description provided for @arabic.
   ///
   /// In en, this message translates to:
-  /// **'Arabic'**
+  /// **'عربي'**
   String get arabic;
 
   /// No description provided for @dashboard.
@@ -182,6 +183,120 @@ abstract class AppLocalizations {
   /// **'Total Debits'**
   String get dashboardDebits;
 
+  /// No description provided for @dashboardProfitSnapshot.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit Snapshot'**
+  String get dashboardProfitSnapshot;
+
+  /// No description provided for @dashboardCollectedProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Collected Profit'**
+  String get dashboardCollectedProfit;
+
+  /// No description provided for @dashboardUncollectedProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Uncollected Profit'**
+  String get dashboardUncollectedProfit;
+
+  /// No description provided for @dashboardTransactionVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume'**
+  String get dashboardTransactionVolume;
+
+  /// No description provided for @dashboardWalletHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet Health'**
+  String get dashboardWalletHealth;
+
+  /// No description provided for @dashboardActiveBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Balance'**
+  String get dashboardActiveBalance;
+
+  /// No description provided for @dashboardNearDailyLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Near Daily Limit'**
+  String get dashboardNearDailyLimit;
+
+  /// No description provided for @dashboardNearMonthlyLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Near Monthly Limit'**
+  String get dashboardNearMonthlyLimit;
+
+  /// No description provided for @dashboardLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit Reached'**
+  String get dashboardLimitReached;
+
+  /// No description provided for @dashboardDailyLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily limit reached'**
+  String get dashboardDailyLimitReached;
+
+  /// No description provided for @dashboardMonthlyLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly limit reached'**
+  String get dashboardMonthlyLimitReached;
+
+  /// No description provided for @dashboardReviewWalletsNeedingAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'Review {count} wallets needing attention'**
+  String dashboardReviewWalletsNeedingAttention(int count);
+
+  /// No description provided for @dashboardAllWalletsHealthy.
+  ///
+  /// In en, this message translates to:
+  /// **'All wallets are healthy'**
+  String get dashboardAllWalletsHealthy;
+
+  /// No description provided for @dashboardHealthStatusGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get dashboardHealthStatusGood;
+
+  /// No description provided for @dashboardHealthStatusWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning'**
+  String get dashboardHealthStatusWarning;
+
+  /// No description provided for @dashboardHealthStatusCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical'**
+  String get dashboardHealthStatusCritical;
+
+  /// No description provided for @dashboardSeverityWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning'**
+  String get dashboardSeverityWarning;
+
+  /// No description provided for @dashboardSeverityCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical'**
+  String get dashboardSeverityCritical;
+
+  /// No description provided for @dashboardSeverityInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Info'**
+  String get dashboardSeverityInfo;
+
   /// No description provided for @recentTransactions.
   ///
   /// In en, this message translates to:
@@ -236,11 +351,95 @@ abstract class AppLocalizations {
   /// **'Plans'**
   String get plans;
 
+  /// No description provided for @subscriptionExpiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription expired'**
+  String get subscriptionExpiredTitle;
+
+  /// No description provided for @organizationSubscriptionExpiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Organization subscription expired'**
+  String get organizationSubscriptionExpiredTitle;
+
+  /// No description provided for @subscriptionExpiredMessageOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Your organization\'s subscription has expired. Renew the plan to restore access to business features.'**
+  String get subscriptionExpiredMessageOwner;
+
+  /// No description provided for @subscriptionExpiredMessageUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Your organization\'s subscription has expired. Please contact the account owner to renew it.'**
+  String get subscriptionExpiredMessageUser;
+
+  /// No description provided for @subscriptionExpiredDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired on'**
+  String get subscriptionExpiredDateLabel;
+
+  /// No description provided for @subscriptionPlanLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current plan'**
+  String get subscriptionPlanLabel;
+
   /// No description provided for @requestRenewal.
   ///
   /// In en, this message translates to:
   /// **'Request Renewal'**
   String get requestRenewal;
+
+  /// No description provided for @renewalRequestSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Renewal request sent successfully. Your request is pending review.'**
+  String get renewalRequestSent;
+
+  /// No description provided for @renewalRequestPending.
+  ///
+  /// In en, this message translates to:
+  /// **'A renewal request is already pending review.'**
+  String get renewalRequestPending;
+
+  /// No description provided for @renewalRequestFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to submit renewal request.'**
+  String get renewalRequestFailed;
+
+  /// No description provided for @recheckStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Recheck status'**
+  String get recheckStatus;
+
+  /// No description provided for @subscriptionStillExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'The subscription is still expired or pending review.'**
+  String get subscriptionStillExpired;
+
+  /// No description provided for @subscriptionReactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'The subscription is active again. Redirecting you now.'**
+  String get subscriptionReactivated;
+
+  /// No description provided for @contactAccountOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Please contact the account owner for renewal help.'**
+  String get contactAccountOwner;
+
+  /// No description provided for @backToExpiredSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to expired subscription'**
+  String get backToExpiredSubscription;
 
   /// No description provided for @totalBalance.
   ///
@@ -446,6 +645,12 @@ abstract class AppLocalizations {
   /// **'Overview'**
   String get overview;
 
+  /// No description provided for @profit.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit'**
+  String get profit;
+
   /// No description provided for @welcome.
   ///
   /// In en, this message translates to:
@@ -548,6 +753,12 @@ abstract class AppLocalizations {
   /// **'Latest recorded wallet activity'**
   String get latestTransactionsSubtitle;
 
+  /// No description provided for @lastTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Transactions'**
+  String get lastTransactions;
+
   /// No description provided for @totalCredits.
   ///
   /// In en, this message translates to:
@@ -559,6 +770,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Total Debits'**
   String get totalDebits;
+
+  /// No description provided for @transactionVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction Volume'**
+  String get transactionVolume;
+
+  /// No description provided for @transactionsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions Count'**
+  String get transactionsCount;
+
+  /// No description provided for @totalProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Profit'**
+  String get totalProfit;
+
+  /// No description provided for @walletStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet Status'**
+  String get walletStatus;
+
+  /// No description provided for @walletConsumptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet Consumptions'**
+  String get walletConsumptions;
+
+  /// No description provided for @walletConsumptionsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet consumption details will appear here.'**
+  String get walletConsumptionsEmptyMessage;
+
+  /// No description provided for @totalWalletProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Wallet Profit'**
+  String get totalWalletProfit;
+
+  /// No description provided for @totalCashProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Cash Profit'**
+  String get totalCashProfit;
+
+  /// No description provided for @nearLimitWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'Near Limit Wallets'**
+  String get nearLimitWallets;
 
   /// No description provided for @viewAll.
   ///
@@ -601,6 +866,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search by name, code, or branch'**
   String get searchWalletsHint;
+
+  /// No description provided for @sortWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort wallets'**
+  String get sortWallets;
+
+  /// No description provided for @walletSortDefaultOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get walletSortDefaultOrder;
+
+  /// No description provided for @walletSortNearLimitFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Near limit first'**
+  String get walletSortNearLimitFirst;
+
+  /// No description provided for @walletSortHighestDailyUsage.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest daily usage'**
+  String get walletSortHighestDailyUsage;
+
+  /// No description provided for @walletSortHighestMonthlyUsage.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest monthly usage'**
+  String get walletSortHighestMonthlyUsage;
+
+  /// No description provided for @walletSortHighestLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest limit'**
+  String get walletSortHighestLimit;
 
   /// No description provided for @loadingWallets.
   ///
@@ -971,7 +1272,7 @@ abstract class AppLocalizations {
   /// No description provided for @searchTransactionsHint.
   ///
   /// In en, this message translates to:
-  /// **'Search by wallet, note, or created by'**
+  /// **'Search loaded transactions by wallet, note, or created by'**
   String get searchTransactionsHint;
 
   /// No description provided for @refreshTransactions.
@@ -1850,11 +2151,23 @@ abstract class AppLocalizations {
   /// **'Run backend-driven reports with dynamic filters and generic rendering.'**
   String get genericReportsSubtitle;
 
+  /// No description provided for @reportsProductionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review financial movement, transaction activity, and profit performance with focused production reports.'**
+  String get reportsProductionSubtitle;
+
   /// No description provided for @selectReport.
   ///
   /// In en, this message translates to:
   /// **'Select Report'**
   String get selectReport;
+
+  /// No description provided for @selectReportSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the report you want to review.'**
+  String get selectReportSubtitle;
 
   /// No description provided for @filters.
   ///
@@ -1868,6 +2181,12 @@ abstract class AppLocalizations {
   /// **'Only filters supported by the selected report are shown.'**
   String get dynamicFiltersSubtitle;
 
+  /// No description provided for @reportFiltersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Refine the selected report by date, branch, wallet, and other supported filters.'**
+  String get reportFiltersSubtitle;
+
   /// No description provided for @loadingReports.
   ///
   /// In en, this message translates to:
@@ -1879,6 +2198,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unable to load reports right now.'**
   String get unableToLoadReports;
+
+  /// No description provided for @loadingTransactionsSummaryReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading transactions summary...'**
+  String get loadingTransactionsSummaryReport;
+
+  /// No description provided for @unableToLoadTransactionsSummaryReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load transactions summary right now.'**
+  String get unableToLoadTransactionsSummaryReport;
+
+  /// No description provided for @loadingProfitSummaryReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading profit summary...'**
+  String get loadingProfitSummaryReport;
+
+  /// No description provided for @unableToLoadProfitSummaryReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load profit summary right now.'**
+  String get unableToLoadProfitSummaryReport;
 
   /// No description provided for @applyFilters.
   ///
@@ -1943,14 +2286,26 @@ abstract class AppLocalizations {
   /// No description provided for @reportTypeTransactionSummary.
   ///
   /// In en, this message translates to:
-  /// **'Transaction Summary'**
+  /// **'Financial Summary'**
   String get reportTypeTransactionSummary;
+
+  /// No description provided for @reportTypeTransactionSummaryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Track total credits, debits, net movement, and transaction count.'**
+  String get reportTypeTransactionSummaryDescription;
 
   /// No description provided for @reportTypeTransactionDetails.
   ///
   /// In en, this message translates to:
-  /// **'Transaction Details'**
+  /// **'Transaction Log'**
   String get reportTypeTransactionDetails;
+
+  /// No description provided for @reportTypeTransactionDetailsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Review detailed transactions by date, wallet, branch, and creator.'**
+  String get reportTypeTransactionDetailsDescription;
 
   /// No description provided for @reportTypeWalletConsumption.
   ///
@@ -1961,14 +2316,26 @@ abstract class AppLocalizations {
   /// No description provided for @reportTypeProfitSummary.
   ///
   /// In en, this message translates to:
-  /// **'Profit Summary'**
+  /// **'Profit Report'**
   String get reportTypeProfitSummary;
+
+  /// No description provided for @reportTypeProfitSummaryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Review wallet profit, cash profit, and total profit in one view.'**
+  String get reportTypeProfitSummaryDescription;
 
   /// No description provided for @reportTypeTransactionTimeAggregation.
   ///
   /// In en, this message translates to:
   /// **'Transaction Time Aggregation'**
   String get reportTypeTransactionTimeAggregation;
+
+  /// No description provided for @noWalletsInBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'No wallets in this branch'**
+  String get noWalletsInBranch;
 
   /// No description provided for @reportsFieldsTotalCredits.
   ///
@@ -2071,6 +2438,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Near Monthly Limit'**
   String get reportsFieldsNearMonthlyLimit;
+
+  /// No description provided for @creditCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit Count'**
+  String get creditCount;
+
+  /// No description provided for @debitCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Debit Count'**
+  String get debitCount;
+
+  /// No description provided for @activeUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Users'**
+  String get activeUsers;
+
+  /// No description provided for @totalProfits.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Profits'**
+  String get totalProfits;
+
+  /// No description provided for @totalCollectedProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Collected Profit'**
+  String get totalCollectedProfit;
+
+  /// No description provided for @totalUncollectedProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Uncollected Profit'**
+  String get totalUncollectedProfit;
+
+  /// No description provided for @totalAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Amount'**
+  String get totalAmount;
+
+  /// No description provided for @totalUserProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Total User Profit'**
+  String get totalUserProfit;
+
+  /// No description provided for @walletBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet Balance'**
+  String get walletBalance;
+
+  /// No description provided for @branchWalletsBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch Wallets Balance'**
+  String get branchWalletsBalance;
+
+  /// No description provided for @highestTransactionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest Transaction'**
+  String get highestTransactionTitle;
+
+  /// No description provided for @walletsWithCurrentProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets With Current Profit'**
+  String get walletsWithCurrentProfit;
+
+  /// No description provided for @totalActiveWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Active Wallets'**
+  String get totalActiveWallets;
+
+  /// No description provided for @profitSummaryBusinessNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Collected in selected period + current uncollected'**
+  String get profitSummaryBusinessNote;
+
+  /// No description provided for @usersPerformanceSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Users Performance'**
+  String get usersPerformanceSectionTitle;
+
+  /// No description provided for @userProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'User Profit'**
+  String get userProfit;
+
+  /// No description provided for @loadingUserPerformanceReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading user performance...'**
+  String get loadingUserPerformanceReport;
+
+  /// No description provided for @unableToLoadUserPerformanceReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load user performance right now.'**
+  String get unableToLoadUserPerformanceReport;
+
+  /// No description provided for @noUserPerformanceResultsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No users found'**
+  String get noUserPerformanceResultsTitle;
+
+  /// No description provided for @noUserPerformanceResultsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No users matched the current report filters.'**
+  String get noUserPerformanceResultsMessage;
+
+  /// No description provided for @allTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'All Types'**
+  String get allTypes;
+
+  /// No description provided for @loadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load More'**
+  String get loadMore;
+
+  /// No description provided for @endOfResults.
+  ///
+  /// In en, this message translates to:
+  /// **'End of results'**
+  String get endOfResults;
+
+  /// No description provided for @loadingTransactionDetailsReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading transaction details...'**
+  String get loadingTransactionDetailsReport;
+
+  /// No description provided for @unableToLoadTransactionDetailsReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load transaction details right now.'**
+  String get unableToLoadTransactionDetailsReport;
+
+  /// No description provided for @noTransactionsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions found'**
+  String get noTransactionsFound;
+
+  /// No description provided for @noTransactionsMatchedCurrentFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions matched the current filters.'**
+  String get noTransactionsMatchedCurrentFilters;
+
+  /// No description provided for @noHighestTransactionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No highest transaction'**
+  String get noHighestTransactionTitle;
+
+  /// No description provided for @noHighestTransactionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No transaction matched the current filters.'**
+  String get noHighestTransactionMessage;
 
   /// No description provided for @totalTransactions.
   ///
@@ -3001,6 +3542,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Leave empty if you don\'t want to change it'**
   String get password_optional_hint;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @thisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This Month'**
+  String get thisMonth;
+
+  /// No description provided for @thisYear.
+  ///
+  /// In en, this message translates to:
+  /// **'This Year'**
+  String get thisYear;
+
+  /// No description provided for @custom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get custom;
+
+  /// No description provided for @reportsHomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Production reports'**
+  String get reportsHomeTitle;
+
+  /// No description provided for @reportsHomeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a report to review financial movement, profit totals, and user activity with focused reporting flows.'**
+  String get reportsHomeSubtitle;
+
+  /// No description provided for @transactionsSummaryReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions Summary'**
+  String get transactionsSummaryReportTitle;
+
+  /// No description provided for @transactionsSummaryReportDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview of credits, debits, transaction counts, balance scope, and highest transaction.'**
+  String get transactionsSummaryReportDescription;
+
+  /// No description provided for @profitSummaryReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit Summary'**
+  String get profitSummaryReportTitle;
+
+  /// No description provided for @profitSummaryReportDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Track collected, uncollected, balance, and profit totals.'**
+  String get profitSummaryReportDescription;
+
+  /// No description provided for @userPerformanceReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'User Performance'**
+  String get userPerformanceReportTitle;
+
+  /// No description provided for @userPerformanceReportDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze user activity, transaction totals, and generated user profit.'**
+  String get userPerformanceReportDescription;
+
+  /// No description provided for @transactionDetailsReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction Details'**
+  String get transactionDetailsReportTitle;
+
+  /// No description provided for @transactionDetailsReportDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Search, filter, and review detailed wallet transactions.'**
+  String get transactionDetailsReportDescription;
+
+  /// No description provided for @reportsPlaceholderMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This report screen will be implemented in a later phase.'**
+  String get reportsPlaceholderMessage;
 }
 
 class _AppLocalizationsDelegate
@@ -3021,6 +3652,18 @@ class _AppLocalizationsDelegate
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when language+country codes are specified.
+  switch (locale.languageCode) {
+    case 'ar':
+      {
+        switch (locale.countryCode) {
+          case 'EG':
+            return AppLocalizationsArEg();
+        }
+        break;
+      }
+  }
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
     case 'ar':

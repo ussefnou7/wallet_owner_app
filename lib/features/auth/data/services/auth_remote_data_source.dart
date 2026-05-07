@@ -5,6 +5,7 @@ import '../../../../core/network/api_exception_mapper.dart';
 import '../../../../core/network/api_response_extractor.dart';
 import '../../../../core/network/api_result.dart';
 import '../../../../core/network/network_constants.dart';
+import '../../domain/entities/session.dart';
 import '../models/forgot_password_request_model.dart';
 import '../models/forgot_password_response_model.dart';
 import '../models/login_request_model.dart';
@@ -21,6 +22,8 @@ final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
 
 abstract interface class AuthRemoteDataSource {
   Future<ApiResult<LoginResponseModel>> login(LoginRequestModel request);
+
+  Future<ApiResult<Session>> getCurrentSession(Session currentSession);
 
   Future<ApiResult<ForgotPasswordResponseModel>> forgotPassword(
     ForgotPasswordRequestModel request,
@@ -52,6 +55,29 @@ class DioAuthRemoteDataSource implements AuthRemoteDataSource {
 
       ApiResponseExtractor.validateNotEmpty(response.data);
       return ApiSuccess(LoginResponseModel.fromJson(response.data!));
+    } catch (error) {
+      return ApiError(_exceptionMapper.map(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<Session>> getCurrentSession(Session currentSession) async {
+    try {
+      final response = await _apiClient.get<Object?>(
+        NetworkConstants.authMePath,
+      );
+
+      ApiResponseExtractor.validateNotEmpty(response.data);
+      final payload = ApiResponseExtractor.extractObject(response.data);
+      return ApiSuccess(
+        Session.fromApiPayload(
+          payload,
+          accessToken: currentSession.accessToken,
+          refreshToken: currentSession.refreshToken,
+          fallbackSession: currentSession,
+          tokenExpiresAt: currentSession.tokenExpiresAt,
+        ),
+      );
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));
     }

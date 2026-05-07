@@ -2,13 +2,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/app_exception.dart';
 import '../../../../core/errors/error_message_mapper.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../domain/entities/app_notification.dart';
 import '../../domain/repositories/notifications_repository.dart';
 
 final notificationsProvider =
     StateNotifierProvider<NotificationsProvider, NotificationsState>((ref) {
+      final session = ref.watch(authenticatedSessionProvider);
       final repository = ref.watch(notificationsRepositoryProvider);
-      return NotificationsProvider(repository);
+      return NotificationsProvider(
+        repository,
+        ref,
+        isAuthenticated: session != null,
+      );
     });
 
 class NotificationsState {
@@ -55,13 +61,25 @@ class NotificationsState {
 }
 
 class NotificationsProvider extends StateNotifier<NotificationsState> {
-  NotificationsProvider(this._repository) : super(const NotificationsState()) {
-    loadUnreadCount();
+  NotificationsProvider(
+    this._repository,
+    this._ref, {
+    required bool isAuthenticated,
+  }) : super(const NotificationsState()) {
+    if (isAuthenticated) {
+      loadUnreadCount();
+    }
   }
 
   final NotificationsRepository _repository;
+  final Ref _ref;
 
   Future<void> loadUnreadCount() async {
+    if (!_hasAuthenticatedSession) {
+      state = const NotificationsState();
+      return;
+    }
+
     try {
       final count = await _repository.getUnreadCount();
       state = state.copyWith(unreadCount: count.count);
@@ -71,6 +89,11 @@ class NotificationsProvider extends StateNotifier<NotificationsState> {
   }
 
   Future<void> loadUnreadNotifications({int limit = 20}) async {
+    if (!_hasAuthenticatedSession) {
+      state = const NotificationsState();
+      return;
+    }
+
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final grouped = await _repository.getUnreadNotifications(limit: limit);
@@ -89,6 +112,11 @@ class NotificationsProvider extends StateNotifier<NotificationsState> {
   }
 
   Future<void> refresh() async {
+    if (!_hasAuthenticatedSession) {
+      state = const NotificationsState();
+      return;
+    }
+
     state = state.copyWith(isRefreshing: true, clearError: true);
     try {
       final grouped = await _repository.getUnreadNotifications();
@@ -107,6 +135,11 @@ class NotificationsProvider extends StateNotifier<NotificationsState> {
   }
 
   Future<bool> markOneAsRead(AppNotification notification) async {
+    if (!_hasAuthenticatedSession) {
+      state = const NotificationsState();
+      return false;
+    }
+
     state = state.copyWith(isActionLoading: true, clearError: true);
     try {
       await _repository.markOneAsRead(notification.id);
@@ -129,6 +162,11 @@ class NotificationsProvider extends StateNotifier<NotificationsState> {
   }
 
   Future<bool> markLowAsRead() async {
+    if (!_hasAuthenticatedSession) {
+      state = const NotificationsState();
+      return false;
+    }
+
     final removedCount = state.low.length;
     if (removedCount == 0) {
       return true;
@@ -153,6 +191,11 @@ class NotificationsProvider extends StateNotifier<NotificationsState> {
   }
 
   Future<bool> markAllAsRead() async {
+    if (!_hasAuthenticatedSession) {
+      state = const NotificationsState();
+      return false;
+    }
+
     final removedCount = state.important.length + state.low.length;
     if (removedCount == 0) {
       return true;
@@ -180,5 +223,9 @@ class NotificationsProvider extends StateNotifier<NotificationsState> {
   int _nextUnreadCount(int removedCount) {
     final nextCount = state.unreadCount - removedCount;
     return nextCount < 0 ? 0 : nextCount;
+  }
+
+  bool get _hasAuthenticatedSession {
+    return _ref.read(authenticatedSessionProvider) != null;
   }
 }

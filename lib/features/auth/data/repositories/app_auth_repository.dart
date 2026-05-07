@@ -32,10 +32,41 @@ class AppAuthRepository implements AuthRepository {
       success: (response) async {
         final session = response.toSession();
         await _sessionLocalDataSource.saveSession(session);
+        if (session.hasSubscriptionData) {
+          return session;
+        }
+
+        try {
+          return await refreshSession(currentSession: session);
+        } catch (_) {
+          return session;
+        }
+      },
+      failure: (failure) => throw failure,
+    );
+  }
+
+  @override
+  Future<Session> refreshSession({Session? currentSession}) async {
+    final baseSession =
+        currentSession ?? await _sessionLocalDataSource.readSession();
+    if (baseSession == null) {
+      throw const FormatException('No session available to refresh');
+    }
+
+    final result = await _remoteDataSource.getCurrentSession(baseSession);
+    return result.when(
+      success: (session) async {
+        await _sessionLocalDataSource.saveSession(session);
         return session;
       },
       failure: (failure) => throw failure,
     );
+  }
+
+  @override
+  Future<void> saveSession(Session session) {
+    return _sessionLocalDataSource.saveSession(session);
   }
 
   @override

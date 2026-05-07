@@ -16,6 +16,7 @@ class UserCard extends StatelessWidget {
     required this.onDelete,
     required this.onAssignBranch,
     required this.onUnassignBranch,
+    this.isUnassigning = false,
     super.key,
   });
 
@@ -24,12 +25,14 @@ class UserCard extends StatelessWidget {
   final VoidCallback onDelete;
   final VoidCallback onAssignBranch;
   final VoidCallback onUnassignBranch;
+  final bool isUnassigning;
 
   @override
   Widget build(BuildContext context) {
     final l10n = appL10n(context);
     final branchName = user.branchName?.trim() ?? '';
-    final hasAssignedBranch = branchName.isNotEmpty;
+    final hasAssignedBranch =
+        branchName.isNotEmpty || (user.branchId?.trim().isNotEmpty ?? false);
     final subtitle = user.tenantName;
 
     return Container(
@@ -55,11 +58,13 @@ class UserCard extends StatelessWidget {
             assignTooltip: l10n.assignBranch,
             unassignLabel: l10n.unassignBranch,
             unassignTooltip: l10n.unassignBranch,
-            canUnassign: user.branchId != null,
+            canUnassign: hasAssignedBranch,
+            isUnassigning: isUnassigning,
             onEdit: onEdit,
             onDelete: onDelete,
             onAssignBranch: onAssignBranch,
-            onUnassignBranch: user.branchId == null ? null : onUnassignBranch,
+            onUnassignBranch:
+                !hasAssignedBranch || isUnassigning ? null : onUnassignBranch,
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
@@ -70,7 +75,7 @@ class UserCard extends StatelessWidget {
                   ? l10n.ownerRole
                   : l10n.userRole,
               branchLabel: hasAssignedBranch
-                  ? '${l10n.branchName}: $branchName'
+                  ? branchName
                   : l10n.notAvailable,
               hasAssignedBranch: hasAssignedBranch,
             ),
@@ -135,7 +140,7 @@ class _UserDetailsColumn extends StatelessWidget {
         const SizedBox(height: 6),
         _UserInfoLine(
           icon: hasAssignedBranch
-              ? Icons.account_tree_outlined
+              ? Icons.storefront_outlined
               : Icons.link_off_rounded,
           label: branchLabel,
         ),
@@ -158,6 +163,7 @@ class _UserActionsColumn extends StatelessWidget {
     required this.unassignLabel,
     required this.unassignTooltip,
     required this.canUnassign,
+    required this.isUnassigning,
     required this.onEdit,
     required this.onDelete,
     required this.onAssignBranch,
@@ -176,6 +182,7 @@ class _UserActionsColumn extends StatelessWidget {
   final String unassignLabel;
   final String unassignTooltip;
   final bool canUnassign;
+  final bool isUnassigning;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback onAssignBranch;
@@ -234,6 +241,7 @@ class _UserActionsColumn extends StatelessWidget {
                   ? AppColors.surfaceVariant
                   : AppColors.surfaceVariant.withValues(alpha: 0.75),
               onPressed: onUnassignBranch,
+              isLoading: isUnassigning,
             ),
           ],
         ),
@@ -331,6 +339,7 @@ class _CompactActionButton extends StatelessWidget {
     required this.foregroundColor,
     required this.backgroundColor,
     required this.onPressed,
+    this.isLoading = false,
   });
 
   final String label;
@@ -339,6 +348,7 @@ class _CompactActionButton extends StatelessWidget {
   final Color foregroundColor;
   final Color backgroundColor;
   final VoidCallback? onPressed;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -347,8 +357,17 @@ class _CompactActionButton extends StatelessWidget {
       child: SizedBox(
         height: 32,
         child: TextButton.icon(
-          onPressed: onPressed,
-          icon: Icon(icon, size: 14, color: foregroundColor),
+          onPressed: isLoading ? null : onPressed,
+          icon: isLoading
+              ? SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(foregroundColor),
+                  ),
+                )
+              : Icon(icon, size: 14, color: foregroundColor),
           label: Text(
             label,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(

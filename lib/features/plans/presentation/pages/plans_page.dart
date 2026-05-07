@@ -21,6 +21,9 @@ class PlansPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final plansState = ref.watch(plansControllerProvider);
     final l10n = appL10n(context);
+    final bottomContentPadding =
+        MediaQuery.paddingOf(context).bottom +
+        AppDimensions.floatingBottomNavReservedHeight;
 
     return AppPageScaffold(
       title: l10n.plans,
@@ -61,7 +64,10 @@ class PlansPage extends ConsumerWidget {
                 }
 
                 return SingleChildScrollView(
-                  padding: const EdgeInsets.only(top: AppSpacing.xs),
+                  padding: EdgeInsets.only(
+                    top: AppSpacing.xs,
+                    bottom: bottomContentPadding,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

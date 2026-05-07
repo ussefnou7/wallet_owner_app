@@ -26,6 +26,8 @@ abstract final class ErrorMessageMapper {
       'UNSUPPORTED_FILE_TYPE' => 'Unsupported file type',
       'VALIDATION_ERROR' => 'Please check the entered data',
       'FORBIDDEN' => 'You do not have permission to perform this action',
+      'RENEWAL_REQUEST_ALREADY_PENDING' =>
+        'A renewal request is already pending review.',
       'DATA_CONFLICT' => _mapDataConflictMessage(
         backendMessage,
         defaultMessage: 'This action conflicts with existing data',
@@ -59,6 +61,7 @@ abstract final class ErrorMessageMapper {
       'UNSUPPORTED_FILE_TYPE' => l10n.unsupportedFileType,
       'VALIDATION_ERROR' => l10n.validationError,
       'FORBIDDEN' => l10n.forbiddenError,
+      'RENEWAL_REQUEST_ALREADY_PENDING' => l10n.renewalRequestPending,
       'DATA_CONFLICT' => _mapDataConflictMessage(
         backendMessage,
         defaultMessage: l10n.dataConflict,

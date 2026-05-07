@@ -6,29 +6,10 @@ import '../../../../core/constants/app_radii.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_l10n.dart';
 import '../../../../core/widgets/app_buttons.dart';
-import '../../../branches/presentation/controllers/branches_controller.dart';
-import '../../../dashboard/presentation/providers/dashboard_provider.dart';
-import '../../../reports/presentation/controllers/reports_controller.dart';
-import '../../../transactions/presentation/controllers/transactions_controller.dart';
-import '../../../users/presentation/controllers/users_controller.dart';
-import '../../../wallets/presentation/controllers/wallets_controller.dart';
 import '../controllers/auth_controller.dart';
 
 class UnauthorizedRolePage extends ConsumerWidget {
   const UnauthorizedRolePage({super.key});
-
-  void _invalidateCachedProviders(WidgetRef ref) {
-    ref.invalidate(walletsControllerProvider);
-    ref.invalidate(transactionsControllerProvider);
-    ref.invalidate(branchesControllerProvider);
-    ref.invalidate(usersControllerProvider);
-    ref.invalidate(dashboardOverviewProvider);
-    ref.invalidate(dashboardTransactionSummaryProvider);
-    ref.invalidate(dashboardRecentTransactionsProvider);
-    ref.invalidate(reportsControllerProvider);
-    ref.invalidate(reportsSelectedTypeProvider);
-    ref.invalidate(reportsAppliedFiltersProvider);
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -79,10 +60,7 @@ class UnauthorizedRolePage extends ConsumerWidget {
                     child: AppPrimaryButton(
                       label: l10n.signOut,
                       onPressed: () async {
-                        await ref
-                            .read(authControllerProvider.notifier)
-                            .signOut();
-                        _invalidateCachedProviders(ref);
+                        await ref.read(authControllerProvider.notifier).signOut();
                       },
                     ),
                   ),

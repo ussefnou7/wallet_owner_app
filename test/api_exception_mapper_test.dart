@@ -4,6 +4,7 @@ import 'package:ta2feela_app/core/errors/app_exception.dart';
 import 'package:ta2feela_app/core/network/api_exception_mapper.dart';
 import 'package:ta2feela_app/core/network/api_result.dart';
 import 'package:ta2feela_app/features/wallets/data/models/wallet_model.dart';
+import 'package:ta2feela_app/features/wallets/data/models/wallet_option_model.dart';
 import 'package:ta2feela_app/features/wallets/data/repositories/app_wallets_repository.dart';
 import 'package:ta2feela_app/features/wallets/data/services/wallets_remote_data_source.dart';
 
@@ -159,6 +160,16 @@ class _FakeWalletsRemoteDataSource implements WalletsRemoteDataSource {
   @override
   Future<ApiResult<List<WalletModel>>> getWallets() async {
     return ApiError(exception);
+  }
+
+  @override
+  Future<ApiResult<List<WalletModel>>> getWalletsByBranch(String branchId) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ApiResult<List<WalletOptionModel>>> getWalletOptions({String? branchId}) {
+    throw UnimplementedError();
   }
 
   @override

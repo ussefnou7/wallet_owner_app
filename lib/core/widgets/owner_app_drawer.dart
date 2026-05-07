@@ -4,12 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/router/app_routes.dart';
 import '../../features/auth/presentation/controllers/auth_controller.dart';
-import '../../features/branches/presentation/controllers/branches_controller.dart';
-import '../../features/dashboard/presentation/providers/dashboard_provider.dart';
-import '../../features/reports/presentation/controllers/reports_controller.dart';
-import '../../features/transactions/presentation/controllers/transactions_controller.dart';
-import '../../features/users/presentation/controllers/users_controller.dart';
-import '../../features/wallets/presentation/controllers/wallets_controller.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_dimensions.dart';
 import '../constants/app_radii.dart';
@@ -21,19 +15,6 @@ class OwnerAppDrawer extends ConsumerWidget {
   const OwnerAppDrawer({required this.currentRoute, super.key});
 
   final String currentRoute;
-
-  void _invalidateCachedProviders(WidgetRef ref) {
-    ref.invalidate(walletsControllerProvider);
-    ref.invalidate(transactionsControllerProvider);
-    ref.invalidate(branchesControllerProvider);
-    ref.invalidate(usersControllerProvider);
-    ref.invalidate(dashboardOverviewProvider);
-    ref.invalidate(dashboardTransactionSummaryProvider);
-    ref.invalidate(dashboardRecentTransactionsProvider);
-    ref.invalidate(reportsControllerProvider);
-    ref.invalidate(reportsSelectedTypeProvider);
-    ref.invalidate(reportsAppliedFiltersProvider);
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -139,7 +120,9 @@ class OwnerAppDrawer extends ConsumerWidget {
                   for (final item in items)
                     _OwnerDrawerTile(
                       data: item,
-                      selected: currentRoute == item.route,
+                      selected: item.route == AppRoutes.ownerReports
+                          ? AppRoutes.isReportsRoute(currentRoute)
+                          : currentRoute == item.route,
                     ),
                 ],
               ),
@@ -170,7 +153,6 @@ class OwnerAppDrawer extends ConsumerWidget {
                 onTap: () async {
                   Navigator.of(context).pop();
                   await ref.read(authControllerProvider.notifier).signOut();
-                  _invalidateCachedProviders(ref);
                   if (context.mounted) {
                     context.go(AppRoutes.login);
                   }

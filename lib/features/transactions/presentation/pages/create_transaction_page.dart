@@ -16,12 +16,12 @@ import '../../../../core/widgets/app_loading_view.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
-import '../../../wallets/domain/entities/wallet.dart';
+import '../../../reports/presentation/controllers/report_wallet_options_provider.dart';
+import '../../../wallets/domain/entities/wallet_option.dart';
 import '../../../wallets/presentation/controllers/wallets_controller.dart';
 import '../../domain/entities/transaction_draft.dart';
 import '../controllers/create_transaction_controller.dart';
 import '../controllers/transactions_controller.dart';
-import '../widgets/transaction_success_banner.dart';
 
 class CreateTransactionPage extends ConsumerStatefulWidget {
   const CreateTransactionPage({super.key});
@@ -100,22 +100,27 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
 
   @override
   Widget build(BuildContext context) {
-    final walletsState = ref.watch(walletsControllerProvider);
+    const walletOptionsKey = null;
+    final walletOptionsAsync = ref.watch(
+      reportWalletOptionsProvider(walletOptionsKey),
+    );
     final submissionState = ref.watch(createTransactionControllerProvider);
     final l10n = appL10n(context);
     final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
     final safeBottom = MediaQuery.paddingOf(context).bottom;
     final bottomPadding = keyboardInset + safeBottom + 140;
+    final walletOptions =
+        walletOptionsAsync.valueOrNull ?? const <WalletOption>[];
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
-      child: walletsState.isLoading
+      child: walletOptionsAsync.isLoading
           ? AppLoadingView(message: l10n.loadingWalletOptions)
-          : walletsState.error != null
+          : walletOptionsAsync.hasError
           ? AppErrorState(
               message: l10n.unableToLoadWalletOptions,
               onRetry: () =>
-                  ref.read(walletsControllerProvider.notifier).reload(),
+                  ref.invalidate(reportWalletOptionsProvider(walletOptionsKey)),
             )
           : SingleChildScrollView(
               controller: _scrollController,
@@ -134,12 +139,6 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
                     subtitle: l10n.recordTransactionSubtitle,
                   ),
                   const SizedBox(height: AppSpacing.md),
-                  if (submissionState.lastResult != null) ...[
-                    TransactionSuccessBanner(
-                      referenceId: submissionState.lastResult!.referenceId,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                  ],
                   if (submissionState.errorMessage != null) ...[
                     AppErrorState(
                       message: ErrorMessageMapper.getMessage(
@@ -162,7 +161,7 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
                             prefixIcon: const Icon(
                               Icons.account_balance_wallet_outlined,
                             ),
-                            items: walletsState.data
+                            items: walletOptions
                                 .map(
                                   (wallet) => DropdownMenuItem<String>(
                                     value: wallet.id,
@@ -305,7 +304,7 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
                     child: AppPrimaryButton(
                       label: l10n.saveTransaction,
                       isLoading: submissionState.isSubmitting,
-                      onPressed: () => _submit(walletsState.data),
+                      onPressed: () => _submit(walletOptions),
                     ),
                   ),
                 ],
@@ -314,7 +313,7 @@ class _CreateTransactionPageState extends ConsumerState<CreateTransactionPage> {
     );
   }
 
-  Future<void> _submit(List<Wallet> wallets) async {
+  Future<void> _submit(List<WalletOption> wallets) async {
     FocusScope.of(context).unfocus();
     ref.read(createTransactionControllerProvider.notifier).clearFeedback();
 

@@ -7,7 +7,7 @@ import '../../../../core/network/api_response_extractor.dart';
 import '../../../../core/network/api_result.dart';
 import '../../../../core/network/models/paged_response.dart';
 import '../../../../core/network/network_constants.dart';
-import '../../domain/entities/transaction_draft.dart';
+import '../../domain/entities/transactions_filter_state.dart';
 import '../models/transaction_draft_model.dart';
 import '../models/transaction_record_model.dart';
 
@@ -23,12 +23,8 @@ final transactionsRemoteDataSourceProvider =
 
 abstract interface class TransactionsRemoteDataSource {
   Future<ApiResult<PagedResponse<TransactionRecordModel>>> getTransactions({
-    String? walletId,
-    TransactionEntryType? type,
-    DateTime? dateFrom,
-    DateTime? dateTo,
-    int page = 0,
-    int size = 20,
+    required TransactionsFilterState filter,
+    bool includeCreatedBy = true,
   });
 
   Future<ApiResult<TransactionRecordModel>> getTransactionById(
@@ -52,25 +48,15 @@ class DioTransactionsRemoteDataSource implements TransactionsRemoteDataSource {
 
   @override
   Future<ApiResult<PagedResponse<TransactionRecordModel>>> getTransactions({
-    String? walletId,
-    TransactionEntryType? type,
-    DateTime? dateFrom,
-    DateTime? dateTo,
-    int page = 0,
-    int size = 20,
+    required TransactionsFilterState filter,
+    bool includeCreatedBy = true,
   }) async {
     try {
       final response = await _apiClient.get<Map<String, dynamic>>(
         NetworkConstants.transactionsPath,
-        queryParameters: {
-          'page': page,
-          'size': size,
-          if (walletId != null && walletId.isNotEmpty) 'walletId': walletId,
-          if (type != null && type != TransactionEntryType.unknown)
-            'type': _typeToJson(type),
-          if (dateFrom != null) 'dateFrom': dateFrom.toIso8601String(),
-          if (dateTo != null) 'dateTo': dateTo.toIso8601String(),
-        },
+        queryParameters: filter.toQueryParameters(
+          includeCreatedBy: includeCreatedBy,
+        ),
       );
       final payload = response.data;
       if (payload == null) {
@@ -126,13 +112,5 @@ class DioTransactionsRemoteDataSource implements TransactionsRemoteDataSource {
     } catch (error) {
       return ApiError(_exceptionMapper.map(error));
     }
-  }
-
-  String _typeToJson(TransactionEntryType type) {
-    return switch (type) {
-      TransactionEntryType.credit => 'CREDIT',
-      TransactionEntryType.debit => 'DEBIT',
-      TransactionEntryType.unknown => 'UNKNOWN',
-    };
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../reports/domain/entities/report_filters.dart';
 import '../../../reports/domain/entities/report_response.dart';
 import '../../../reports/domain/entities/report_type.dart';
@@ -9,18 +10,36 @@ import '../../domain/entities/dashboard_overview.dart';
 import '../../domain/entities/dashboard_transaction_summary.dart';
 import '../../domain/repositories/dashboard_repository.dart';
 
-final dashboardOverviewProvider = FutureProvider<DashboardOverview>((ref) {
-  final repository = ref.watch(dashboardRepositoryProvider);
-  return repository.getOverview();
-});
+final dashboardOverviewProvider = FutureProvider.autoDispose<DashboardOverview>(
+  (ref) {
+    final session = ref.watch(authenticatedSessionProvider);
+    if (session == null) {
+      return _emptyDashboardOverview;
+    }
 
-final userDashboardOverviewProvider = FutureProvider<DashboardOverview>((ref) {
-  final repository = ref.watch(dashboardRepositoryProvider);
-  return repository.getOverview();
-});
+    final repository = ref.watch(dashboardRepositoryProvider);
+    return repository.getOverview();
+  },
+);
+
+final userDashboardOverviewProvider =
+    FutureProvider.autoDispose<DashboardOverview>((ref) {
+      final session = ref.watch(authenticatedSessionProvider);
+      if (session == null) {
+        return _emptyDashboardOverview;
+      }
+
+      final repository = ref.watch(dashboardRepositoryProvider);
+      return repository.getOverview();
+    });
 
 final dashboardTransactionSummaryProvider =
-    FutureProvider<DashboardTransactionSummary>((ref) async {
+    FutureProvider.autoDispose<DashboardTransactionSummary>((ref) async {
+      final session = ref.watch(authenticatedSessionProvider);
+      if (session == null) {
+        return _emptyDashboardTransactionSummary;
+      }
+
       final repository = ref.watch(dashboardRepositoryProvider);
       final range = _currentMonthRange();
       return repository.getTransactionSummary(
@@ -30,7 +49,12 @@ final dashboardTransactionSummaryProvider =
     });
 
 final dashboardRecentTransactionsProvider =
-    FutureProvider<List<RecentTransaction>>((ref) async {
+    FutureProvider.autoDispose<List<RecentTransaction>>((ref) async {
+      final session = ref.watch(authenticatedSessionProvider);
+      if (session == null) {
+        return const <RecentTransaction>[];
+      }
+
       final repository = ref.watch(reportsRepositoryProvider);
       final report = await repository.runReport(
         reportType: ReportType.transactionDetails,
@@ -127,3 +151,20 @@ double _asDouble(Object? value) {
   }
   return 0;
 }
+
+const _emptyDashboardOverview = DashboardOverview(
+  totalBalance: 0,
+  activeWallets: 0,
+  totalCredits: 0,
+  totalDebits: 0,
+  netAmount: 0,
+  transactionCount: 0,
+  metrics: [],
+);
+
+const _emptyDashboardTransactionSummary = DashboardTransactionSummary(
+  totalCredits: 0,
+  totalDebits: 0,
+  netAmount: 0,
+  transactionCount: 0,
+);

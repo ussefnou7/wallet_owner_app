@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../constants/app_radii.dart';
 import '../localization/app_l10n.dart';
+import '../localization/app_locale.dart';
 import '../localization/locale_controller.dart';
 
 class LanguageSwitcher extends ConsumerWidget {
@@ -24,10 +25,10 @@ class LanguageSwitcher extends ConsumerWidget {
         ),
       ),
       segments: [
-        ButtonSegment(value: const Locale('en'), label: Text(l10n.english)),
-        const ButtonSegment(value: Locale('ar'), label: Text('العربية')),
+        ButtonSegment(value: englishAppLocale, label: Text(l10n.english)),
+        ButtonSegment(value: arabicEgyptAppLocale, label: Text(l10n.arabic)),
       ],
-      selected: {Locale(locale.languageCode)},
+      selected: {normalizeAppLocale(locale)},
       onSelectionChanged: (selection) {
         ref.read(localeControllerProvider.notifier).setLocale(selection.first);
       },

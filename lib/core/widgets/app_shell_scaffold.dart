@@ -35,8 +35,6 @@ class AppShellScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.paddingOf(context).bottom;
-    final shellBottomPadding =
-        bottomInset + AppDimensions.floatingBottomNavContentPadding;
 
     return Scaffold(
       extendBody: true,
@@ -44,6 +42,7 @@ class AppShellScaffold extends StatelessWidget {
       backgroundColor: AppColors.background,
       endDrawer: endDrawer,
       body: Stack(
+        clipBehavior: Clip.none,
         children: [
           Positioned.fill(
             child: Column(
@@ -90,7 +89,6 @@ class AppShellScaffold extends StatelessWidget {
                         padding: EdgeInsetsDirectional.only(
                           start: AppSpacing.md,
                           end: AppSpacing.md,
-                          bottom: shellBottomPadding,
                         ),
                         child: child,
                       ),

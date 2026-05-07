@@ -1,4 +1,13 @@
-enum ReportFilterField { fromDate, toDate, walletId, type, active, period }
+enum ReportFilterField {
+  fromDate,
+  toDate,
+  branchId,
+  walletId,
+  type,
+  active,
+  period,
+  createdBy,
+}
 
 enum ReportType {
   transactionSummary,
@@ -25,15 +34,18 @@ extension ReportTypeX on ReportType {
       ReportType.transactionSummary => {
         ReportFilterField.fromDate,
         ReportFilterField.toDate,
+        ReportFilterField.branchId,
         ReportFilterField.walletId,
         ReportFilterField.type,
+        ReportFilterField.createdBy,
       },
       ReportType.transactionDetails => {
         ReportFilterField.fromDate,
         ReportFilterField.toDate,
+        ReportFilterField.branchId,
         ReportFilterField.walletId,
         ReportFilterField.type,
-        ReportFilterField.active,
+        ReportFilterField.createdBy,
       },
       ReportType.walletConsumption => {
         ReportFilterField.fromDate,
@@ -44,8 +56,8 @@ extension ReportTypeX on ReportType {
       ReportType.profitSummary => {
         ReportFilterField.fromDate,
         ReportFilterField.toDate,
+        ReportFilterField.branchId,
         ReportFilterField.walletId,
-        ReportFilterField.active,
       },
       ReportType.transactionTimeAggregation => {
         ReportFilterField.fromDate,
@@ -53,6 +65,16 @@ extension ReportTypeX on ReportType {
         ReportFilterField.walletId,
         ReportFilterField.period,
       },
+    };
+  }
+
+  bool get isVisibleInProduction {
+    return switch (this) {
+      ReportType.transactionSummary => true,
+      ReportType.transactionDetails => true,
+      ReportType.profitSummary => true,
+      ReportType.walletConsumption => false,
+      ReportType.transactionTimeAggregation => false,
     };
   }
 }

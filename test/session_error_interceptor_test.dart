@@ -43,6 +43,7 @@ void main() {
         SessionErrorInterceptor(
           exceptionMapper: const ApiExceptionMapper(),
           onSessionInvalidated: authController.handleSessionInvalidation,
+          onSubscriptionExpired: authController.handleSubscriptionExpired,
         ),
       );
 
@@ -106,6 +107,7 @@ void main() {
               ),
             );
           },
+          onSubscriptionExpired: (_) async {},
         ),
       );
 
@@ -164,6 +166,14 @@ class _FakeAuthRepository implements AuthRepository {
   Future<Session> login({required String username, required String password}) {
     throw UnimplementedError();
   }
+
+  @override
+  Future<Session> refreshSession({Session? currentSession}) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> saveSession(Session session) async {}
 
   @override
   Future<void> logout() async {

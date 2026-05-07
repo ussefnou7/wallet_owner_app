@@ -13,6 +13,8 @@ class CompactTransactionListItem extends StatelessWidget {
     required this.isCredit,
     required this.typeLabel,
     required this.recordedAt,
+    this.subtitle,
+    this.description,
     this.createdByUsername,
     this.onTap,
     this.wrapInCard = false,
@@ -24,6 +26,8 @@ class CompactTransactionListItem extends StatelessWidget {
   final bool isCredit;
   final String typeLabel;
   final DateTime? recordedAt;
+  final String? subtitle;
+  final String? description;
   final String? createdByUsername;
   final VoidCallback? onTap;
   final bool wrapInCard;
@@ -32,11 +36,15 @@ class CompactTransactionListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = appL10n(context);
     final locale = Localizations.localeOf(context).languageCode;
-    final subtitle = recordedAt == null
+    final resolvedSubtitle = subtitle?.trim().isNotEmpty == true
+        ? subtitle!.trim()
+        : recordedAt == null
         ? l10n.notAvailable
         : AppDateFormatter.smart(recordedAt!, locale: locale);
     final creator = createdByUsername?.trim();
     final showCreator = creator != null && creator.isNotEmpty;
+    final note = description?.trim();
+    final showDescription = note != null && note.isNotEmpty;
 
     final content = Material(
       color: Colors.transparent,
@@ -74,11 +82,22 @@ class CompactTransactionListItem extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      subtitle,
+                      resolvedSubtitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
+                    if (showDescription) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        note,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
                     if (showCreator) ...[
                       const SizedBox(height: 2),
                       Text(

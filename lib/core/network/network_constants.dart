@@ -3,17 +3,24 @@ abstract final class NetworkConstants {
   static const authorizationHeader = 'Authorization';
   static const bearerPrefix = 'Bearer';
   static const authLoginPath = '/api/v1/auth/login';
+  static const authMePath = '/api/v1/auth/me';
   static const authForgotPasswordPath = '/api/v1/auth/forgot-password';
   static const publicAuthPaths = {authLoginPath, authForgotPasswordPath};
   static const walletsPath = '/api/v1/wallets';
+  static const walletOptionsPath = '$walletsPath/options';
   static const transactionsPath = '/api/v1/transactions';
   static const usersPath = '/api/v1/users';
   static const mePasswordPath = '/api/v1/auth/me/password';
   static const branchesPath = '/api/v1/branches';
   static const reportsDashboardOverviewPath =
       '/api/v1/reports/dashboard/overview';
+  static const reportsUserDashboardPath = '/api/v1/reports/dashboard/me';
   static const reportsTransactionsSummaryPath =
       '/api/v1/reports/transactions/summary';
+  static const reportsWalletsProfitSummaryPath =
+      '/api/v1/reports/profit/summary';
+  static const reportsUsersPerformancePath =
+      '/api/v1/reports/users/performance';
   static const supportTicketsPath = '/api/v1/support/tickets';
   static const renewalRequestsPath = '/api/v1/renewal-requests';
   static const notificationsPath = '/api/v1/notifications';
@@ -23,6 +30,12 @@ abstract final class NetworkConstants {
   static const notificationsReadAllPath = '$notificationsPath/read-all';
 
   static String branchPath(String branchId) => '$branchesPath/$branchId';
+
+  static String walletsByBranchPath(String branchId) =>
+      '$walletsPath/branch/$branchId';
+
+  static String walletOptionsPathWithBranch(String branchId) =>
+      '$walletOptionsPath?branchId=$branchId';
 
   static String userPath(String userId) => '$usersPath/$userId';
 

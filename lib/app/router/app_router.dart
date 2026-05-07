@@ -13,7 +13,11 @@ import '../../features/dashboard/presentation/pages/owner_dashboard_page.dart';
 import '../../features/dashboard/presentation/pages/user_dashboard_page.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/plans/presentation/pages/plans_page.dart';
-import '../../features/reports/presentation/pages/reports_page.dart';
+import '../../features/reports/presentation/pages/profit_summary_page.dart';
+import '../../features/reports/presentation/pages/reports_home_page.dart';
+import '../../features/reports/presentation/pages/transaction_details_page.dart';
+import '../../features/reports/presentation/pages/transactions_summary_page.dart';
+import '../../features/reports/presentation/pages/user_performance_page.dart';
 import '../../features/settings/presentation/pages/about_page.dart';
 import '../../features/settings/presentation/pages/create_renewal_request_page.dart';
 import '../../features/settings/presentation/pages/create_support_ticket_page.dart';
@@ -22,6 +26,7 @@ import '../../features/settings/presentation/pages/request_renewal_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/settings/presentation/pages/support_page.dart';
 import '../../features/settings/presentation/pages/terms_and_conditions_page.dart';
+import '../../features/subscription/presentation/pages/subscription_expired_page.dart';
 import '../../features/transactions/presentation/pages/create_transaction_page.dart';
 import '../../features/transactions/presentation/pages/transactions_page.dart';
 import '../../features/users/presentation/pages/users_page.dart';
@@ -42,6 +47,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final isSplash = location == AppRoutes.splash;
       final isLoggingIn = location == AppRoutes.login;
       final isUnauthorizedRole = location == AppRoutes.unauthorizedRole;
+      final isSubscriptionExpiredRoute =
+          location == AppRoutes.subscriptionExpired;
 
       if (isLoading) {
         return isSplash ? null : AppRoutes.splash;
@@ -58,12 +65,28 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return isUnauthorizedRole ? null : AppRoutes.unauthorizedRole;
       }
 
+      if (session.isSubscriptionExpired) {
+        if (_isAllowedWhileExpired(location, session)) {
+          return null;
+        }
+
+        return AppRoutes.subscriptionExpired;
+      }
+
+      if (isSubscriptionExpiredRoute) {
+        return _homeForSession(session);
+      }
+
+      if (location == AppRoutes.subscriptionRenewalRequest) {
+        return _homeForSession(session);
+      }
+
       if (isUnauthorizedRole) {
-        return _homeForRole(session.role);
+        return _homeForSession(session);
       }
 
       if (isSplash || isLoggingIn) {
-        return _homeForRole(session.role);
+        return _homeForSession(session);
       }
 
       if (session.role == UserRole.owner && _isUserRoute(location)) {
@@ -71,6 +94,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       }
 
       if (session.role == UserRole.user && _isOwnerRoute(location)) {
+        return AppRoutes.userDashboard;
+      }
+
+      if (session.role == UserRole.user && AppRoutes.isReportsRoute(location)) {
         return AppRoutes.userDashboard;
       }
 
@@ -91,6 +118,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.unauthorizedRole,
         name: 'unauthorized-role',
         builder: (context, state) => const UnauthorizedRolePage(),
+      ),
+      GoRoute(
+        path: AppRoutes.subscriptionExpired,
+        name: 'subscription-expired',
+        builder: (context, state) => const SubscriptionExpiredPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.subscriptionRenewalRequest,
+        name: 'subscription-renewal-request',
+        builder: (context, state) => const CreateRenewalRequestPage(
+          standalone: true,
+          fallbackRoute: AppRoutes.subscriptionExpired,
+        ),
       ),
       ShellRoute(
         builder: (context, state, child) {
@@ -123,7 +163,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.ownerReports,
             name: 'owner-reports',
-            builder: (context, state) => const ReportsPage(),
+            builder: (context, state) => const ReportsHomePage(),
+            routes: [
+              GoRoute(
+                path: 'transactions-summary',
+                name: 'transactions-summary-report',
+                builder: (context, state) => const TransactionsSummaryPage(),
+              ),
+              GoRoute(
+                path: 'profit-summary',
+                name: 'profit-summary-report',
+                builder: (context, state) => const ProfitSummaryPage(),
+              ),
+              GoRoute(
+                path: 'user-performance',
+                name: 'user-performance-report',
+                builder: (context, state) => const UserPerformancePage(),
+              ),
+              GoRoute(
+                path: 'transaction-details',
+                name: 'transaction-details-report',
+                builder: (context, state) => const TransactionDetailsPage(),
+              ),
+            ],
           ),
           GoRoute(
             path: AppRoutes.ownerUsers,
@@ -239,10 +301,23 @@ String _homeForRole(UserRole role) {
   };
 }
 
+String _homeForSession(Session session) {
+  if (session.isSystemAdmin) {
+    return AppRoutes.ownerDashboard;
+  }
+
+  return _homeForRole(session.role);
+}
+
 bool _isOwnerRoute(String location) {
   return location == '/owner' || location.startsWith('/owner/');
 }
 
 bool _isUserRoute(String location) {
   return location == '/user' || location.startsWith('/user/');
+}
+
+bool _isAllowedWhileExpired(String location, Session session) {
+  return location == AppRoutes.subscriptionExpired ||
+      (location == AppRoutes.subscriptionRenewalRequest && session.isOwner);
 }
